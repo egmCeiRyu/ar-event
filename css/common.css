@@ -1,9 +1,13 @@
 body{
+
     margin:0;
-    background:#efefef;
+
+    background:#dfe5d8;
 
     display:flex;
+
     justify-content:center;
+
 }
 
 .app{
@@ -15,7 +19,6 @@ body{
 
     background:white;
 
-    overflow:hidden;
+    padding:25px;
 
-    box-shadow:0 0 20px rgba(0,0,0,.15);
 }
