@@ -1,12 +1,36 @@
-const USER_ID = "c35d54ae-18c7-4b2f-9338-b0b290f9943a";
-
 const stampMap = {
     4: "stamp01",
     5: "stamp02",
     6: "stamp03"
 };
 
+let USER_ID = null;
+let confettiPlayed = false;
+
+async function initStampBook() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+
+    if (!session) {
+        const { data, error } = await supabaseClient.auth.signInAnonymously();
+
+        if (error) {
+            console.error("Erro no anonymous login:", error);
+            return;
+        }
+
+        USER_ID = data.user.id;
+    } else {
+        USER_ID = session.user.id;
+    }
+
+    console.log("USER_ID:", USER_ID);
+
+    await loadStamps();
+}
+
 async function loadStamps() {
+    if (!USER_ID) return;
+
     const { data, error } = await supabaseClient
         .from("user_stamps")
         .select("character_id")
@@ -16,8 +40,6 @@ async function loadStamps() {
         console.error("Erro ao carregar stamps:", error);
         return;
     }
-
-    console.log("DATA:", data);
 
     document.querySelectorAll(".stamp").forEach(stamp => {
         stamp.classList.add("locked");
@@ -42,7 +64,7 @@ async function loadStamps() {
 
     document.getElementById("progressText").innerText = `${count} / 3 stamps`;
 
-        if (count >= 3) {
+    if (count >= 3) {
         document.getElementById("completeBox").style.display = "block";
         launchConfetti();
     } else {
@@ -51,21 +73,19 @@ async function loadStamps() {
 }
 
 async function resetStamps() {
+    if (!USER_ID) return;
+
     await supabaseClient
         .from("user_stamps")
         .delete()
         .eq("user_id", USER_ID);
 
-    loadStamps();
+    confettiPlayed = false;
+    await loadStamps();
 }
 
-loadStamps();
-
-let confettiPlayed = false;
-
-function launchConfetti(){
-
-    if(confettiPlayed) return;
+function launchConfetti() {
+    if (confettiPlayed) return;
 
     confettiPlayed = true;
 
@@ -75,11 +95,13 @@ function launchConfetti(){
         origin: { y: 0.6 }
     });
 
-    setTimeout(()=>{
+    setTimeout(() => {
         confetti({
             particleCount: 80,
             spread: 100,
             origin: { y: 0.7 }
         });
-    },400);
+    }, 400);
 }
+
+initStampBook();
