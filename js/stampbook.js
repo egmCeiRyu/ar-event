@@ -31,7 +31,6 @@ async function loadStamps() {
 
         if (stampId) {
             const stamp = document.getElementById(stampId);
-            console.log("Desbloqueando:", stampId, stamp);
 
             if (stamp) {
                 stamp.classList.remove("locked");
@@ -45,15 +44,10 @@ async function loadStamps() {
 }
 
 async function resetStamps() {
-    const { error } = await supabaseClient
+    await supabaseClient
         .from("user_stamps")
         .delete()
         .eq("user_id", USER_ID);
-
-    if (error) {
-        console.error("Erro ao resetar stamps:", error);
-        return;
-    }
 
     loadStamps();
 }
