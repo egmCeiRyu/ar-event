@@ -7,7 +7,12 @@ const supabaseClient = supabase.createClient(
 );
 
 async function initAnonymousUser() {
-  const { data: sessionData } = await supabaseClient.auth.getSession();
+  console.log("Iniciando login anônimo...");
+
+  const { data: sessionData, error: sessionError } =
+    await supabaseClient.auth.getSession();
+
+  console.log("Session:", sessionData, sessionError);
 
   if (sessionData.session) {
     console.log("Usuário já logado:", sessionData.session.user.id);
@@ -15,6 +20,8 @@ async function initAnonymousUser() {
   }
 
   const { data, error } = await supabaseClient.auth.signInAnonymously();
+
+  console.log("Anonymous result:", data, error);
 
   if (error) {
     console.error("Erro no login anônimo:", error);
