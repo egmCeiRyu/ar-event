@@ -1,51 +1,138 @@
-.stamp{
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:linear-gradient(180deg,#fff7e8,#ffffff);
+    min-height:100vh;
+    text-align:center;
+    color:#333;
+}
 
-background:#FFF8F8;
+.container{
+    padding:30px;
+}
 
-border:3px solid #FFC4D6;
+h1{
+    margin-bottom:5px;
+}
 
-border-radius:18px;
+.subtitle{
+    margin-bottom:30px;
+    color:#666;
+}
 
-padding:10px;
+.stamp-grid{
 
-box-shadow:0 4px 10px rgba(0,0,0,.08);
-
-text-align:center;
+    display:flex;
+    justify-content:center;
+    gap:20px;
+    flex-wrap:wrap;
 
 }
 
-.stamp img{
+.stamp-card{
 
-width:80px;
-
-height:80px;
-
-border-radius:50%;
-
-background:white;
-
-padding:8px;
+    width:170px;
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    box-shadow:0 6px 15px rgba(0,0,0,.15);
 
 }
 
-.stamp-name{
+.stamp-card img{
 
-margin-top:8px;
-
-font-size:16px;
-
-font-weight:bold;
-
-color:#444;
+    width:130px;
+    transition:.3s;
 
 }
 
-.lock{
+.locked{
 
-background:#f1f1f1;
+    opacity:.15;
+    filter:grayscale(100%);
 
-border:3px dashed #bbb;
+}
 
-color:#aaa;
+.unlocked{
+
+    opacity:1;
+    filter:none;
+
+}
+
+.stamp-label{
+
+    margin-top:10px;
+    font-weight:bold;
+
+}
+
+.progress{
+
+    margin-top:30px;
+    font-size:20px;
+    font-weight:bold;
+
+}
+
+.complete-box{
+
+    display:none;
+    margin:30px auto;
+    max-width:320px;
+    background:#fff4d0;
+    border-radius:15px;
+    padding:20px;
+    border:2px solid orange;
+    font-size:22px;
+    font-weight:bold;
+
+}
+
+.buttons{
+
+    margin-top:30px;
+
+}
+
+button{
+
+    border:none;
+    padding:12px 20px;
+    border-radius:30px;
+    cursor:pointer;
+    color:white;
+    margin:5px;
+    font-weight:bold;
+
+}
+
+.back{
+
+    background:#555;
+
+}
+
+.reset{
+
+    background:#ff5555;
+
+}
+
+@keyframes pop{
+
+    from{
+        transform:scale(.5);
+    }
+
+    to{
+        transform:scale(1);
+    }
+
+}
+
+.unlocked{
+
+    animation:pop .3s;
 
 }

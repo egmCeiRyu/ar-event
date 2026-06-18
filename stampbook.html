@@ -1,45 +1,65 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="pt-BR">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stamp Book</title>
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
-<link rel="stylesheet" href="/css/common.css">
-<link rel="stylesheet" href="/css/stampbook.css">
-
-<title>Stamp Book</title>
-
+    <link rel="stylesheet" href="css/stampbook.css">
 </head>
 
 <body>
 
-<div class="app">
+    <div class="container">
 
-<div class="page">
+        <h1>Stamp Book</h1>
+        <div class="subtitle">
+            キャラクタースタンプを集めよう！
+        </div>
 
-<h1>Stamp Book</h1>
+        <div class="stamp-grid">
 
-<p class="subtitle">
-集めたキャラクター
-</p>
+            <div class="stamp-card">
+                <img id="stamp01" class="locked" src="assets/stamps/stamp01.png">
+                <div class="stamp-label">Stamp 01</div>
+            </div>
 
-<div id="stampGrid" class="stamp-grid">
+            <div class="stamp-card">
+                <img id="stamp02" class="locked" src="assets/stamps/stamp02.png">
+                <div class="stamp-label">Stamp 02</div>
+            </div>
 
-</div>
+            <div class="stamp-card">
+                <img id="stamp03" class="locked" src="assets/stamps/stamp03.png">
+                <div class="stamp-label">Stamp 03</div>
+            </div>
 
-<a href="index.html" class="homeBtn">
-← Home
-</a>
+        </div>
 
-</div>
+        <div id="progressText" class="progress">
+            0 / 3 stamps
+        </div>
 
-</div>
+        <div id="completeBox" class="complete-box">
+            🎉 COMPLETE!<br>
+            3つのスタンプを集めました！
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-<script src="js/stampbook.js"></script>
+        <div class="buttons">
+            <button class="back" onclick="location.href='character.html'">
+                Back
+            </button>
+
+            <button class="reset" onclick="resetStamps()">
+                Reset Test
+            </button>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/stampbook.js"></script>
 
 </body>
 

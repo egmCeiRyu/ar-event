@@ -1,15 +1,55 @@
-const grid=document.getElementById("stampGrid");
+const SUPABASE_URL = "https://btzheezlvxkyemkactvj.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_vOhFbevQUsseGs-oQgm0JQ_8t6Oi1Sh";
 
-const totalCharacters=9;
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-for(let i=1;i<=totalCharacters;i++){
+const USER_ID = "test_user";
 
-const div=document.createElement("div");
+async function loadStamps() {
+  const { data, error } = await supabaseClient
+    .from("user_stamps")
+    .select("character_code")
+    .eq("user_id", USER_ID);
 
-div.className="stamp";
+  if (error) {
+    console.error(error);
+    return;
+  }
 
-div.innerHTML="?";
+  document.querySelectorAll(".stamp").forEach(stamp => {
+    stamp.classList.add("locked");
+    stamp.classList.remove("unlocked");
+  });
 
-grid.appendChild(div);
+  data.forEach(row => {
+    if (row.character_code === "marker01") unlockStamp("stamp01");
+    if (row.character_code === "marker02") unlockStamp("stamp02");
+    if (row.character_code === "marker03") unlockStamp("stamp03");
+  });
 
+  if (data.length >= 3) {
+    alert("Complete! Prêmio desbloqueado!");
+  }
 }
+
+function unlockStamp(stampId) {
+  const stamp = document.getElementById(stampId);
+  stamp.classList.remove("locked");
+  stamp.classList.add("unlocked");
+}
+
+async function resetStamps() {
+  const { error } = await supabaseClient
+    .from("user_stamps")
+    .delete()
+    .eq("user_id", USER_ID);
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  loadStamps();
+}
+
+loadStamps();
