@@ -1,0 +1,61 @@
+.page-title{
+
+    font-size:30px;
+    font-weight:bold;
+
+    text-align:center;
+
+    margin-top:30px;
+    margin-bottom:40px;
+
+}
+
+.marker-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:20px;
+
+}
+
+.marker-btn{
+
+    height:70px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#ef2b2b;
+
+    color:white;
+
+    font-size:22px;
+
+    cursor:pointer;
+
+}
+
+.marker-btn:hover{
+
+    opacity:.9;
+
+}
+
+.back-btn{
+
+    display:block;
+
+    margin-top:50px;
+
+    text-align:center;
+
+    text-decoration:none;
+
+    color:#444;
+
+    font-size:20px;
+
+}

@@ -1,20 +1,38 @@
-<!DOCTYPE html><html><head><meta charset='UTF-8'>
-<meta name='viewport' content='width=device-width,initial-scale=1'>
-<link rel='stylesheet' href='css/style.css'><title>Character Marker</title></head>
-<body><div class='container'><h1>Character Marker</h1></div>
-        <button onclick="processMarker('marker01')">
-            Test Marker 01
+<body>
+
+<div class="app">
+
+    <div class="page-title">
+        Character Marker
+    </div>
+
+    <div class="marker-list">
+
+        <button class="marker-btn"
+            onclick="processMarker('marker01')">
+            Marker 01
         </button>
 
-        <button onclick="processMarker('marker02')">
-            Test Marker 02
+        <button class="marker-btn"
+            onclick="processMarker('marker02')">
+            Marker 02
         </button>
 
-        <button onclick="processMarker('marker03')">
-            Test Marker 03
+        <button class="marker-btn"
+            onclick="processMarker('marker03')">
+            Marker 03
         </button>
 
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-        <script src="js/supabase.js"></script>
-        <script src="js/stamp.js"></script>
-</body></html>
+    </div>
+
+    <a href="index.html" class="back-btn">
+        ← Home
+    </a>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/stamp.js"></script>
+
+</body>
