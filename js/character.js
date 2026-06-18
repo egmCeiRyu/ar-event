@@ -31,5 +31,28 @@ async function processMarker(markerCode) {
     }
 
     alert("スタンプをゲットしました！🎉");
-    window.location.href = "stampbook.html";
+    showStampPopup();
+
+    setTimeout(()=>{
+
+        window.location.href="stampbook.html";
+
+    },1800);
+    }
+
+function showStampPopup(){
+
+    const popup=document.getElementById("stampPopup");
+
+    popup.style.display="block";
+
+    const sound=new Audio("assets/sounds/stamp.mp3");
+    sound.play();
+
+    setTimeout(()=>{
+
+        popup.style.display="none";
+
+    },1800);
+
 }
