@@ -3,7 +3,7 @@ const SUPABASE_ANON_KEY = "sb_publishable_vOhFbevQUsseGs-oQgm0JQ_8t6Oi1Sh";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const USER_ID = "test_user";
+const USER_ID = "00000000-0000-0000-0000-000000000001";
 
 const stampMap = {
     4: "stamp01",
