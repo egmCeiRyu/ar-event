@@ -1,0 +1,8 @@
+.important{
+    border:2px solid #ff9800;
+    background:#fff8e8;
+}
+
+.important strong{
+    color:#d35400;
+}
