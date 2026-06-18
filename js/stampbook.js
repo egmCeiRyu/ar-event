@@ -1,9 +1,4 @@
-const SUPABASE_URL = "https://btzheezlvxkyemkactvj.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_vOhFbevQUsseGs-oQgm0JQ_8t6Oi1Sh";
-
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-const USER_ID = "00000000-0000-0000-0000-000000000001";
+const USER_ID = "c35d54ae-18c7-4b2f-9338-b0b290f9943a";
 
 const stampMap = {
     4: "stamp01",
@@ -22,29 +17,31 @@ async function loadStamps() {
         return;
     }
 
+    console.log("DATA:", data);
+
     document.querySelectorAll(".stamp").forEach(stamp => {
         stamp.classList.add("locked");
         stamp.classList.remove("unlocked");
     });
 
-    let unlockedCount = 0;
+    let count = 0;
 
     data.forEach(item => {
         const stampId = stampMap[item.character_id];
 
         if (stampId) {
             const stamp = document.getElementById(stampId);
-            stamp.classList.remove("locked");
-            stamp.classList.add("unlocked");
-            unlockedCount++;
+            console.log("Desbloqueando:", stampId, stamp);
+
+            if (stamp) {
+                stamp.classList.remove("locked");
+                stamp.classList.add("unlocked");
+                count++;
+            }
         }
     });
 
-    document.getElementById("progressText").innerText = `${unlockedCount} / 3 stamps`;
-
-    if (unlockedCount >= 3) {
-        alert("Complete! Prêmio desbloqueado!");
-    }
+    document.getElementById("progressText").innerText = `${count} / 3 stamps`;
 }
 
 async function resetStamps() {
