@@ -1,19 +1,33 @@
 const SUPABASE_URL = "https://btzheezlvxkyemkactvj.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_vOhFbevQUsseGs-oQgm0JQ_8t6Oi1Sh";
 
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const USER_ID = "00000000-0000-0000-0000-000000000001";
+// Use o mesmo user_id que aparece na tabela user_stamps
+const USER_ID = "c35d54ae-18c7-4b2f-9338-b0b29...";
+
+const characterMap = {
+    marker01: 4,
+    marker02: 5,
+    marker03: 6
+};
 
 async function processMarker(markerCode) {
+    const characterId = characterMap[markerCode];
+
+    if (!characterId) {
+        alert("Marker inválido");
+        return;
+    }
+
     const { error } = await supabaseClient
         .from("user_stamps")
         .upsert({
             user_id: USER_ID,
-            character_code: markerCode,
-            unlocked_at: new Date().toISOString()
+            character_id: characterId,
+            acquired_at: new Date().toISOString()
         }, {
-            onConflict: "user_id,character_code"
+            onConflict: "user_id,character_id"
         });
 
     if (error) {
@@ -23,7 +37,5 @@ async function processMarker(markerCode) {
     }
 
     alert("Stamp desbloqueado!");
-
-    // opcional: ir direto para o Stamp Book
     window.location.href = "stampbook.html";
 }
