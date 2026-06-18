@@ -136,3 +136,19 @@ button{
     animation:pop .3s;
 
 }
+
+.gift-button{
+    display:inline-block;
+    margin-top:15px;
+    padding:14px 24px;
+    border-radius:999px;
+    background:#ff6b6b;
+    color:white;
+    text-decoration:none;
+    font-weight:bold;
+    box-shadow:0 6px 15px rgba(0,0,0,.2);
+}
+
+.gift-button:hover{
+    transform:scale(1.05);
+}

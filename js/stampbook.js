@@ -41,6 +41,13 @@ async function loadStamps() {
     });
 
     document.getElementById("progressText").innerText = `${count} / 3 stamps`;
+
+        if (count >= 3) {
+        document.getElementById("completeBox").style.display = "block";
+        launchConfetti();
+    } else {
+        document.getElementById("completeBox").style.display = "none";
+    }
 }
 
 async function resetStamps() {
@@ -53,3 +60,26 @@ async function resetStamps() {
 }
 
 loadStamps();
+
+let confettiPlayed = false;
+
+function launchConfetti(){
+
+    if(confettiPlayed) return;
+
+    confettiPlayed = true;
+
+    confetti({
+        particleCount: 120,
+        spread: 80,
+        origin: { y: 0.6 }
+    });
+
+    setTimeout(()=>{
+        confetti({
+            particleCount: 80,
+            spread: 100,
+            origin: { y: 0.7 }
+        });
+    },400);
+}
