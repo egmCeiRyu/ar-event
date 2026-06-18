@@ -1,0 +1,21 @@
+body{
+    margin:0;
+    background:#efefef;
+
+    display:flex;
+    justify-content:center;
+}
+
+.app{
+
+    width:100%;
+    max-width:430px;
+
+    min-height:100vh;
+
+    background:white;
+
+    overflow:hidden;
+
+    box-shadow:0 0 20px rgba(0,0,0,.15);
+}
