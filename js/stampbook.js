@@ -6,15 +6,15 @@ const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const USER_ID = "test_user";
 
 const stampMap = {
-    marker01: "stamp01",
-    marker02: "stamp02",
-    marker03: "stamp03"
+    4: "stamp01",
+    5: "stamp02",
+    6: "stamp03"
 };
 
 async function loadStamps() {
     const { data, error } = await supabaseClient
         .from("user_stamps")
-        .select("character_code")
+        .select("character_id")
         .eq("user_id", USER_ID);
 
     if (error) {
@@ -22,7 +22,6 @@ async function loadStamps() {
         return;
     }
 
-    // Primeiro trava todos os stamps
     document.querySelectorAll(".stamp").forEach(stamp => {
         stamp.classList.add("locked");
         stamp.classList.remove("unlocked");
@@ -30,30 +29,22 @@ async function loadStamps() {
 
     let unlockedCount = 0;
 
-    // Depois desbloqueia somente os stamps encontrados no banco
     data.forEach(item => {
-        const stampId = stampMap[item.character_code];
+        const stampId = stampMap[item.character_id];
 
         if (stampId) {
-            unlockStamp(stampId);
+            const stamp = document.getElementById(stampId);
+            stamp.classList.remove("locked");
+            stamp.classList.add("unlocked");
             unlockedCount++;
         }
     });
 
-    console.log("Stamps desbloqueados:", unlockedCount);
+    document.getElementById("progressText").innerText = `${unlockedCount} / 3 stamps`;
 
     if (unlockedCount >= 3) {
         alert("Complete! Prêmio desbloqueado!");
     }
-}
-
-function unlockStamp(stampId) {
-    const stamp = document.getElementById(stampId);
-
-    if (!stamp) return;
-
-    stamp.classList.remove("locked");
-    stamp.classList.add("unlocked");
 }
 
 async function resetStamps() {
