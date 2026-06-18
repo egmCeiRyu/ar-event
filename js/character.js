@@ -30,6 +30,6 @@ async function processMarker(markerCode) {
         return;
     }
 
-    alert("Stamp desbloqueado!");
+    alert("スタンプをゲットしました！🎉");
     window.location.href = "stampbook.html";
 }
