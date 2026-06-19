@@ -15,31 +15,36 @@ body {
     touch-action: none;
 }
 
-#app {
+#phone {
     position: fixed;
     inset: 0;
-    width: 100vw;
-    height: 100vh;
     overflow: hidden;
     background: #000;
 }
 
-#container {
+#arContainer {
     position: absolute;
     inset: 0;
-    width: 100%;
-    height: 100%;
     overflow: hidden;
     background: #000;
 }
 
-#container canvas,
-#container video {
+#arContainer video {
     position: absolute !important;
     inset: 0 !important;
     width: 100% !important;
     height: 100% !important;
     object-fit: cover !important;
+    z-index: 1 !important;
+}
+
+#arContainer canvas {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background: transparent !important;
+    z-index: 2 !important;
 }
 
 #scanText {
@@ -48,80 +53,121 @@ body {
     left: 50%;
     transform: translateX(-50%);
     z-index: 20;
-    background: rgba(0, 0, 0, 0.65);
+    background: rgba(0,0,0,.65);
     color: #fff;
-    padding: 10px 18px;
+    padding: 9px 18px;
     border-radius: 999px;
     font-size: 13px;
     font-weight: 700;
     white-space: nowrap;
 }
 
-.scan-frame {
+#scanFrame {
     position: absolute;
     left: 50%;
     top: 46%;
-    width: 76%;
-    height: 36%;
+    width: 72%;
+    height: 38%;
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 15;
 }
 
-
-.scan-frame::before,
-.scan-frame::after {
+.corner {
+    position: absolute;
     width: 34px;
     height: 34px;
-    border-color: #fff;
+    border-color: rgba(255,255,255,.95);
     border-style: solid;
 }
 
-.scan-frame::before {
+.corner.tl {
     left: 0;
     top: 0;
     border-width: 6px 0 0 6px;
 }
 
-.scan-frame::after {
+.corner.tr {
+    right: 0;
+    top: 0;
+    border-width: 6px 6px 0 0;
+}
+
+.corner.bl {
+    left: 0;
+    bottom: 0;
+    border-width: 0 0 6px 6px;
+}
+
+.corner.br {
     right: 0;
     bottom: 0;
     border-width: 0 6px 6px 0;
 }
 
 #homeButton {
+    position: absolute;
     left: 22px;
-    bottom: 34px;
-}
-
-#homeButton a {
-    width: 54px;
-    height: 54px;
-    font-size: 25px;
+    bottom: 30px;
+    width: 56px;
+    height: 56px;
+    z-index: 30;
+    border-radius: 50%;
+    background: rgba(255,255,255,.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    font-size: 26px;
+    box-shadow: 0 5px 14px rgba(0,0,0,.28);
+    backdrop-filter: blur(8px);
 }
 
 #captureButton {
+    position: absolute;
     right: 22px;
-    bottom: 32px;
-    width: 68px;
-    height: 68px;
+    bottom: 26px;
+    width: 70px;
+    height: 70px;
+    z-index: 30;
+    border-radius: 50%;
+    border: 5px solid rgba(255,255,255,.95);
+    background: rgba(255,255,255,.35);
+    cursor: pointer;
+    box-shadow: 0 5px 14px rgba(0,0,0,.28);
 }
 
 #captureButton::after {
-    width: 46px;
-    height: 46px;
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 48px;
+    height: 48px;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 50%;
 }
 
-#captureButton:active,
-#homeButton a:active {
-    transform: scale(0.94);
+#homeButton:active,
+#captureButton:active {
+    transform: scale(.94);
 }
 
 #debugText {
+    position: absolute;
+    left: 14px;
+    top: 60px;
+    z-index: 50;
+    color: #fff;
+    background: rgba(0,0,0,.65);
+    padding: 6px 10px;
+    border-radius: 8px;
+    font-size: 11px;
     display: none;
 }
 
-/* PC: preview em formato smartphone */
+/* PC Preview */
 @media (min-width: 768px) {
     body {
         display: flex;
@@ -129,7 +175,7 @@ body {
         justify-content: center;
     }
 
-    #app {
+    #phone {
         position: relative;
         width: 390px;
         height: 844px;
@@ -137,6 +183,6 @@ body {
         aspect-ratio: 390 / 844;
         border-radius: 28px;
         overflow: hidden;
-        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+        box-shadow: 0 18px 50px rgba(0,0,0,.35);
     }
 }

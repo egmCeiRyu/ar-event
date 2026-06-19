@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-
     <title>AR Character</title>
 
     <link rel="stylesheet" href="css/character.css">
@@ -11,8 +10,8 @@
     <script type="importmap">
     {
         "imports": {
-            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+            "three": "https://cdn.jsdelivr.net/npm/three@0.156.1/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.156.1/examples/jsm/",
             "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
         }
     }
@@ -20,16 +19,19 @@
 </head>
 
 <body>
-    <div id="app">
-        <div id="container"></div>
+    <div id="phone">
+        <div id="arContainer"></div>
 
         <div id="scanText">スタンド画像をスキャンしてください</div>
 
-        <div class="scan-frame"></div>
-
-        <div id="homeButton">
-            <a href="index.html">🏠</a>
+        <div id="scanFrame">
+            <span class="corner tl"></span>
+            <span class="corner tr"></span>
+            <span class="corner bl"></span>
+            <span class="corner br"></span>
         </div>
+
+        <a id="homeButton" href="index.html">🏠</a>
 
         <button id="captureButton" aria-label="写真を撮る"></button>
 
@@ -38,5 +40,4 @@
 
     <script type="module" src="js/character.js"></script>
 </body>
-
 </html>
