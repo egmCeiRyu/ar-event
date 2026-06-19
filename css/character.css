@@ -61,7 +61,7 @@ body {
     display: none;
 }
 
-#scanFrame {
+/* #scanFrame {
     position: fixed;
     left: 50%;
     top: 50%;
@@ -71,7 +71,7 @@ body {
     z-index: 20;
     pointer-events: none;
     display: none;
-}
+} */
 
 .corner {
     position: absolute;
