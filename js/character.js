@@ -5,6 +5,8 @@ const debugText = document.getElementById("debugText");
 const scanText = document.getElementById("scanText");
 const scanFrame = document.getElementById("scanFrame");
 const captureButton = document.getElementById("captureButton");
+const stampMessage = document.getElementById("stampMessage");
+
 
 const targetList = [
     { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
@@ -48,7 +50,7 @@ async function saveCharacterStamp(characterId) {
     }
 
     if (existing) {
-        log("このスタンプはすでに取得済みです");
+        showStampMessage("このスタンプはすでに取得済みです");
         return;
     }
 
@@ -65,7 +67,7 @@ async function saveCharacterStamp(characterId) {
         return;
     }
 
-    log("スタンプをゲットしました！");
+    showStampMessage("スタンプをゲットしました！");
 }
 
 let rendererRef = null;
@@ -78,6 +80,17 @@ const zeroQuat = new THREE.Quaternion();
 function log(message) {
     console.log(message);
     if (debugText) debugText.textContent = message;
+}
+
+function showStampMessage(message) {
+    if (!stampMessage) return;
+
+    stampMessage.textContent = message;
+    stampMessage.style.display = "block";
+
+    setTimeout(() => {
+        stampMessage.style.display = "none";
+    }, 1800);
 }
 
 function setScanningUI(isScanning) {
@@ -271,7 +284,7 @@ async function startAR() {
                     scannedCharacters.add(characterId);
                     await saveCharacterStamp(characterId);
                 } else {
-                    log("このスタンプはすでに取得済みです");
+                    showStampMessage("このスタンプはすでに取得済みです");
                 }
             };
 
