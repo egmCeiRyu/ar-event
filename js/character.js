@@ -211,6 +211,16 @@ async function startAR() {
 
         await mindarThree.start();
 
+        setTimeout(() => {
+
+            const video = document.querySelector("#arContainer video");
+            const canvas = document.querySelector("#arContainer canvas");
+
+            if(video) video.style.pointerEvents = "none";
+            if(canvas) canvas.style.pointerEvents = "none";
+
+        },500);
+
         fixMindARVideoLayer();
         setTimeout(fixMindARVideoLayer, 500);
         setTimeout(fixMindARVideoLayer, 1500);
