@@ -17,7 +17,81 @@ const targetList = [
 
 const scannedCharacters = new Set();
 
+let rendererRef = null;
+let sceneRef = null;
+let cameraRef = null;
+let soundUnlocked = false;
+
+const zeroPos = new THREE.Vector3(0, 0, 0);
+const zeroQuat = new THREE.Quaternion();
+
+function log(message) {
+    console.log(message);
+    if (debugText) debugText.textContent = message;
+}
+
+function getSupabaseClient() {
+    return window.supabaseClient;
+}
+
+function unlockSound() {
+    if (!stampGetSound || soundUnlocked) return;
+
+    stampGetSound.muted = true;
+
+    stampGetSound.play()
+        .then(() => {
+            stampGetSound.pause();
+            stampGetSound.currentTime = 0;
+            stampGetSound.muted = false;
+            soundUnlocked = true;
+            console.log("Sound unlocked");
+        })
+        .catch(error => {
+            stampGetSound.muted = false;
+            console.log("Sound unlock failed:", error);
+        });
+}
+
+document.addEventListener("touchstart", unlockSound, { once: true });
+document.addEventListener("click", unlockSound, { once: true });
+
+function showStampMessage(message, playSound = false) {
+    if (!stampMessage) return;
+
+    stampMessage.textContent = message;
+    stampMessage.style.display = "block";
+
+    if (playSound && stampGetSound) {
+        stampGetSound.muted = false;
+        stampGetSound.volume = 1;
+        stampGetSound.pause();
+        stampGetSound.currentTime = 0;
+
+        stampGetSound.play().catch(error => {
+            console.log("Sound play failed:", error);
+        });
+    }
+
+    setTimeout(() => {
+        stampMessage.style.display = "none";
+    }, 1800);
+}
+
+function setScanningUI(isScanning) {
+    if (scanText) scanText.style.display = isScanning ? "block" : "none";
+    if (scanFrame) scanFrame.style.display = isScanning ? "block" : "none";
+}
+
 async function getCurrentUser() {
+    const supabaseClient = getSupabaseClient();
+
+    if (!supabaseClient) {
+        console.error("supabaseClient is not defined");
+        showStampMessage("通信エラー");
+        return null;
+    }
+
     const { data: { session } } = await supabaseClient.auth.getSession();
 
     if (session?.user) return session.user;
@@ -26,7 +100,7 @@ async function getCurrentUser() {
 
     if (error) {
         console.error("Anonymous login error:", error);
-        log("ログインエラー");
+        showStampMessage("ログインエラー");
         return null;
     }
 
@@ -34,9 +108,10 @@ async function getCurrentUser() {
 }
 
 async function saveCharacterStamp(characterId) {
+    const supabaseClient = getSupabaseClient();
     const user = await getCurrentUser();
 
-    if (!user) {
+    if (!supabaseClient || !user) {
         showStampMessage("ログインエラー");
         return false;
     }
@@ -72,44 +147,8 @@ async function saveCharacterStamp(characterId) {
         return false;
     }
 
-    showStampMessage("スタンプをゲットしました！");
+    showStampMessage("スタンプをゲットしました！", true);
     return true;
-}
-
-let rendererRef = null;
-let sceneRef = null;
-let cameraRef = null;
-
-const zeroPos = new THREE.Vector3(0, 0, 0);
-const zeroQuat = new THREE.Quaternion();
-
-function log(message) {
-    console.log(message);
-    if (debugText) debugText.textContent = message;
-}
-
-
-
-function showStampMessage(message, playSound = false) {
-    if (!stampMessage) return;
-
-    stampMessage.textContent = message;
-    stampMessage.style.display = "block";
-
-    if (playSound && stampGetSound) {
-        stampGetSound.pause();
-        stampGetSound.currentTime = 0;
-        stampGetSound.play().catch(() => {});
-    }
-
-    setTimeout(() => {
-        stampMessage.style.display = "none";
-    }, 1800);
-}
-
-function setScanningUI(isScanning) {
-    if (scanText) scanText.style.display = isScanning ? "block" : "none";
-    if (scanFrame) scanFrame.style.display = isScanning ? "block" : "none";
 }
 
 function loadTexture(path) {
@@ -203,6 +242,8 @@ function getCompositedCanvas() {
 
 async function capturePhoto() {
     try {
+        unlockSound();
+
         if (rendererRef && sceneRef && cameraRef) {
             rendererRef.render(sceneRef, cameraRef);
         }
@@ -294,8 +335,6 @@ async function startAR() {
 
                 const characterId = item.characterId;
 
-                showStampMessage("スタンプをゲットしました！");
-
                 if (!scannedCharacters.has(characterId)) {
                     const saved = await saveCharacterStamp(characterId);
 
@@ -307,11 +346,12 @@ async function startAR() {
                 }
             };
 
-
             anchor.onTargetLost = () => {
                 log("マーカーをスキャンしてください");
+
                 meshes[item.index].visible = false;
                 mesh.scale.set(0.001, 0.001, 0.001);
+
                 setScanningUI(true);
             };
         }
