@@ -10,6 +10,8 @@ const startARButton = document.getElementById("startARButton");
 const stampMessage = document.getElementById("stampMessage");
 const stampGetSound = document.getElementById("stampGetSound");
 
+const stampParticles = document.getElementById("stampParticles");
+
 const targetList = [
     { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
     { index: 1, image: "./assets/characters/character02.webp", characterId: 5 },
@@ -26,6 +28,34 @@ let soundUnlocked = false;
 
 const zeroPos = new THREE.Vector3(0, 0, 0);
 const zeroQuat = new THREE.Quaternion();
+
+
+function playStampParticles() {
+    if (!stampParticles) return;
+
+    stampParticles.innerHTML = "";
+
+    for (let i = 0; i < 18; i++) {
+        const particle = document.createElement("span");
+        particle.className = "stamp-particle";
+
+        const angle = Math.random() * Math.PI * 2;
+        const distance = 55 + Math.random() * 65;
+
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+
+        particle.style.setProperty("--x", `${x}px`);
+        particle.style.setProperty("--y", `${y}px`);
+
+        stampParticles.appendChild(particle);
+    }
+
+    setTimeout(() => {
+        stampParticles.innerHTML = "";
+    }, 900);
+}
+
 
 function log(message) {
     console.log(message);
@@ -130,6 +160,7 @@ async function saveCharacterStamp(characterId) {
     }
 
     playStampSound();
+    playStampParticles();
     showStampMessage("スタンプをゲットしました！");
     return true;
 }
