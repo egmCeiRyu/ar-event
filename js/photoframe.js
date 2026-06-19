@@ -12,7 +12,7 @@ for(let i=1;i<=14;i++){
 
     btn.onclick=()=>{
 
-        alert("Abrir câmera com Frame "+i);
+        alert("カメラを起動します"+i);
 
     };
 
