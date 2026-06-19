@@ -53,7 +53,7 @@ function loadTexture(path) {
 function createCharacterMesh(texture) {
     const aspect = texture.image.width / texture.image.height;
 
-    const height = 1.0;
+    const height = 1.45;
     const width = height * aspect;
 
     const geometry = new THREE.PlaneGeometry(width, height);
@@ -67,7 +67,7 @@ function createCharacterMesh(texture) {
 
     const mesh = new THREE.Mesh(geometry, material);
 
-    mesh.position.set(0, 0.45, 0);
+    mesh.position.set(0, 0.65, 0);
     mesh.scale.set(0.001, 0.001, 0.001);
 
     return mesh;

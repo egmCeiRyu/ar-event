@@ -176,3 +176,15 @@ body {
         box-shadow: 0 18px 50px rgba(0,0,0,.35);
     }
 }
+
+#scanText,
+#scanFrame {
+    pointer-events: none;
+}
+
+#homeButton,
+#captureButton {
+    pointer-events: auto;
+    touch-action: manipulation;
+    z-index: 999999;
+}
