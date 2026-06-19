@@ -37,6 +37,7 @@ async function saveCharacterStamp(characterId) {
     const user = await getCurrentUser();
 
     if (!user) {
+        playStampSound();
         showStampMessage("ログインエラー");
         return false;
     }
@@ -90,21 +91,27 @@ function log(message) {
 
 
 
-function showStampMessage(message, playSound = false) {
+function showStampMessage(message) {
     if (!stampMessage) return;
 
     stampMessage.textContent = message;
     stampMessage.style.display = "block";
 
-    if (playSound && stampGetSound) {
-        stampGetSound.pause();
-        stampGetSound.currentTime = 0;
-        stampGetSound.play().catch(() => {});
-    }
-
     setTimeout(() => {
         stampMessage.style.display = "none";
     }, 1800);
+}
+
+function playStampSound() {
+    if (!stampGetSound) return;
+
+    stampGetSound.pause();
+    stampGetSound.currentTime = 0;
+    stampGetSound.volume = 1;
+
+    stampGetSound.play().catch(error => {
+        console.log("Sound play failed:", error);
+    });
 }
 
 function setScanningUI(isScanning) {
@@ -294,7 +301,6 @@ async function startAR() {
 
                 const characterId = item.characterId;
 
-                showStampMessage("スタンプをゲットしました！");
 
                 if (!scannedCharacters.has(characterId)) {
                     const saved = await saveCharacterStamp(characterId);
