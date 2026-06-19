@@ -260,9 +260,12 @@ async function startAR() {
             };
 
             anchor.onTargetFound = async () => {
+                log(`marker${item.index + 1} 検出`);
+
+                meshes[item.index].visible = true;
                 setScanningUI(false);
 
-                const characterId = targetData.characterId;
+                const characterId = item.characterId;
 
                 if (!scannedCharacters.has(characterId)) {
                     scannedCharacters.add(characterId);
