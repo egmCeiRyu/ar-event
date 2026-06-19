@@ -1,318 +1,168 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 html,
-body{
-
-    width:100%;
-    height:100%;
-    overflow:hidden;
-    background:#000;
-    touch-action:none;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #d8ddd0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    touch-action: none;
 }
 
-#container{
-
-    position:fixed;
-    inset:0;
-    width:100vw;
-    height:100vh;
-    overflow:hidden;
-
+#app {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #000;
 }
 
-canvas{
-
-    position:fixed;
-    inset:0;
-    width:100% !important;
-    height:100% !important;
-    display:block;
-
+#container {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
 }
 
-/* ---------------------- */
-/* Scan Message */
-/* ---------------------- */
-
-#scanText{
-
-    position:fixed;
-
-    top:20px;
-
-    left:50%;
-
-    transform:translateX(-50%);
-
-    background:rgba(0,0,0,.65);
-
-    color:#fff;
-
-    padding:10px 20px;
-
-    border-radius:30px;
-
-    font-size:14px;
-
-    font-weight:bold;
-
-    z-index:99999;
-
-    white-space:nowrap;
-
+#container canvas,
+#container video {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
 }
 
-/* ---------------------- */
-/* Home Button */
-/* ---------------------- */
-
-#homeButton{
-
-    position:fixed;
-
-    left:20px;
-
-    bottom:25px;
-
-    z-index:99999;
-
+#scanText {
+    position: absolute;
+    top: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    background: rgba(0, 0, 0, 0.65);
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
-#homeButton a{
-
-    width:58px;
-
-    height:58px;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    border-radius:50%;
-
-    background:rgba(255,255,255,.92);
-
-    text-decoration:none;
-
-    font-size:28px;
-
-    color:#222;
-
-    box-shadow:0 4px 12px rgba(0,0,0,.25);
-
-    backdrop-filter:blur(8px);
-
-}
-
-#homeButton a:active{
-
-    transform:scale(.95);
-
-}
-
-/* ---------------------- */
-/* Capture Button */
-/* ---------------------- */
-
-#captureButton{
-
-    position:fixed;
-
-    right:20px;
-
-    bottom:25px;
-
-    width:74px;
-
-    height:74px;
-
-    border-radius:50%;
-
-    border:5px solid rgba(255,255,255,.95);
-
-    background:rgba(255,255,255,.35);
-
-    box-shadow:0 4px 14px rgba(0,0,0,.25);
-
-    z-index:99999;
-
-    cursor:pointer;
-
-}
-
-#captureButton::after{
-
-    content:"";
-
-    position:absolute;
-
-    left:50%;
-
-    top:50%;
-
-    transform:translate(-50%,-50%);
-
-    width:52px;
-
-    height:52px;
-
-    background:#fff;
-
-    border-radius:50%;
-
-}
-
-#captureButton:active{
-
-    transform:scale(.95);
-
-}
-
-/* ---------------------- */
-/* Debug */
-/* ---------------------- */
-
-#debugText{
-
-    position:fixed;
-
-    top:70px;
-
-    left:20px;
-
-    z-index:99999;
-
-    color:white;
-
-    background:rgba(0,0,0,.6);
-
-    padding:8px 12px;
-
-    border-radius:10px;
-
-    font-size:12px;
-
-    display:none;
-
-}
-
-/* ---------------------- */
-/* Scan Frame */
-/* ---------------------- */
-
-.scan-frame{
-
-    position:fixed;
-
-    left:50%;
-
-    top:50%;
-
-    transform:translate(-50%,-50%);
-
-    width:280px;
-
-    height:420px;
-
-    pointer-events:none;
-
-    z-index:999;
-
+.scan-frame {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 72%;
+    height: 42%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 15;
 }
 
 .scan-frame::before,
-.scan-frame::after{
-
-    content:"";
-
-    position:absolute;
-
-    width:42px;
-
-    height:42px;
-
-    border-top:6px solid white;
-
-    border-left:6px solid white;
-
+.scan-frame::after {
+    content: "";
+    position: absolute;
+    width: 38px;
+    height: 38px;
+    border-color: #fff;
+    border-style: solid;
 }
 
-.scan-frame::before{
-
-    left:0;
-    top:0;
-
+.scan-frame::before {
+    left: 0;
+    top: 0;
+    border-width: 6px 0 0 6px;
 }
 
-.scan-frame::after{
-
-    right:0;
-    bottom:0;
-    transform:rotate(180deg);
-
+.scan-frame::after {
+    right: 0;
+    bottom: 0;
+    border-width: 0 6px 6px 0;
 }
 
-/* ========================= */
-/* Desktop Preview (Smartphone) */
-/* ========================= */
+#homeButton {
+    position: absolute;
+    left: 20px;
+    bottom: 26px;
+    z-index: 30;
+}
 
+#homeButton a {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #222;
+    font-size: 28px;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(8px);
+}
+
+#captureButton {
+    position: absolute;
+    right: 20px;
+    bottom: 24px;
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    border: 5px solid rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.35);
+    z-index: 30;
+    cursor: pointer;
+    box-shadow: 0 5px 14px rgba(0, 0, 0, 0.28);
+}
+
+#captureButton::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 52px;
+    height: 52px;
+    transform: translate(-50%, -50%);
+    background: #fff;
+    border-radius: 50%;
+}
+
+#captureButton:active,
+#homeButton a:active {
+    transform: scale(0.94);
+}
+
+#debugText {
+    display: none;
+}
+
+/* PC: preview em formato smartphone */
 @media (min-width: 768px) {
-
-    html,
     body {
-
-        background: #d8ddd0;
-
         display: flex;
-        justify-content: center;
         align-items: center;
-
+        justify-content: center;
     }
 
-    #container {
-
+    #app {
         position: relative;
-
         width: 390px;
         height: 844px;
-
+        max-height: 94vh;
+        aspect-ratio: 390 / 844;
         border-radius: 28px;
-
         overflow: hidden;
-
-        box-shadow: 0 0 30px rgba(0,0,0,.25);
-
-        background: black;
-
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
     }
-
-    canvas {
-
-        width: 390px !important;
-        height: 844px !important;
-
-        border-radius: 28px;
-
-    }
-
-    #scanText,
-    #homeButton,
-    #captureButton,
-    #debugText {
-
-        width: 390px;
-        left: 50%;
-        transform: translateX(-50%);
-
-    }
-
 }

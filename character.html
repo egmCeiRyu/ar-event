@@ -20,18 +20,23 @@
 </head>
 
 <body>
-    <div id="container"></div>
+    <div id="app">
+        <div id="container"></div>
 
-    <div id="scanText">スタンド画像をスキャンしてください</div>
+        <div id="scanText">スタンド画像をスキャンしてください</div>
 
-    <div id="homeButton">
-        <a href="index.html">🏠</a>
+        <div class="scan-frame"></div>
+
+        <div id="homeButton">
+            <a href="index.html">🏠</a>
+        </div>
+
+        <button id="captureButton" aria-label="写真を撮る"></button>
+
+        <div id="debugText">AR起動中...</div>
     </div>
-
-    <button id="captureButton" aria-label="写真を撮る"></button>
-
-    <div id="debugText">AR起動中...</div>
 
     <script type="module" src="js/character.js"></script>
 </body>
+
 </html>
