@@ -7,20 +7,14 @@ body {
 .page {
     max-width: 700px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 78px 20px 20px;   /* topo direita/esquerda baixo */
 }
 
 header {
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 14px;
     margin-bottom: 24px;
-}
-
-header a {
-    text-decoration: none;
-    font-size: 26px;
-    color: #444;
 }
 
 header h1 {
