@@ -370,8 +370,9 @@ async function startAR() {
 
                     mesh.position.set(0, 0.05, 0);
 
+                    mesh.quaternion.copy(camera.quaternion);
+
                     item.smoothGroup.position.lerp(zeroPos, 0.12);
-                    item.smoothGroup.quaternion.slerp(zeroQuat, 0.12);
                 }
             });
 
