@@ -1,40 +1,46 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <title>AR Character</title>
 
-    <link rel="stylesheet" href="css/character.css" />
+<meta charset="UTF-8">
+<meta name="viewport"
+content="width=device-width,initial-scale=1.0,user-scalable=no">
 
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+<title>AR Character</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase.js"></script>
+<style>
+
+html,
+body{
+
+margin:0;
+overflow:hidden;
+background:#000;
+
+}
+
+#container{
+
+width:100vw;
+height:100vh;
+
+}
+
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"></script>
+
 </head>
 
 <body>
-    <div id="arContainer"></div>
 
-    <div class="top-bar">
-        <a href="index.html" class="back-button">← 戻る</a>
-    </div>
+<div id="container"></div>
 
-    <div id="loadingScreen">
-        <div class="loading-box">
-            <div class="loading-title">ARを起動中...</div>
-            <div class="loading-text">カメラを許可してください</div>
-        </div>
-    </div>
+<script src="js/character.js"></script>
 
-    <div id="scanGuide">
-        <div class="scan-frame"></div>
-        <div class="scan-text">スタンド画像をスキャンしてください</div>
-    </div>
-
-    <div id="stampPopup">スタンプGET！</div>
-
-    <script src="js/character.js"></script>
 </body>
+
 </html>

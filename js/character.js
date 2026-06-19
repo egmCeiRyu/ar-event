@@ -1,107 +1,112 @@
-// character.js
+const {
+  MindARThree
+} = window.MINDAR.IMAGE;
 
-const characterMap = {
-    marker01: 4,
-    marker02: 5,
-    marker03: 6
-};
+async function start() {
 
-async function getCurrentUser() {
-    const { data: { session } } = await supabaseClient.auth.getSession();
+  const mindarThree = new MindARThree({
 
-    if (session && session.user) {
-        return session.user;
-    }
+    container: document.querySelector("#container"),
 
-    const { data, error } = await supabaseClient.auth.signInAnonymously();
+    imageTargetSrc: "./assets/targets/targets.mind"
 
-    if (error) {
-        console.error("Anonymous login error:", error);
-        return null;
-    }
+  });
 
-    return data.user;
+  const {
+
+    renderer,
+    scene,
+    camera
+
+  } = mindarThree;
+
+  const loader = new THREE.TextureLoader();
+
+  //--------------------------------------
+  // Marker 01
+  //--------------------------------------
+
+  const anchor0 = mindarThree.addAnchor(0);
+
+  const tex0 = loader.load("./assets/characters/character01.webp");
+
+  const plane0 = new THREE.Mesh(
+
+    new THREE.PlaneGeometry(0.6, 1.0),
+
+    new THREE.MeshBasicMaterial({
+
+      map: tex0,
+      transparent: true
+
+    })
+
+  );
+
+  plane0.position.y = 0.5;
+
+  anchor0.group.add(plane0);
+
+  //--------------------------------------
+  // Marker 02
+  //--------------------------------------
+
+  const anchor1 = mindarThree.addAnchor(1);
+
+  const tex1 = loader.load("./assets/characters/character02.webp");
+
+  const plane1 = new THREE.Mesh(
+
+    new THREE.PlaneGeometry(0.6, 1.0),
+
+    new THREE.MeshBasicMaterial({
+
+      map: tex1,
+      transparent: true
+
+    })
+
+  );
+
+  plane1.position.y = 0.5;
+
+  anchor1.group.add(plane1);
+
+  //--------------------------------------
+  // Marker 03
+  //--------------------------------------
+
+  const anchor2 = mindarThree.addAnchor(2);
+
+  const tex2 = loader.load("./assets/characters/character03.webp");
+
+  const plane2 = new THREE.Mesh(
+
+    new THREE.PlaneGeometry(0.6, 1.0),
+
+    new THREE.MeshBasicMaterial({
+
+      map: tex2,
+      transparent: true
+
+    })
+
+  );
+
+  plane2.position.y = 0.5;
+
+  anchor2.group.add(plane2);
+
+  //--------------------------------------
+
+  await mindarThree.start();
+
+  renderer.setAnimationLoop(() => {
+
+    renderer.render(scene, camera);
+
+  });
+
 }
 
-function showPopup(message) {
-    const popup = document.getElementById("stampPopup");
-
-    popup.innerHTML = message;
-    popup.style.display = "block";
-
-    setTimeout(() => {
-        popup.style.display = "none";
-    }, 1800);
-}
-
-async function processMarker(markerCode) {
-    const characterId = characterMap[markerCode];
-
-    if (!characterId) {
-        console.log("Marker inválido");
-        return;
-    }
-
-    const user = await getCurrentUser();
-
-    if (!user) {
-        showPopup("ログインエラー");
-        return;
-    }
-
-    const userId = user.id;
-
-    console.log("CHECK USER:", userId);
-    console.log("CHECK CHARACTER:", characterId);
-
-    // 1. Primeiro verifica se já existe
-    const { data: existingStamp, error: checkError } = await supabaseClient
-        .from("user_stamps")
-        .select("id")
-        .eq("user_id", userId)
-        .eq("character_id", characterId)
-        .maybeSingle();
-
-    if (checkError) {
-        console.error("Erro ao verificar stamp:", checkError);
-        showPopup("エラーが発生しました");
-        return;
-    }
-
-    // 2. Se já existe, NÃO toca som e NÃO mostra Stamp Get
-    if (existingStamp) {
-        showPopup("このスタンプはすでにアルバムに保存されています。");
-
-        setTimeout(() => {
-            window.location.href = "stampbook.html";
-        }, 1800);
-
-        return;
-    }
-
-    // 3. Se não existe, salva novo stamp
-    const { error: insertError } = await supabaseClient
-        .from("user_stamps")
-        .insert({
-            user_id: userId,
-            character_id: characterId,
-            acquired_at: new Date().toISOString()
-        });
-
-    if (insertError) {
-        console.error("Erro ao salvar stamp:", insertError);
-        showPopup("エラーが発生しました");
-        return;
-    }
-
-    // 4. Somente nova estampa toca som
-    const sound = new Audio("assets/sounds/stamp.mp3");
-    sound.volume = 0.8;
-    sound.play();
-
-    showPopup("🎉 スタンプをゲットしました！");
-
-    setTimeout(() => {
-        window.location.href = "stampbook.html";
-    }, 1800);
-}
+start();
