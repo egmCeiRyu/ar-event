@@ -16,6 +16,9 @@ let rendererRef = null;
 let sceneRef = null;
 let cameraRef = null;
 
+const zeroPos = new THREE.Vector3(0, 0, 0);
+const zeroQuat = new THREE.Quaternion();
+
 function log(message) {
     console.log(message);
     if (debugText) debugText.textContent = message;
@@ -79,6 +82,7 @@ function fixMindARVideoLayer() {
         video.style.height = "100%";
         video.style.objectFit = "cover";
         video.style.zIndex = "1";
+        video.style.pointerEvents = "none";
     });
 
     canvases.forEach(canvas => {
@@ -88,6 +92,7 @@ function fixMindARVideoLayer() {
         canvas.style.height = "100%";
         canvas.style.background = "transparent";
         canvas.style.zIndex = "2";
+        canvas.style.pointerEvents = "none";
     });
 }
 
@@ -129,11 +134,9 @@ async function capturePhoto() {
         canvas.toBlob(async blob => {
             if (!blob) return;
 
-            const file = new File(
-                [blob],
-                "ARCharacter.png",
-                { type: "image/png" }
-            );
+            const file = new File([blob], "ARCharacter.png", {
+                type: "image/png"
+            });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 try {
@@ -166,7 +169,9 @@ async function startAR() {
         const mindarThree = new MindARThree({
             container: document.querySelector("#arContainer"),
             imageTargetSrc: "./assets/targets/targets.mind",
-            maxTrack: 1
+            maxTrack: 1,
+            filterMinCF: 0.001,
+            filterBeta: 0.01
         });
 
         const { renderer, scene, camera } = mindarThree;
@@ -183,13 +188,18 @@ async function startAR() {
 
         for (const item of targetList) {
             const anchor = mindarThree.addAnchor(item.index);
+
+            const smoothGroup = new THREE.Group();
+            anchor.group.add(smoothGroup);
+
             const texture = await loadTexture(item.image);
             const mesh = createCharacterMesh(texture);
 
-            anchor.group.add(mesh);
+            smoothGroup.add(mesh);
 
             meshes[item.index] = {
                 mesh,
+                smoothGroup,
                 visible: false
             };
 
@@ -211,18 +221,9 @@ async function startAR() {
 
         await mindarThree.start();
 
-        setTimeout(() => {
-
-            const video = document.querySelector("#arContainer video");
-            const canvas = document.querySelector("#arContainer canvas");
-
-            if(video) video.style.pointerEvents = "none";
-            if(canvas) canvas.style.pointerEvents = "none";
-
-        },500);
-
         fixMindARVideoLayer();
-        setTimeout(fixMindARVideoLayer, 500);
+        setTimeout(fixMindARVideoLayer, 300);
+        setTimeout(fixMindARVideoLayer, 800);
         setTimeout(fixMindARVideoLayer, 1500);
 
         log("マーカーをスキャンしてください");
@@ -235,9 +236,13 @@ async function startAR() {
                 const mesh = item.mesh;
 
                 if (item.visible) {
-                    const s = THREE.MathUtils.lerp(mesh.scale.x, 1, 0.12);
+                    const s = THREE.MathUtils.lerp(mesh.scale.x, 1, 0.08);
                     mesh.scale.set(s, s, s);
-                    mesh.position.y = 0.65;
+
+                    mesh.position.set(0, 0.05, 0);
+
+                    item.smoothGroup.position.lerp(zeroPos, 0.12);
+                    item.smoothGroup.quaternion.slerp(zeroQuat, 0.12);
                 }
             });
 
@@ -251,6 +256,8 @@ async function startAR() {
     }
 }
 
-captureButton.addEventListener("click", capturePhoto);
+if (captureButton) {
+    captureButton.addEventListener("click", capturePhoto);
+}
 
 startAR();
