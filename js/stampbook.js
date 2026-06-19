@@ -62,13 +62,29 @@ async function loadStamps() {
         }
     });
 
-    document.getElementById("progressText").innerText = `${count} / 3 stamps`;
+    updateStampLevel(count);
 
     if (count >= 3) {
-        document.getElementById("completeBox").style.display = "block";
         launchConfetti();
+    }
+}
+
+function updateStampLevel(total) {
+    const max = 3;
+    const percent = Math.min((total / max) * 100, 100);
+
+    document.getElementById("progressText").textContent = `${total} / ${max}`;
+    document.getElementById("progressFill").style.width = `${percent}%`;
+
+    const rewardBox = document.getElementById("rewardBox");
+    const completeBox = document.getElementById("completeBox");
+
+    if (total >= max) {
+        rewardBox.classList.add("completed");
+        completeBox.style.display = "block";
     } else {
-        document.getElementById("completeBox").style.display = "none";
+        rewardBox.classList.remove("completed");
+        completeBox.style.display = "none";
     }
 }
 
