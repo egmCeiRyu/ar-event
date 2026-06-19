@@ -1,27 +1,31 @@
 .frame-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 28px;
-    padding: 24px;
+    gap: 24px;
+    padding: 20px;
+    justify-items: center;
 }
 
 .frame-btn {
-    padding: 10px;
+    width: min(100%, 220px);
+    background: #fff;
     border-radius: 20px;
-    background: white;
-    box-shadow: 0 8px 20px rgba(0,0,0,.12);
-}
-
-.frame-btn:hover {
-    transform: scale(1.04);
+    padding: 8px;
+    border: none;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0,0,0,.10);
 }
 
 .frame-btn img {
     width: 100%;
     height: auto;
     display: block;
-    border-radius: 14px;
 }
+
+.frame-btn:hover {
+    transform: scale(1.04);
+}
+
 
 .camera-page {
     position: fixed;
