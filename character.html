@@ -11,7 +11,6 @@
     {
         "imports": {
             "three": "https://cdn.jsdelivr.net/npm/three@0.156.1/build/three.module.js",
-            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.156.1/examples/jsm/",
             "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
         }
     }
@@ -19,13 +18,14 @@
 </head>
 
 <body>
-
-    <div id="stampMessage"></div>
-
-    <audio id="stampGetSound" src="./assets/sounds/stamp.mp3" preload="auto"></audio>
-
     <div id="phone">
+        <button id="startARButton">▶ AR START</button>
+
         <div id="arContainer"></div>
+
+        <div id="stampMessage"></div>
+
+        <audio id="stampGetSound" src="./assets/sounds/stamp.mp3" preload="auto"></audio>
 
         <div id="scanText">スタンド画像をスキャンしてください</div>
 
@@ -36,8 +36,6 @@
             <span class="corner br"></span>
         </div>
 
-        
-
         <button id="captureButton" aria-label="写真を撮る"></button>
 
         <div id="debugText">AR起動中...</div>
@@ -47,7 +45,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
-
     <script type="module" src="js/character.js"></script>
 </body>
 </html>

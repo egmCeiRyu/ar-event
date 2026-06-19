@@ -5,14 +5,46 @@ const debugText = document.getElementById("debugText");
 const scanText = document.getElementById("scanText");
 const scanFrame = document.getElementById("scanFrame");
 const captureButton = document.getElementById("captureButton");
+const startARButton = document.getElementById("startARButton");
 
 const stampMessage = document.getElementById("stampMessage");
 const stampGetSound = document.getElementById("stampGetSound");
 
-let soundReady = false;
+const targetList = [
+    { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
+    { index: 1, image: "./assets/characters/character02.webp", characterId: 5 },
+    { index: 2, image: "./assets/characters/character03.webp", characterId: 6 }
+];
+
+const scannedCharacters = new Set();
+
+let rendererRef = null;
+let sceneRef = null;
+let cameraRef = null;
+let arStarted = false;
+let soundUnlocked = false;
+
+const zeroPos = new THREE.Vector3(0, 0, 0);
+const zeroQuat = new THREE.Quaternion();
+
+function log(message) {
+    console.log(message);
+    if (debugText) debugText.textContent = message;
+}
+
+function showStampMessage(message) {
+    if (!stampMessage) return;
+
+    stampMessage.textContent = message;
+    stampMessage.style.display = "block";
+
+    setTimeout(() => {
+        stampMessage.style.display = "none";
+    }, 1800);
+}
 
 function unlockStampSound() {
-    if (!stampGetSound || soundReady) return;
+    if (!stampGetSound || soundUnlocked) return;
 
     stampGetSound.volume = 1;
     stampGetSound.muted = true;
@@ -22,25 +54,32 @@ function unlockStampSound() {
             stampGetSound.pause();
             stampGetSound.currentTime = 0;
             stampGetSound.muted = false;
-            soundReady = true;
-            console.log("Stamp sound ready");
+            soundUnlocked = true;
+            console.log("Stamp sound unlocked");
         })
         .catch(error => {
             stampGetSound.muted = false;
-            console.log("Stamp sound unlock failed:", error);
+            console.log("Sound unlock failed:", error);
         });
 }
 
-document.addEventListener("touchstart", unlockStampSound, { once: true });
-document.addEventListener("click", unlockStampSound, { once: true });
+function playStampSound() {
+    if (!stampGetSound) return;
 
-const targetList = [
-    { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
-    { index: 1, image: "./assets/characters/character02.webp", characterId: 5 },
-    { index: 2, image: "./assets/characters/character03.webp", characterId: 6 }
-];
+    stampGetSound.muted = false;
+    stampGetSound.volume = 1;
+    stampGetSound.pause();
+    stampGetSound.currentTime = 0;
 
-const scannedCharacters = new Set();
+    stampGetSound.play().catch(error => {
+        console.log("Sound play failed:", error);
+    });
+}
+
+function setScanningUI(isScanning) {
+    if (scanText) scanText.style.display = isScanning ? "block" : "none";
+    if (scanFrame) scanFrame.style.display = isScanning ? "block" : "none";
+}
 
 async function getCurrentUser() {
     const { data: { session } } = await supabaseClient.auth.getSession();
@@ -51,7 +90,7 @@ async function getCurrentUser() {
 
     if (error) {
         console.error("Anonymous login error:", error);
-        log("ログインエラー");
+        showStampMessage("ログインエラー");
         return null;
     }
 
@@ -62,7 +101,6 @@ async function saveCharacterStamp(characterId) {
     const user = await getCurrentUser();
 
     if (!user) {
-        playStampSound();
         showStampMessage("ログインエラー");
         return false;
     }
@@ -98,51 +136,9 @@ async function saveCharacterStamp(characterId) {
         return false;
     }
 
+    playStampSound();
     showStampMessage("スタンプをゲットしました！");
     return true;
-}
-
-let rendererRef = null;
-let sceneRef = null;
-let cameraRef = null;
-
-const zeroPos = new THREE.Vector3(0, 0, 0);
-const zeroQuat = new THREE.Quaternion();
-
-function log(message) {
-    console.log(message);
-    if (debugText) debugText.textContent = message;
-}
-
-
-
-function showStampMessage(message) {
-    if (!stampMessage) return;
-
-    stampMessage.textContent = message;
-    stampMessage.style.display = "block";
-
-    setTimeout(() => {
-        stampMessage.style.display = "none";
-    }, 1800);
-}
-
-function playStampSound() {
-    if (!stampGetSound) return;
-
-    stampGetSound.muted = false;
-    stampGetSound.volume = 1;
-    stampGetSound.pause();
-    stampGetSound.currentTime = 0;
-
-    stampGetSound.play().catch(error => {
-        console.log("Sound play failed:", error);
-    });
-}
-
-function setScanningUI(isScanning) {
-    if (scanText) scanText.style.display = isScanning ? "block" : "none";
-    if (scanFrame) scanFrame.style.display = isScanning ? "block" : "none";
 }
 
 function loadTexture(path) {
@@ -163,7 +159,6 @@ function loadTexture(path) {
 
 function createCharacterMesh(texture) {
     const aspect = texture.image.width / texture.image.height;
-
     const height = 3.0;
     const width = height * aspect;
 
@@ -279,6 +274,9 @@ async function capturePhoto() {
 }
 
 async function startAR() {
+    if (arStarted) return;
+    arStarted = true;
+
     try {
         log("MindAR読み込み中...");
 
@@ -327,7 +325,6 @@ async function startAR() {
 
                 const characterId = item.characterId;
 
-
                 if (!scannedCharacters.has(characterId)) {
                     const saved = await saveCharacterStamp(characterId);
 
@@ -339,11 +336,12 @@ async function startAR() {
                 }
             };
 
-
             anchor.onTargetLost = () => {
                 log("マーカーをスキャンしてください");
+
                 meshes[item.index].visible = false;
                 mesh.scale.set(0.001, 0.001, 0.001);
+
                 setScanningUI(true);
             };
         }
@@ -391,4 +389,12 @@ if (captureButton) {
     captureButton.addEventListener("click", capturePhoto);
 }
 
-startAR();
+if (startARButton) {
+    startARButton.addEventListener("click", async () => {
+        unlockStampSound();
+
+        startARButton.style.display = "none";
+
+        await startAR();
+    });
+}
