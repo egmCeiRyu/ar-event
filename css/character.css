@@ -66,3 +66,15 @@ canvas {
     border-radius: 20px;
     backdrop-filter: blur(8px);
 }
+
+#debugText {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 99999;
+    color: white;
+    background: rgba(0,0,0,0.7);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+}

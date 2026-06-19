@@ -1,112 +1,145 @@
-const {
-  MindARThree
-} = window.MINDAR.IMAGE;
+import * as THREE from "three";
+import { MindARThree } from "mindar-image-three";
 
-async function start() {
+const debugText = document.getElementById("debugText");
 
-  const mindarThree = new MindARThree({
+const targets = [
+    {
+        index: 0,
+        image: "./assets/characters/character01.webp",
+        characterId: 4
+    },
+    {
+        index: 1,
+        image: "./assets/characters/character02.webp",
+        characterId: 5
+    },
+    {
+        index: 2,
+        image: "./assets/characters/character03.webp",
+        characterId: 6
+    }
+];
 
-    container: document.querySelector("#container"),
-
-    imageTargetSrc: "./assets/targets/targets.mind"
-
-  });
-
-  const {
-
-    renderer,
-    scene,
-    camera
-
-  } = mindarThree;
-
-  const loader = new THREE.TextureLoader();
-
-  //--------------------------------------
-  // Marker 01
-  //--------------------------------------
-
-  const anchor0 = mindarThree.addAnchor(0);
-
-  const tex0 = loader.load("./assets/characters/character01.webp");
-
-  const plane0 = new THREE.Mesh(
-
-    new THREE.PlaneGeometry(0.6, 1.0),
-
-    new THREE.MeshBasicMaterial({
-
-      map: tex0,
-      transparent: true
-
-    })
-
-  );
-
-  plane0.position.y = 0.5;
-
-  anchor0.group.add(plane0);
-
-  //--------------------------------------
-  // Marker 02
-  //--------------------------------------
-
-  const anchor1 = mindarThree.addAnchor(1);
-
-  const tex1 = loader.load("./assets/characters/character02.webp");
-
-  const plane1 = new THREE.Mesh(
-
-    new THREE.PlaneGeometry(0.6, 1.0),
-
-    new THREE.MeshBasicMaterial({
-
-      map: tex1,
-      transparent: true
-
-    })
-
-  );
-
-  plane1.position.y = 0.5;
-
-  anchor1.group.add(plane1);
-
-  //--------------------------------------
-  // Marker 03
-  //--------------------------------------
-
-  const anchor2 = mindarThree.addAnchor(2);
-
-  const tex2 = loader.load("./assets/characters/character03.webp");
-
-  const plane2 = new THREE.Mesh(
-
-    new THREE.PlaneGeometry(0.6, 1.0),
-
-    new THREE.MeshBasicMaterial({
-
-      map: tex2,
-      transparent: true
-
-    })
-
-  );
-
-  plane2.position.y = 0.5;
-
-  anchor2.group.add(plane2);
-
-  //--------------------------------------
-
-  await mindarThree.start();
-
-  renderer.setAnimationLoop(() => {
-
-    renderer.render(scene, camera);
-
-  });
-
+function setDebug(message) {
+    if (debugText) {
+        debugText.textContent = message;
+    }
+    console.log(message);
 }
 
-start();
+function createCharacterPlane(texture) {
+    const aspect = texture.image.width / texture.image.height;
+
+    const height = 1.0;
+    const width = height * aspect;
+
+    const geometry = new THREE.PlaneGeometry(width, height);
+
+    const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        depthWrite: false
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+
+    mesh.position.set(0, 0.45, 0);
+    mesh.scale.set(0.001, 0.001, 0.001);
+
+    return mesh;
+}
+
+async function loadTexture(path) {
+    const loader = new THREE.TextureLoader();
+
+    return new Promise((resolve, reject) => {
+        loader.load(
+            path,
+            texture => {
+                texture.colorSpace = THREE.SRGBColorSpace;
+                resolve(texture);
+            },
+            undefined,
+            error => reject(error)
+        );
+    });
+}
+
+async function startAR() {
+    try {
+        setDebug("MindAR読み込み中...");
+
+        const mindarThree = new MindARThree({
+            container: document.querySelector("#container"),
+            imageTargetSrc: "./assets/targets/targets.mind",
+            maxTrack: 1
+        });
+
+        const { renderer, scene, camera } = mindarThree;
+
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+        const characterMeshes = [];
+
+        for (const item of targets) {
+            const anchor = mindarThree.addAnchor(item.index);
+            const texture = await loadTexture(item.image);
+            const mesh = createCharacterPlane(texture);
+
+            anchor.group.add(mesh);
+
+            characterMeshes.push({
+                mesh,
+                anchor,
+                visible: false,
+                time: 0
+            });
+
+            anchor.onTargetFound = () => {
+                setDebug(`marker${item.index + 1} 検出`);
+                characterMeshes[item.index].visible = true;
+            };
+
+            anchor.onTargetLost = () => {
+                setDebug("マーカーをスキャンしてください");
+                characterMeshes[item.index].visible = false;
+                mesh.scale.set(0.001, 0.001, 0.001);
+            };
+        }
+
+        setDebug("カメラ起動中...");
+
+        await mindarThree.start();
+
+        setDebug("マーカーをスキャンしてください");
+
+        renderer.setAnimationLoop(() => {
+            const delta = 0.016;
+
+            characterMeshes.forEach(item => {
+                const mesh = item.mesh;
+
+                if (item.visible) {
+                    item.time += delta;
+
+                    const targetScale = 1;
+                    const currentScale = mesh.scale.x;
+                    const nextScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.12);
+
+                    mesh.scale.set(nextScale, nextScale, nextScale);
+
+                    mesh.position.y = 0.45 + Math.sin(item.time * 3) * 0.025;
+                }
+            });
+
+            renderer.render(scene, camera);
+        });
+
+    } catch (error) {
+        console.error(error);
+        setDebug("ERROR: " + error.message);
+    }
+}
+
+startAR();
