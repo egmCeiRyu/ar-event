@@ -4,56 +4,218 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>注意事項</title>
+
   <link rel="stylesheet" href="css/common.css">
-  <link rel="stylesheet" href="css/notice.css">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f7fb;
+      color: #222;
+    }
+
+    .app {
+      min-height: 100vh;
+      background: linear-gradient(180deg, #f7f9ff 0%, #eef3ff 100%);
+    }
+
+    .page {
+      max-width: 520px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .back {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #ffffff;
+      color: #333;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .intro-card {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 22px;
+      margin-bottom: 18px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+
+    .intro-card h2 {
+      font-size: 20px;
+      margin: 0 0 10px;
+    }
+
+    .intro-card p {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #666;
+      margin: 0;
+    }
+
+    .notice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .notice-item {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.07);
+      border-left: 5px solid #4da3ff;
+    }
+
+    .notice-item.important {
+      border-left-color: #ff6b6b;
+      background: #fff7f7;
+    }
+
+    .notice-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #222;
+    }
+
+    .notice-icon {
+      font-size: 20px;
+    }
+
+    .notice-item p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.75;
+      color: #555;
+    }
+
+    .footer-note {
+      margin-top: 24px;
+      font-size: 12px;
+      line-height: 1.6;
+      color: #888;
+      text-align: center;
+    }
+  </style>
 </head>
 
 <body>
   <div class="app">
-  <main class="page">
-    <header class="page-header">
-      <a href="index.html" class="back">←</a>
-      <h1>注意事項</h1>
-    </header>
+    <main class="page">
 
-    <section class="notice-list">
-      <div class="notice-item">
-        <strong>安全にご利用いただくために</strong>
-        <p>ご利用前に必ず注意事項をご確認ください。</p>
-      </div>
+      <header class="page-header">
+        <a href="index.html" class="back">←</a>
+        <h1>注意事項</h1>
+      </header>
 
-      <div class="notice-item">
-        <strong>カメラの使用について</strong>
-        <p>AR体験にはカメラへのアクセス許可が必要です。</p>
-      </div>
-
-      <div class="notice-item">
-        <strong>周囲へのご配慮</strong>
-        <p>歩きスマホはおやめください。周囲にご注意ください。</p>
-      </div>
-
-      <div class="notice-item">
-        <strong>推奨環境</strong>
-        <p>AndroidはGoogle Chrome最新版、iPhone/iPadはSafari最新版を推奨します。</p>
-      </div>
-
-      <div class="notice-item">
-        <strong>対応デバイス</strong>
-        <p>カメラ付きのスマートフォンまたはタブレットでご利用ください。</p>
-      </div>
-
-      <div class="notice-item important">
-        <strong>スタンプデータについて</strong>
+      <section class="intro-card">
+        <h2>ご利用前に必ずご確認ください</h2>
         <p>
+          ARコンテンツを安全にお楽しみいただくため、以下の注意事項をご確認ください。
+        </p>
+      </section>
+
+      <section class="notice-list">
+
+        <div class="notice-item">
+          <div class="notice-title">
+            <span class="notice-icon">📷</span>
+            <span>カメラアクセスについて</span>
+          </div>
+          <p>
+            AR体験にはカメラへのアクセス許可が必要です。
+            ブラウザでカメラ使用の許可を求められた場合は、許可を選択してください。
+          </p>
+        </div>
+
+        <div class="notice-item">
+          <div class="notice-title">
+            <span class="notice-icon">🌐</span>
+            <span>インターネット接続について</span>
+          </div>
+          <p>
+            本コンテンツの利用にはインターネット接続が必要です。
+            通信環境の良い場所でご利用ください。
+          </p>
+        </div>
+
+        <div class="notice-item">
+          <div class="notice-title">
+            <span class="notice-icon">📱</span>
+            <span>対応端末について</span>
+          </div>
+          <p>
+            AR機能に対応したスマートフォンまたはタブレットでご利用ください。
+            特にAndroid端末の場合は、ARCore対応機種を推奨します。
+          </p>
+        </div>
+
+        <div class="notice-item">
+          <div class="notice-title">
+            <span class="notice-icon">🧭</span>
+            <span>推奨ブラウザ</span>
+          </div>
+          <p>
+            Android端末ではGoogle Chrome最新版、
+            iPhone・iPadではSafari最新版でのご利用を推奨します。
+          </p>
+        </div>
+
+        <div class="notice-item">
+          <div class="notice-title">
+            <span class="notice-icon">🚶</span>
+            <span>安全にご利用いただくために</span>
+          </div>
+          <p>
+            歩きながらの操作は危険です。
+            周囲の安全を確認し、立ち止まった状態でご利用ください。
+          </p>
+        </div>
+
+        <div class="notice-item important">
+          <div class="notice-title">
+            <span class="notice-icon">💾</span>
+            <span>スタンプデータについて</span>
+          </div>
+          <p>
             スタンプデータを保持するため、イベント期間中は同じブラウザでご利用ください。
-        </p>
-        <p>
-            ブラウザを変更したり、ブラウザのデータ（キャッシュ・ストレージ等）を削除した場合、
+            ブラウザを変更したり、キャッシュ・ストレージ等を削除した場合、
             取得済みのスタンプ情報が引き継がれない場合があります。
-        </p>
-      </div>
-    </div>
-    </section>
-  </main>
+          </p>
+        </div>
+
+      </section>
+
+      <p class="footer-note">
+        ※ ご利用端末や通信環境によっては、正常に動作しない場合があります。
+      </p>
+
+    </main>
+  </div>
 </body>
 </html>

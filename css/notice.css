@@ -1,8 +1,26 @@
-.important{
-    border:2px solid #ff9800;
-    background:#fff8e8;
+.notice-item{
+    background:#fff;
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:14px;
+    box-shadow:0 3px 10px rgba(0,0,0,.08);
+    border-left:5px solid #4DA3FF;
 }
 
-.important strong{
-    color:#d35400;
+.notice-item strong{
+    display:block;
+    font-size:18px;
+    margin-bottom:8px;
+    color:#222;
+}
+
+.notice-item p{
+    font-size:14px;
+    line-height:1.7;
+    color:#666;
+}
+
+.notice-item.important{
+    border-left:5px solid #FF6B6B;
+    background:#FFF7F7;
 }
