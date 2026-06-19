@@ -78,6 +78,9 @@ async function startAR() {
 
         const { renderer, scene, camera } = mindarThree;
 
+        renderer.setClearColor(0x000000, 0);
+        renderer.setClearAlpha(0);
+
         renderer.outputColorSpace = THREE.SRGBColorSpace;
 
         const characterMeshes = [];
