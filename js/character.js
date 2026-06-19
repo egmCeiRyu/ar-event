@@ -97,6 +97,7 @@ function showStampMessage(message, playSound = false) {
     stampMessage.style.display = "block";
 
     if (playSound && stampGetSound) {
+        stampGetSound.pause();
         stampGetSound.currentTime = 0;
         stampGetSound.play().catch(() => {});
     }
