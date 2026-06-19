@@ -1,9 +1,76 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: linear-gradient(180deg, #fff7e8, #ffffff);
+    min-height: 100vh;
+    text-align: center;
+    color: #333;
+}
+
+.container {
+    width: 100%;
+    max-width: 520px;
+    margin: 0 auto;
+    padding: 24px 18px 32px;
+}
+
+h1 {
+    margin: 0 0 6px;
+}
+
+.subtitle {
+    margin-bottom: 24px;
+    color: #666;
+}
+
+.stamp-grid {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: nowrap;
+    margin-bottom: 20px;
+}
+
+.stamp-card {
+    width: 95px;
+    padding: 10px;
+    border-radius: 14px;
+    background: white;
+    box-shadow: 0 4px 10px rgba(0,0,0,.12);
+}
+
+.stamp-card img {
+    width: 70px;
+    height: auto;
+}
+
+.stamp-label {
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.locked {
+    opacity: .15;
+    filter: grayscale(100%);
+}
+
+.unlocked {
+    opacity: 1;
+    filter: none;
+    animation: pop .3s;
+}
+
 .stamp-level-card {
-    max-width: 420px;
+    width: 100%;
     background: #fff;
     border-radius: 18px;
     padding: 18px;
-    margin: 26px auto 0;
+    margin: 24px auto 0;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
@@ -83,29 +150,57 @@
     margin-top: 14px;
 }
 
-.stamp-grid {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: nowrap;
-    margin-bottom: 20px;
-}
-
-.stamp-card {
-    width: 95px;
-    padding: 10px;
-    border-radius: 14px;
-    background: white;
-    box-shadow: 0 4px 10px rgba(0,0,0,.12);
-}
-
-.stamp-card img {
-    width: 70px;
-    height: auto;
-}
-
-.stamp-label {
-    margin-top: 6px;
-    font-size: 12px;
+.complete-box {
+    display: none;
+    margin: 24px auto 0;
+    background: #fff4d0;
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid orange;
+    font-size: 20px;
     font-weight: bold;
+}
+
+.gift-button {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 14px 24px;
+    border-radius: 999px;
+    background: #ff6b6b;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 6px 15px rgba(0,0,0,.2);
+}
+
+.buttons {
+    margin-top: 24px;
+}
+
+button {
+    border: none;
+    padding: 12px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    color: white;
+    margin: 5px;
+    font-weight: bold;
+}
+
+.back {
+    background: #555;
+}
+
+.reset {
+    background: #ff5555;
+}
+
+@keyframes pop {
+    from {
+        transform: scale(.5);
+    }
+
+    to {
+        transform: scale(1);
+    }
 }
