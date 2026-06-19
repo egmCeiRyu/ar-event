@@ -250,3 +250,79 @@ body {
     }
 
 }
+
+#stampGetOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+}
+
+#stampGetOverlay.show {
+    display: flex;
+    animation: overlayFade 2.4s ease forwards;
+}
+
+.stamp-get-card {
+    width: 280px;
+    padding: 22px 20px 24px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, #fff7df, #ffffff);
+    text-align: center;
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+    animation: stampCardPop 2.4s ease forwards;
+}
+
+.stamp-get-title {
+    color: #ff4d6d;
+    font-size: 24px;
+    font-weight: 900;
+    margin-bottom: 12px;
+}
+
+#stampGetImage {
+    width: 150px;
+    height: 150px;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 12px rgba(0, 0, 0, 0.18));
+}
+
+.stamp-get-text {
+    margin-top: 12px;
+    color: #333;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+@keyframes overlayFade {
+    0% { opacity: 0; }
+    12% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+@keyframes stampCardPop {
+    0% {
+        opacity: 0;
+        transform: scale(0.55) translateY(30px) rotate(-5deg);
+    }
+    16% {
+        opacity: 1;
+        transform: scale(1.12) translateY(0) rotate(2deg);
+    }
+    28% {
+        transform: scale(1) rotate(0deg);
+    }
+    78% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+}

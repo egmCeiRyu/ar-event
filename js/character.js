@@ -12,11 +12,37 @@ const stampGetSound = document.getElementById("stampGetSound");
 
 const stampParticles = document.getElementById("stampParticles");
 
+const stampGetOverlay = document.getElementById("stampGetOverlay");
+const stampGetImage = document.getElementById("stampGetImage");
+
 const targetList = [
     { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
     { index: 1, image: "./assets/characters/character02.webp", characterId: 5 },
     { index: 2, image: "./assets/characters/character03.webp", characterId: 6 }
 ];
+
+const stampImageMap = {
+    4: "./assets/stamps/stamp01.png",
+    5: "./assets/stamps/stamp02.png",
+    6: "./assets/stamps/stamp03.png"
+};
+
+function showStampGetOverlay(characterId) {
+    if (!stampGetOverlay || !stampGetImage) return;
+
+    const imagePath = stampImageMap[characterId];
+    if (!imagePath) return;
+
+    stampGetImage.src = imagePath;
+
+    stampGetOverlay.classList.remove("show");
+    void stampGetOverlay.offsetWidth;
+    stampGetOverlay.classList.add("show");
+
+    setTimeout(() => {
+        stampGetOverlay.classList.remove("show");
+    }, 2400);
+}
 
 const scannedCharacters = new Set();
 
@@ -160,7 +186,7 @@ async function saveCharacterStamp(characterId) {
     }
 
     playStampSound();
-    playStampParticles();
+    showStampGetOverlay(characterId);
     showStampMessage("スタンプをゲットしました！");
     return true;
 }
