@@ -1,26 +1,26 @@
 .frame-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-    padding: 20px;
+    gap: 28px;
+    padding: 24px;
 }
 
 .frame-btn {
-    width: 100%;
-    max-height: 280px;
-    border: none;
-    border-radius: 12px;
-    overflow: hidden;
-    background: #fff;
-    cursor: pointer;
-    box-shadow: 0 3px 10px rgba(0,0,0,.15);
+    padding: 10px;
+    border-radius: 20px;
+    background: white;
+    box-shadow: 0 8px 20px rgba(0,0,0,.12);
+}
+
+.frame-btn:hover {
+    transform: scale(1.04);
 }
 
 .frame-btn img {
     width: 100%;
-    height: 280px;
-    object-fit: cover;
+    height: auto;
     display: block;
+    border-radius: 14px;
 }
 
 .camera-page {
@@ -112,4 +112,12 @@
     max-width: 100%;
     max-height: 80vh;
     object-fit: contain;
+}
+
+body{
+    background:linear-gradient(180deg,#FFFDF8,#F8F6ED);
+}
+
+.frame-btn:active{
+    transform:scale(.96);
 }
