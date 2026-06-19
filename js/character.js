@@ -137,4 +137,17 @@ async function startAR() {
     }
 }
 
+const captureButton = document.getElementById("captureButton");
+
+captureButton.addEventListener("click", () => {
+    const canvas = document.querySelector("canvas");
+
+    if (!canvas) return;
+
+    const link = document.createElement("a");
+    link.download = "ar-character.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+});
+
 startAR();

@@ -1,118 +1,262 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
 }
 
 html,
-body {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #000;
-    touch-action: none;
-    font-family: sans-serif;
+body{
+
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    touch-action:none;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+
 }
 
-#container {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
+#container{
+
+    position:fixed;
+    inset:0;
+    width:100vw;
+    height:100vh;
+    overflow:hidden;
+
 }
 
-canvas {
-    display: block;
-    width: 100% !important;
-    height: 100% !important;
+canvas{
+
+    position:fixed;
+    inset:0;
+    width:100% !important;
+    height:100% !important;
+    display:block;
+
 }
 
-.loading {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,.75);
-    color: white;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 20px;
-    z-index: 999;
+/* ---------------------- */
+/* Scan Message */
+/* ---------------------- */
+
+#scanText{
+
+    position:fixed;
+
+    top:20px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+    background:rgba(0,0,0,.65);
+
+    color:#fff;
+
+    padding:10px 20px;
+
+    border-radius:30px;
+
+    font-size:14px;
+
+    font-weight:bold;
+
+    z-index:99999;
+
+    white-space:nowrap;
+
 }
 
-.popup {
-    position: fixed;
-    left: 50%;
-    bottom: 70px;
-    transform: translateX(-50%);
-    background: #ff4d6d;
-    color: white;
-    font-weight: bold;
-    padding: 14px 28px;
-    border-radius: 30px;
-    display: none;
-    z-index: 9999;
+/* ---------------------- */
+/* Home Button */
+/* ---------------------- */
+
+#homeButton{
+
+    position:fixed;
+
+    left:20px;
+
+    bottom:25px;
+
+    z-index:99999;
+
 }
 
-.back-button {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 9999;
-    background: rgba(0,0,0,.6);
-    color: white;
-    text-decoration: none;
-    padding: 10px 18px;
-    border-radius: 20px;
-    backdrop-filter: blur(8px);
+#homeButton a{
+
+    width:58px;
+
+    height:58px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    border-radius:50%;
+
+    background:rgba(255,255,255,.92);
+
+    text-decoration:none;
+
+    font-size:28px;
+
+    color:#222;
+
+    box-shadow:0 4px 12px rgba(0,0,0,.25);
+
+    backdrop-filter:blur(8px);
+
 }
 
-#debugText {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 99999;
-    color: white;
-    background: rgba(0,0,0,0.7);
-    padding: 10px 14px;
-    border-radius: 10px;
-    font-size: 14px;
+#homeButton a:active{
+
+    transform:scale(.95);
+
 }
 
-#homeButton {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-    z-index: 99999;
+/* ---------------------- */
+/* Capture Button */
+/* ---------------------- */
+
+#captureButton{
+
+    position:fixed;
+
+    right:20px;
+
+    bottom:25px;
+
+    width:74px;
+
+    height:74px;
+
+    border-radius:50%;
+
+    border:5px solid rgba(255,255,255,.95);
+
+    background:rgba(255,255,255,.35);
+
+    box-shadow:0 4px 14px rgba(0,0,0,.25);
+
+    z-index:99999;
+
+    cursor:pointer;
+
 }
 
-#homeButton a {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+#captureButton::after{
 
-    width: 52px;
-    height: 52px;
+    content:"";
 
-    border-radius: 50%;
-    background: rgba(255,255,255,0.92);
+    position:absolute;
 
-    color: #222;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: bold;
+    left:50%;
 
-    box-shadow: 0 4px 12px rgba(0,0,0,.25);
+    top:50%;
 
-    backdrop-filter: blur(8px);
+    transform:translate(-50%,-50%);
 
-    transition: .2s;
+    width:52px;
+
+    height:52px;
+
+    background:#fff;
+
+    border-radius:50%;
+
 }
 
-#homeButton a:hover {
-    transform: scale(1.05);
+#captureButton:active{
+
+    transform:scale(.95);
+
 }
 
-#homeButton a:active {
-    transform: scale(0.95);
+/* ---------------------- */
+/* Debug */
+/* ---------------------- */
+
+#debugText{
+
+    position:fixed;
+
+    top:70px;
+
+    left:20px;
+
+    z-index:99999;
+
+    color:white;
+
+    background:rgba(0,0,0,.6);
+
+    padding:8px 12px;
+
+    border-radius:10px;
+
+    font-size:12px;
+
+    display:none;
+
+}
+
+/* ---------------------- */
+/* Scan Frame */
+/* ---------------------- */
+
+.scan-frame{
+
+    position:fixed;
+
+    left:50%;
+
+    top:50%;
+
+    transform:translate(-50%,-50%);
+
+    width:280px;
+
+    height:420px;
+
+    pointer-events:none;
+
+    z-index:999;
+
+}
+
+.scan-frame::before,
+.scan-frame::after{
+
+    content:"";
+
+    position:absolute;
+
+    width:42px;
+
+    height:42px;
+
+    border-top:6px solid white;
+
+    border-left:6px solid white;
+
+}
+
+.scan-frame::before{
+
+    left:0;
+    top:0;
+
+}
+
+.scan-frame::after{
+
+    right:0;
+    bottom:0;
+    transform:rotate(180deg);
+
 }
