@@ -4,8 +4,8 @@ let currentStream = null;
 let facingMode = "user";
 let selectedFrame = "assets/photoframe/frame01.webp";
 
-const FRAME_WIDTH = 800;
-const FRAME_HEIGHT = 1600;
+const FRAME_WIDTH = 1080;
+const FRAME_HEIGHT = 1920;
 
 const frames = Array.from(
     { length: 14 },
