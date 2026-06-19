@@ -115,21 +115,16 @@ async function startAR() {
         setDebug("マーカーをスキャンしてください");
 
         renderer.setAnimationLoop(() => {
-            const delta = 0.016;
+        characterMeshes.forEach(item => {
+            const mesh = item.mesh;
 
-            characterMeshes.forEach(item => {
-                const mesh = item.mesh;
+            if (item.visible) {
+                const targetScale = 1;
+                const currentScale = mesh.scale.x;
+                const nextScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.12);
 
-                if (item.visible) {
-                    item.time += delta;
-
-                    const targetScale = 1;
-                    const currentScale = mesh.scale.x;
-                    const nextScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.12);
-
-                    mesh.scale.set(nextScale, nextScale, nextScale);
-
-                    mesh.position.y = 0.45 + Math.sin(item.time * 3) * 0.025;
+                mesh.scale.set(nextScale, nextScale, nextScale);
+                mesh.position.y = 0.45;
                 }
             });
 
