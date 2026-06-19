@@ -31,7 +31,7 @@ function log(message) {
 }
 
 function getSupabaseClient() {
-    return window.supabaseClient;
+    return supabaseClient;
 }
 
 function unlockSound() {
