@@ -1,9 +1,35 @@
+.page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+header a {
+    font-size: 24px;
+    text-decoration: none;
+    color: #555;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 38px;
+    font-weight: 800;
+    color: #222;
+    letter-spacing: 2px;
+}
+
 .frame-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 24px;
-    padding: 20px;
-    justify-items: center;
+    grid-template-columns: repeat(2, minmax(180px, 220px));
+    justify-content: center;
+    gap: 32px 48px;
 }
 
 .frame-btn {
