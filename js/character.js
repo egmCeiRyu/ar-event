@@ -324,7 +324,7 @@ async function startAR() {
                 const mesh = item.mesh;
 
                 if (item.visible) {
-                    const s = THREE.MathUtils.lerp(mesh.scale.x, 1, 0.08);
+                    const s = THREE.MathUtils.lerp(mesh.scale.x, 1, 0.25);
                     mesh.scale.set(s, s, s);
 
                     mesh.position.set(0, 0.05, 0);
