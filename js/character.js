@@ -34,7 +34,6 @@ async function getCurrentUser() {
 
 async function saveCharacterStamp(characterId) {
     const user = await getCurrentUser();
-    console.log("CHARACTER USER:", user.id);
 
     if (!user) {
         showStampMessage("ログインエラー");
@@ -286,6 +285,8 @@ async function startAR() {
 
                 const characterId = item.characterId;
 
+                showStampMessage("スタンプをゲットしました！");
+
                 if (!scannedCharacters.has(characterId)) {
                     const saved = await saveCharacterStamp(characterId);
 
@@ -296,6 +297,8 @@ async function startAR() {
                     showStampMessage("このスタンプはすでに取得済みです");
                 }
             };
+
+            
             anchor.onTargetLost = () => {
                 log("マーカーをスキャンしてください");
                 meshes[item.index].visible = false;
