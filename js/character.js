@@ -34,6 +34,7 @@ async function getCurrentUser() {
 
 async function saveCharacterStamp(characterId) {
     const user = await getCurrentUser();
+    console.log("CHARACTER USER:", user.id);
 
     if (!user) {
         showStampMessage("ログインエラー");
@@ -284,8 +285,6 @@ async function startAR() {
                 setScanningUI(false);
 
                 const characterId = item.characterId;
-
-                showStampMessage("スタンプ確認中...");
 
                 if (!scannedCharacters.has(characterId)) {
                     const saved = await saveCharacterStamp(characterId);
