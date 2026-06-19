@@ -344,6 +344,12 @@ async function startAR() {
             anchor.onTargetFound = async () => {
                 log(`marker${item.index + 1} 検出`);
 
+                    meshes.forEach(m => {
+                        if (!m) return;
+                        m.visible = false;
+                        m.mesh.scale.set(0.001, 0.001, 0.001);
+                    });
+
                 meshes[item.index].visible = true;
                 setScanningUI(false);
 
