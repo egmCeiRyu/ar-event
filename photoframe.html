@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
@@ -8,39 +10,29 @@
 <link rel="stylesheet" href="css/photoframe.css">
 
 <title>Photo Frame</title>
+
 </head>
 
 <body>
 
-<div id="frameSelectPage" class="page">
-    <header>
-        <a href="index.html">←</a>
-        <h1>フォトフレーム</h1>
-    </header>
+<div class="page">
 
-    <div id="frameGrid" class="frame-grid"></div>
+<header>
+
+<a href="index.html">←</a>
+
+<h1>フォトフレーム</h1>
+
+</header>
+
+<div class="frame-grid" id="frameGrid">
+
 </div>
 
-<div id="cameraPage" class="camera-page hidden">
-    <video id="camera" autoplay playsinline muted></video>
-    <img id="photoFrame" src="assets/photoframe/frame01.webp">
-    <canvas id="captureCanvas"></canvas>
-
-    <button id="closeCameraBtn" class="close-btn">←</button>
-
-    <div class="camera-controls">
-        <button id="switchBtn">🔄</button>
-        <button id="captureBtn">📸</button>
-        <button id="saveBtn" class="hidden">保存</button>
-    </div>
-
-    <div id="previewArea" class="preview-area hidden">
-        <img id="previewImage">
-        <button id="retakeBtn">撮り直す</button>
-    </div>
 </div>
 
 <script src="js/photoframe.js"></script>
 
 </body>
+
 </html>
