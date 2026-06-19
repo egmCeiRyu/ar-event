@@ -34,7 +34,11 @@ async function getCurrentUser() {
 
 async function saveCharacterStamp(characterId) {
     const user = await getCurrentUser();
-    if (!user) return;
+
+    if (!user) {
+        showStampMessage("ログインエラー");
+        return false;
+    }
 
     const { data: existing, error: checkError } = await supabaseClient
         .from("user_stamps")
@@ -45,13 +49,13 @@ async function saveCharacterStamp(characterId) {
 
     if (checkError) {
         console.error("Check stamp error:", checkError);
-        log("通信エラー");
-        return;
+        showStampMessage("通信エラー");
+        return false;
     }
 
     if (existing) {
         showStampMessage("このスタンプはすでに取得済みです");
-        return;
+        return true;
     }
 
     const { error: insertError } = await supabaseClient
@@ -63,11 +67,12 @@ async function saveCharacterStamp(characterId) {
 
     if (insertError) {
         console.error("Insert stamp error:", insertError);
-        log("スタンプ保存エラー");
-        return;
+        showStampMessage("スタンプ保存エラー");
+        return false;
     }
 
     showStampMessage("スタンプをゲットしました！");
+    return true;
 }
 
 let rendererRef = null;
@@ -280,14 +285,18 @@ async function startAR() {
 
                 const characterId = item.characterId;
 
+                showStampMessage("スタンプ確認中...");
+
                 if (!scannedCharacters.has(characterId)) {
-                    scannedCharacters.add(characterId);
-                    await saveCharacterStamp(characterId);
+                    const saved = await saveCharacterStamp(characterId);
+
+                    if (saved) {
+                        scannedCharacters.add(characterId);
+                    }
                 } else {
                     showStampMessage("このスタンプはすでに取得済みです");
                 }
             };
-
             anchor.onTargetLost = () => {
                 log("マーカーをスキャンしてください");
                 meshes[item.index].visible = false;
