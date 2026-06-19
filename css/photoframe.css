@@ -39,13 +39,21 @@ header h1 {
 
 .frame-btn {
     width: 100%;
+    max-width: 210px;
+
+    justify-self: center;
+
+    padding: 8px;
+
     background: #fff;
     border: none;
     border-radius: 22px;
-    padding: 8px;
-    cursor: pointer;
-    box-shadow: 0 8px 22px rgba(0,0,0,.12);
-    transition: transform .2s ease;
+
+    overflow: hidden;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,.12);
+
+    transition: .2s;
 }
 
 .frame-btn:hover {
@@ -57,10 +65,18 @@ header h1 {
 }
 
 .frame-btn img {
+
     width: 100%;
     height: auto;
+
     display: block;
+
+    aspect-ratio: 9 / 16;
+
+    object-fit: contain;
+
     border-radius: 16px;
+
 }
 
 /* PC */
@@ -189,4 +205,44 @@ header h1 {
     font-weight: 900;
     font-size: 15px;
     box-shadow: 0 6px 18px rgba(0,0,0,.25);
+}
+
+@media (min-width: 768px) {
+
+    #cameraVideo,
+    #selectedPhotoFrame {
+
+        width: auto;
+        height: 95vh;
+
+        left: 50%;
+        top: 50%;
+
+        transform: translate(-50%, -50%);
+
+        object-fit: contain;
+    }
+
+    .camera-bottom {
+
+        width: 540px;
+
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    .preview-area {
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    #previewImage {
+
+        height: 90vh;
+        width: auto;
+        max-width: 520px;
+    }
+
 }
