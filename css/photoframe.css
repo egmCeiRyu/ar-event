@@ -39,13 +39,15 @@ header h1 {
 
 .frame-btn {
     width: 100%;
+    max-width: 210px;
+    justify-self: center;
+    padding: 8px;
     background: #fff;
     border: none;
     border-radius: 22px;
-    padding: 8px;
-    cursor: pointer;
-    box-shadow: 0 8px 22px rgba(0,0,0,.12);
-    transition: transform .2s ease;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,.12);
+    transition: .2s;
 }
 
 .frame-btn:hover {
@@ -60,10 +62,12 @@ header h1 {
     width: 100%;
     height: auto;
     display: block;
+    aspect-ratio: 9 / 16;
+    object-fit: contain;
     border-radius: 16px;
 }
 
-/* PC */
+/* PC - lista de frames */
 @media (min-width: 768px) {
     .page {
         max-width: 620px;
@@ -79,22 +83,38 @@ header h1 {
     }
 }
 
-/* Camera Overlay */
+/* =========================
+   Camera Overlay
+========================= */
+
 #cameraPage {
     position: fixed;
     inset: 0;
     background: #000;
     z-index: 9999;
     overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #cameraVideo,
 #selectedPhotoFrame {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+
+    width: min(100vw, calc(100dvh * 9 / 16));
+    height: min(100dvh, calc(100vw * 16 / 9));
+
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
     object-fit: cover;
+}
+
+#cameraVideo {
+    z-index: 1;
 }
 
 #selectedPhotoFrame {
@@ -106,58 +126,95 @@ header h1 {
     display: none;
 }
 
+/* Botões da câmera dentro da área 9:16 */
 .camera-bottom {
     position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 28px;
+
+    width: min(100vw, calc(100dvh * 9 / 16));
+    height: min(100dvh, calc(100vw * 16 / 9));
+
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
     z-index: 5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 16px;
+    pointer-events: none;
+}
+
+.round-btn,
+.capture-btn {
+    pointer-events: auto;
 }
 
 .round-btn {
+    position: absolute;
+    bottom: calc(26px + env(safe-area-inset-bottom));
+
     width: 62px;
     height: 62px;
+
     border: none;
     border-radius: 50%;
+
     background: rgba(255,255,255,.92);
     color: #333;
+
     font-size: 14px;
     font-weight: 900;
+
     box-shadow: 0 6px 18px rgba(0,0,0,.25);
 }
 
 .capture-btn {
+    position: absolute;
+    left: 50%;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+
     width: 86px;
     height: 86px;
+
     border: 5px solid rgba(255,255,255,.95);
     border-radius: 50%;
+
     background: #ff6f91;
     color: #fff;
+
     font-size: 18px;
     font-weight: 900;
+
     box-shadow: 0 8px 24px rgba(0,0,0,.35);
 }
 
-.round-btn:active,
-.capture-btn:active {
+#backToFramesBtn {
+    left: 20px;
+}
+
+#switchCameraBtn {
+    right: 20px;
+}
+
+.round-btn:active {
     transform: scale(.94);
 }
 
+.capture-btn:active {
+    transform: translateX(-50%) scale(.94);
+}
+
+/* =========================
+   Preview
+========================= */
 
 .preview-area {
     position: absolute;
     inset: 0;
     z-index: 10;
     background: #000;
+
     display: flex;
-    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    padding: 18px;
-    gap: 18px;
 }
 
 .preview-area.hidden {
@@ -165,8 +222,8 @@ header h1 {
 }
 
 #previewImage {
-    width: 100%;
-    max-height: 82vh;
+    width: min(100vw, calc(100dvh * 9 / 16));
+    height: min(100dvh, calc(100vw * 16 / 9));
     object-fit: contain;
 }
 
@@ -175,19 +232,36 @@ header h1 {
     left: 0;
     right: 0;
     bottom: calc(26px + env(safe-area-inset-bottom));
+
     display: flex;
     justify-content: center;
     gap: 16px;
+
+    z-index: 20;
 }
 
 .preview-bottom button {
     border: none;
     border-radius: 999px;
+
     padding: 14px 24px;
+
     background: #fff;
     color: #333;
+
     font-weight: 900;
     font-size: 15px;
+
     box-shadow: 0 6px 18px rgba(0,0,0,.25);
 }
 
+/* PC - câmera centralizada como celular */
+@media (min-width: 768px) {
+    #cameraVideo,
+    #selectedPhotoFrame,
+    #previewImage,
+    .camera-bottom {
+        width: min(420px, calc(100dvh * 9 / 16));
+        height: min(95dvh, calc(420px * 16 / 9));
+    }
+}
