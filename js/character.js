@@ -88,18 +88,22 @@ function log(message) {
     if (debugText) debugText.textContent = message;
 }
 
+
+
 function showStampMessage(message, playSound = false) {
+    if (!stampMessage) return;
 
     stampMessage.textContent = message;
-
-    stampMessage.classList.remove("show");
-    void stampMessage.offsetWidth;
-    stampMessage.classList.add("show");
+    stampMessage.style.display = "block";
 
     if (playSound && stampGetSound) {
         stampGetSound.currentTime = 0;
         stampGetSound.play().catch(() => {});
     }
+
+    setTimeout(() => {
+        stampMessage.style.display = "none";
+    }, 1800);
 }
 
 function setScanningUI(isScanning) {
