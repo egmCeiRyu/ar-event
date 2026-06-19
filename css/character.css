@@ -215,20 +215,38 @@ body {
 
 .stamp-particle {
     position: absolute;
-    width: 10px;
-    height: 10px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
-    background: #ffd84d;
-    animation: particleBurst 850ms ease-out forwards;
+
+    background:
+        radial-gradient(circle,
+        #ffffff 0%,
+        #ffe55e 35%,
+        #ffb300 100%);
+
+    box-shadow:
+        0 0 8px #fff,
+        0 0 18px #ffd84d,
+        0 0 28px #ff9f1c;
+
+    animation: particleBurst 1.2s ease-out forwards;
 }
 
 @keyframes particleBurst {
+
     0% {
         opacity: 1;
-        transform: translate(0, 0) scale(1);
+        transform:
+            translate(0,0)
+            scale(1);
     }
+
     100% {
         opacity: 0;
-        transform: translate(var(--x), var(--y)) scale(0.2);
+        transform:
+            translate(var(--x), var(--y))
+            scale(0);
     }
+
 }

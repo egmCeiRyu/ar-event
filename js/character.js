@@ -35,12 +35,12 @@ function playStampParticles() {
 
     stampParticles.innerHTML = "";
 
-    for (let i = 0; i < 18; i++) {
+    for (let i = 0; i < 45; i++) {
         const particle = document.createElement("span");
         particle.className = "stamp-particle";
 
         const angle = Math.random() * Math.PI * 2;
-        const distance = 55 + Math.random() * 65;
+        const distance = 80 + Math.random() * 140;
 
         const x = Math.cos(angle) * distance;
         const y = Math.sin(angle) * distance;
