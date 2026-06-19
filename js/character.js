@@ -51,28 +51,50 @@ async function processMarker(markerCode) {
 
     const userId = user.id;
 
-    console.log("SAVE USER:", userId);
-    console.log("SAVE CHARACTER:", characterId);
+    console.log("CHECK USER:", userId);
+    console.log("CHECK CHARACTER:", characterId);
 
-    const { error } = await supabaseClient
+    // 1. Primeiro verifica se já existe
+    const { data: existingStamp, error: checkError } = await supabaseClient
         .from("user_stamps")
-        .upsert(
-            {
-                user_id: userId,
-                character_id: characterId,
-                acquired_at: new Date().toISOString()
-            },
-            {
-                onConflict: "user_id,character_id"
-            }
-        );
+        .select("id")
+        .eq("user_id", userId)
+        .eq("character_id", characterId)
+        .maybeSingle();
 
-    if (error) {
-        console.error("Erro ao salvar stamp:", error);
+    if (checkError) {
+        console.error("Erro ao verificar stamp:", checkError);
         showPopup("エラーが発生しました");
         return;
     }
 
+    // 2. Se já existe, NÃO toca som e NÃO mostra Stamp Get
+    if (existingStamp) {
+        showPopup("このスタンプはすでにアルバムに保存されています。");
+
+        setTimeout(() => {
+            window.location.href = "stampbook.html";
+        }, 1800);
+
+        return;
+    }
+
+    // 3. Se não existe, salva novo stamp
+    const { error: insertError } = await supabaseClient
+        .from("user_stamps")
+        .insert({
+            user_id: userId,
+            character_id: characterId,
+            acquired_at: new Date().toISOString()
+        });
+
+    if (insertError) {
+        console.error("Erro ao salvar stamp:", insertError);
+        showPopup("エラーが発生しました");
+        return;
+    }
+
+    // 4. Somente nova estampa toca som
     const sound = new Audio("assets/sounds/stamp.mp3");
     sound.volume = 0.8;
     sound.play();
