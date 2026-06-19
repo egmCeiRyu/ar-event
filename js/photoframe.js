@@ -152,7 +152,7 @@ function capturePhoto() {
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, width, height);
 
-    drawContain(ctx, video, width, height);
+    drawCover(ctx, video, width, height);
 
     ctx.drawImage(frame, 0, 0, width, height);
 
