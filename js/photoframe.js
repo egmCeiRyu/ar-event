@@ -127,14 +127,15 @@ function drawCover(ctx, img, canvasW, canvasH) {
 }
 
 function capturePhoto() {
+
     const video = document.getElementById("cameraVideo");
     const frame = document.getElementById("selectedPhotoFrame");
     const canvas = document.getElementById("captureCanvas");
     const previewArea = document.getElementById("previewArea");
     const previewImage = document.getElementById("previewImage");
 
-    const width = 1080;
-    const height = 1920;
+    const width = frame.naturalWidth;
+    const height = frame.naturalHeight;
 
     canvas.width = width;
     canvas.height = height;
@@ -143,12 +144,17 @@ function capturePhoto() {
 
     ctx.clearRect(0, 0, width, height);
 
+    // câmera
     drawCover(ctx, video, width, height);
-    drawCover(ctx, frame, width, height);
+
+    // moldura inteira
+    ctx.drawImage(frame, 0, 0, width, height);
 
     previewImage.src = canvas.toDataURL("image/png");
+
     previewArea.classList.remove("hidden");
 }
+
 
 function retakePhoto() {
     const previewArea = document.getElementById("previewArea");
