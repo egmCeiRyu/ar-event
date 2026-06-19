@@ -104,13 +104,22 @@ header h1 {
     overflow: hidden;
 }
 
-#cameraVideo,
-#selectedPhotoFrame {
+#cameraVideo {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+}
+
+#selectedPhotoFrame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    z-index: 2;
+    pointer-events: none;
 }
 
 #selectedPhotoFrame {
