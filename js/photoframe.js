@@ -4,8 +4,6 @@ let currentStream = null;
 let facingMode = "user";
 let selectedFrame = "assets/photoframe/frame01.webp";
 
-const SELFIE_ZOOM_OUT = 0.88;
-
 const frames = Array.from(
     { length: 14 },
     () => "assets/photoframe/frame01.webp"
@@ -39,7 +37,9 @@ function createCameraPage() {
 
     cameraPage.innerHTML = `
         <video id="cameraVideo" autoplay playsinline muted></video>
+
         <img id="selectedPhotoFrame" src="${selectedFrame}" alt="フォトフレーム">
+
         <canvas id="captureCanvas"></canvas>
 
         <div class="camera-bottom">
@@ -89,14 +89,8 @@ async function startCamera() {
         });
 
         video.srcObject = currentStream;
-        await video.play();
 
-        if (facingMode === "user") {
-            video.style.transform = `scale(${SELFIE_ZOOM_OUT})`;
-            video.style.background = "#000";
-        } else {
-            video.style.transform = "scale(1)";
-        }
+        await video.play();
 
     } catch (error) {
         alert("カメラを起動できませんでした");
@@ -132,25 +126,6 @@ function drawCover(ctx, img, canvasW, canvasH) {
     ctx.drawImage(img, x, y, drawW, drawH);
 }
 
-function drawSelfieZoomOut(ctx, video, canvasW, canvasH) {
-    drawCover(ctx, video, canvasW, canvasH);
-
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = canvasW;
-    tempCanvas.height = canvasH;
-
-    const tempCtx = tempCanvas.getContext("2d");
-    drawCover(tempCtx, video, canvasW, canvasH);
-
-    const newW = canvasW * SELFIE_ZOOM_OUT;
-    const newH = canvasH * SELFIE_ZOOM_OUT;
-
-    const x = (canvasW - newW) / 2;
-    const y = (canvasH - newH) / 2;
-
-    ctx.drawImage(tempCanvas, x, y, newW, newH);
-}
-
 function capturePhoto() {
     const video = document.getElementById("cameraVideo");
     const frame = document.getElementById("selectedPhotoFrame");
@@ -165,14 +140,10 @@ function capturePhoto() {
     canvas.height = height;
 
     const ctx = canvas.getContext("2d");
+
     ctx.clearRect(0, 0, width, height);
 
-    if (facingMode === "user") {
-        drawSelfieZoomOut(ctx, video, width, height);
-    } else {
-        drawCover(ctx, video, width, height);
-    }
-
+    drawCover(ctx, video, width, height);
     drawCover(ctx, frame, width, height);
 
     previewImage.src = canvas.toDataURL("image/png");
@@ -180,7 +151,8 @@ function capturePhoto() {
 }
 
 function retakePhoto() {
-    document.getElementById("previewArea").classList.add("hidden");
+    const previewArea = document.getElementById("previewArea");
+    previewArea.classList.add("hidden");
 }
 
 async function savePhoto() {
