@@ -62,17 +62,6 @@ function showStampMessage(message, playSound = false) {
     stampMessage.textContent = message;
     stampMessage.style.display = "block";
 
-    if (playSound && stampGetSound) {
-        stampGetSound.muted = false;
-        stampGetSound.volume = 1;
-        stampGetSound.pause();
-        stampGetSound.currentTime = 0;
-
-        stampGetSound.play().catch(error => {
-            console.log("Sound play failed:", error);
-        });
-    }
-
     setTimeout(() => {
         stampMessage.style.display = "none";
     }, 1800);
@@ -116,6 +105,11 @@ async function saveCharacterStamp(characterId) {
         return false;
     }
 
+    if (existing) {
+    showStampMessage("このスタンプはすでに取得済みです");
+    return true;
+    }
+
     const { data: existing, error: checkError } = await supabaseClient
         .from("user_stamps")
         .select("id")
@@ -147,8 +141,21 @@ async function saveCharacterStamp(characterId) {
         return false;
     }
 
+    playStampSound();
     showStampMessage("スタンプをゲットしました！", true);
     return true;
+}
+
+function playStampSound() {
+    if (!stampGetSound) return;
+
+    stampGetSound.pause();
+    stampGetSound.currentTime = 0;
+    stampGetSound.volume = 1;
+
+    stampGetSound.play().catch(error => {
+        console.log(error);
+    });
 }
 
 function loadTexture(path) {
