@@ -4,6 +4,9 @@ let currentStream = null;
 let facingMode = "user";
 let selectedFrame = "assets/photoframe/frame01.webp";
 
+const FRAME_WIDTH = 800;
+const FRAME_HEIGHT = 1600;
+
 const frames = Array.from(
     { length: 14 },
     () => "assets/photoframe/frame01.webp"
@@ -82,14 +85,13 @@ async function startCamera() {
         currentStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: facingMode,
-                width: { ideal: 1080 },
-                height: { ideal: 1920 }
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
             },
             audio: false
         });
 
         video.srcObject = currentStream;
-
         await video.play();
 
     } catch (error) {
@@ -111,11 +113,15 @@ async function switchCamera() {
     await startCamera();
 }
 
-function drawCover(ctx, img, canvasW, canvasH) {
+function drawContain(ctx, img, canvasW, canvasH) {
     const imgW = img.videoWidth || img.naturalWidth;
     const imgH = img.videoHeight || img.naturalHeight;
 
-    const scale = Math.max(canvasW / imgW, canvasH / imgH);
+    if (!imgW || !imgH) {
+        return;
+    }
+
+    const scale = Math.min(canvasW / imgW, canvasH / imgH);
 
     const drawW = imgW * scale;
     const drawH = imgH * scale;
@@ -133,8 +139,8 @@ function capturePhoto() {
     const previewArea = document.getElementById("previewArea");
     const previewImage = document.getElementById("previewImage");
 
-    const width = 800;
-    const height = 1600;
+    const width = FRAME_WIDTH;
+    const height = FRAME_HEIGHT;
 
     canvas.width = width;
     canvas.height = height;
@@ -143,7 +149,10 @@ function capturePhoto() {
 
     ctx.clearRect(0, 0, width, height);
 
-    drawCover(ctx, video, width, height);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+
+    drawContain(ctx, video, width, height);
 
     ctx.drawImage(frame, 0, 0, width, height);
 
