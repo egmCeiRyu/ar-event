@@ -113,7 +113,7 @@ async function switchCamera() {
     await startCamera();
 }
 
-function drawContain(ctx, img, canvasW, canvasH) {
+function drawCover(ctx, img, canvasW, canvasH) {
     const imgW = img.videoWidth || img.naturalWidth;
     const imgH = img.videoHeight || img.naturalHeight;
 
@@ -121,7 +121,7 @@ function drawContain(ctx, img, canvasW, canvasH) {
         return;
     }
 
-    const scale = Math.min(canvasW / imgW, canvasH / imgH);
+    const scale = Math.max(canvasW / imgW, canvasH / imgH);
 
     const drawW = imgW * scale;
     const drawH = imgH * scale;
@@ -148,9 +148,6 @@ function capturePhoto() {
     const ctx = canvas.getContext("2d");
 
     ctx.clearRect(0, 0, width, height);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.fillRect(0, 0, width, height);
 
     drawCover(ctx, video, width, height);
 
