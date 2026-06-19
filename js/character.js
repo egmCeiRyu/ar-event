@@ -5,8 +5,9 @@ const debugText = document.getElementById("debugText");
 const scanText = document.getElementById("scanText");
 const scanFrame = document.getElementById("scanFrame");
 const captureButton = document.getElementById("captureButton");
-const stampMessage = document.getElementById("stampMessage");
 
+const stampMessage = document.getElementById("stampMessage");
+const stampGetSound = document.getElementById("stampGetSound");
 
 const targetList = [
     { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
@@ -82,9 +83,24 @@ let cameraRef = null;
 const zeroPos = new THREE.Vector3(0, 0, 0);
 const zeroQuat = new THREE.Quaternion();
 
+// funcao das estampas
 function log(message) {
     console.log(message);
     if (debugText) debugText.textContent = message;
+}
+
+function showStampMessage(message, playSound = false) {
+
+    stampMessage.textContent = message;
+
+    stampMessage.classList.remove("show");
+    void stampMessage.offsetWidth;
+    stampMessage.classList.add("show");
+
+    if (playSound && stampGetSound) {
+        stampGetSound.currentTime = 0;
+        stampGetSound.play().catch(() => {});
+    }
 }
 
 function showStampMessage(message) {
@@ -97,6 +113,8 @@ function showStampMessage(message) {
         stampMessage.style.display = "none";
     }, 1800);
 }
+// funcao das estampas
+
 
 function setScanningUI(isScanning) {
     if (scanText) scanText.style.display = isScanning ? "block" : "none";
@@ -298,7 +316,7 @@ async function startAR() {
                 }
             };
 
-            
+
             anchor.onTargetLost = () => {
                 log("マーカーをスキャンしてください");
                 meshes[item.index].visible = false;
