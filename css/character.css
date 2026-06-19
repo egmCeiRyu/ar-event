@@ -36,6 +36,7 @@ body {
     height: 100% !important;
     object-fit: cover !important;
     z-index: 1 !important;
+    pointer-events:none !important;
 }
 
 #arContainer canvas {
@@ -45,6 +46,7 @@ body {
     height: 100% !important;
     background: transparent !important;
     z-index: 2 !important;
+    pointer-events:none !important;
 }
 
 #scanText {
@@ -97,6 +99,9 @@ body {
 
 #homeButton {
     position: absolute;
+    z-index:9999999;
+    pointer-events:auto;
+    touch-action:manipulation;
     left: 22px;
     bottom: 30px;
     width: 56px;
@@ -114,7 +119,10 @@ body {
 }
 
 #captureButton {
-    position: absolute;
+    position:absolute;
+    z-index:9999999;
+    pointer-events:auto;
+    touch-action:manipulation;
     right: 22px;
     bottom: 26px;
     width: 70px;

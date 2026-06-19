@@ -7,22 +7,14 @@ const scanFrame = document.getElementById("scanFrame");
 const captureButton = document.getElementById("captureButton");
 
 const targetList = [
-    {
-        index: 0,
-        image: "./assets/characters/character01.webp",
-        characterId: 4
-    },
-    {
-        index: 1,
-        image: "./assets/characters/character02.webp",
-        characterId: 5
-    },
-    {
-        index: 2,
-        image: "./assets/characters/character03.webp",
-        characterId: 6
-    }
+    { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
+    { index: 1, image: "./assets/characters/character02.webp", characterId: 5 },
+    { index: 2, image: "./assets/characters/character03.webp", characterId: 6 }
 ];
+
+let rendererRef = null;
+let sceneRef = null;
+let cameraRef = null;
 
 function log(message) {
     console.log(message);
@@ -30,8 +22,8 @@ function log(message) {
 }
 
 function setScanningUI(isScanning) {
-    scanText.style.display = isScanning ? "block" : "none";
-    scanFrame.style.display = isScanning ? "block" : "none";
+    if (scanText) scanText.style.display = isScanning ? "block" : "none";
+    if (scanFrame) scanFrame.style.display = isScanning ? "block" : "none";
 }
 
 function loadTexture(path) {
@@ -75,6 +67,8 @@ function createCharacterMesh(texture) {
 
 function fixMindARVideoLayer() {
     const container = document.querySelector("#arContainer");
+    if (!container) return;
+
     const videos = container.querySelectorAll("video");
     const canvases = container.querySelectorAll("canvas");
 
@@ -97,6 +91,74 @@ function fixMindARVideoLayer() {
     });
 }
 
+function getCompositedCanvas() {
+    const container = document.querySelector("#arContainer");
+    const video = container?.querySelector("video");
+    const webglCanvas = container?.querySelector("canvas");
+
+    if (!video || !webglCanvas) return null;
+
+    const width = webglCanvas.width;
+    const height = webglCanvas.height;
+
+    const output = document.createElement("canvas");
+    output.width = width;
+    output.height = height;
+
+    const ctx = output.getContext("2d");
+
+    ctx.drawImage(video, 0, 0, width, height);
+    ctx.drawImage(webglCanvas, 0, 0, width, height);
+
+    return output;
+}
+
+async function capturePhoto() {
+    try {
+        if (rendererRef && sceneRef && cameraRef) {
+            rendererRef.render(sceneRef, cameraRef);
+        }
+
+        const canvas = getCompositedCanvas();
+
+        if (!canvas) {
+            alert("写真を撮れませんでした。");
+            return;
+        }
+
+        canvas.toBlob(async blob => {
+            if (!blob) return;
+
+            const file = new File(
+                [blob],
+                "ARCharacter.png",
+                { type: "image/png" }
+            );
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                try {
+                    await navigator.share({
+                        files: [file],
+                        title: "AR Character",
+                        text: "AR Event"
+                    });
+                } catch (error) {
+                    console.log("Share canceled:", error);
+                }
+            } else {
+                const link = document.createElement("a");
+                link.download = "ARCharacter.png";
+                link.href = URL.createObjectURL(blob);
+                link.click();
+            }
+        }, "image/png");
+
+    } catch (error) {
+        console.error(error);
+        alert("Capture error: " + error.message);
+    }
+}
+
 async function startAR() {
     try {
         log("MindAR読み込み中...");
@@ -108,6 +170,10 @@ async function startAR() {
         });
 
         const { renderer, scene, camera } = mindarThree;
+
+        rendererRef = renderer;
+        sceneRef = scene;
+        cameraRef = camera;
 
         renderer.setClearColor(0x000000, 0);
         renderer.setClearAlpha(0);
@@ -146,7 +212,6 @@ async function startAR() {
         await mindarThree.start();
 
         fixMindARVideoLayer();
-
         setTimeout(fixMindARVideoLayer, 500);
         setTimeout(fixMindARVideoLayer, 1500);
 
@@ -162,7 +227,7 @@ async function startAR() {
                 if (item.visible) {
                     const s = THREE.MathUtils.lerp(mesh.scale.x, 1, 0.12);
                     mesh.scale.set(s, s, s);
-                    mesh.position.y = 0.45;
+                    mesh.position.y = 0.65;
                 }
             });
 
@@ -176,15 +241,6 @@ async function startAR() {
     }
 }
 
-captureButton.addEventListener("click", () => {
-    const canvas = document.querySelector("#arContainer canvas");
-
-    if (!canvas) return;
-
-    const link = document.createElement("a");
-    link.download = "ar-character.png";
-    link.href = canvas.toDataURL("image/png");
-    link.click();
-});
+captureButton.addEventListener("click", capturePhoto);
 
 startAR();
