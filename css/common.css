@@ -25,21 +25,25 @@ body{
 
 #homeButton {
     position: fixed;
-    left: 14px;
-    top: 14px;
 
-    width: 46px;
-    height: 46px;
+    left: max(16px, env(safe-area-inset-left));
+    top: max(16px, env(safe-area-inset-top));
 
-    border-radius: 50%;
-    background: rgba(0,0,0,.55);
+    width: 48px;
+    height: 48px;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
-    text-decoration: none;
+    border-radius: 50%;
+    background: rgba(255,255,255,.85);
+    backdrop-filter: blur(8px);
+
     font-size: 24px;
+    text-decoration: none;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
 
     z-index: 9999;
 }
