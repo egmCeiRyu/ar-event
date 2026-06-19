@@ -46,21 +46,14 @@ function showStampMessage(message) {
 function unlockStampSound() {
     if (!stampGetSound || soundUnlocked) return;
 
+    stampGetSound.pause();
+    stampGetSound.currentTime = 0;
     stampGetSound.volume = 1;
-    stampGetSound.muted = true;
+    stampGetSound.muted = false;
+    stampGetSound.load();
 
-    stampGetSound.play()
-        .then(() => {
-            stampGetSound.pause();
-            stampGetSound.currentTime = 0;
-            stampGetSound.muted = false;
-            soundUnlocked = true;
-            console.log("Stamp sound unlocked");
-        })
-        .catch(error => {
-            stampGetSound.muted = false;
-            console.log("Sound unlock failed:", error);
-        });
+    soundUnlocked = true;
+    console.log("Stamp sound prepared");
 }
 
 function playStampSound() {
