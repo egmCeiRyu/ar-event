@@ -12,12 +12,11 @@ const targetList = [
     { index: 2, image: "./assets/characters/character03.webp", characterId: 6 }
 ];
 
+const scannedCharacters = new Set();
+
 let rendererRef = null;
 let sceneRef = null;
 let cameraRef = null;
-
-const zeroPos = new THREE.Vector3(0, 0, 0);
-const zeroQuat = new THREE.Quaternion();
 
 function log(message) {
     console.log(message);
@@ -29,235 +28,141 @@ function setScanningUI(isScanning) {
     if (scanFrame) scanFrame.style.display = isScanning ? "block" : "none";
 }
 
-function loadTexture(path) {
-    const loader = new THREE.TextureLoader();
-
-    return new Promise((resolve, reject) => {
-        loader.load(
-            path,
-            texture => {
-                texture.colorSpace = THREE.SRGBColorSpace;
-                resolve(texture);
-            },
-            undefined,
-            error => reject(error)
-        );
-    });
+function showMessage(message) {
+    log(message);
 }
 
-function createCharacterMesh(texture) {
-    const aspect = texture.image.width / texture.image.height;
+async function getCurrentUser() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
 
-    const height = 3.0;
-    const width = height * aspect;
+    if (session && session.user) {
+        return session.user;
+    }
 
-    const geometry = new THREE.PlaneGeometry(width, height);
+    const { data, error } = await supabaseClient.auth.signInAnonymously();
 
+    if (error) {
+        console.error("Anonymous login error:", error);
+        showMessage("ログインエラー");
+        return null;
+    }
+
+    return data.user;
+}
+
+async function saveCharacterStamp(characterId) {
+    const user = await getCurrentUser();
+
+    if (!user) {
+        showMessage("ログインエラー");
+        return;
+    }
+
+    const userId = user.id;
+
+    const { data: existing, error: checkError } = await supabaseClient
+        .from("user_stamps")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("character_id", characterId)
+        .maybeSingle();
+
+    if (checkError) {
+        console.error("Check stamp error:", checkError);
+        showMessage("通信エラー");
+        return;
+    }
+
+    if (existing) {
+        showMessage("このスタンプはすでに取得済みです");
+        return;
+    }
+
+    const { error: insertError } = await supabaseClient
+        .from("user_stamps")
+        .insert({
+            user_id: userId,
+            character_id: characterId
+        });
+
+    if (insertError) {
+        console.error("Insert stamp error:", insertError);
+        showMessage("スタンプ保存エラー");
+        return;
+    }
+
+    showMessage("スタンプをゲットしました！");
+}
+
+function createCharacterPlane(imagePath) {
+    const textureLoader = new THREE.TextureLoader();
+    const texture = textureLoader.load(imagePath);
+
+    const geometry = new THREE.PlaneGeometry(1, 1.4);
     const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
-        depthWrite: false,
         side: THREE.DoubleSide
     });
 
-    const mesh = new THREE.Mesh(geometry, material);
+    const plane = new THREE.Mesh(geometry, material);
 
-    mesh.position.set(0, 0.05, 0);
-    mesh.scale.set(0.001, 0.001, 0.001);
+    plane.position.set(0, 0, 0);
+    plane.scale.set(1, 1, 1);
 
-    return mesh;
-}
-
-function fixMindARVideoLayer() {
-    const container = document.querySelector("#arContainer");
-    if (!container) return;
-
-    const videos = container.querySelectorAll("video");
-    const canvases = container.querySelectorAll("canvas");
-
-    videos.forEach(video => {
-        video.style.position = "absolute";
-        video.style.inset = "0";
-        video.style.width = "100%";
-        video.style.height = "100%";
-        video.style.objectFit = "cover";
-        video.style.zIndex = "1";
-        video.style.pointerEvents = "none";
-    });
-
-    canvases.forEach(canvas => {
-        canvas.style.position = "absolute";
-        canvas.style.inset = "0";
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.background = "transparent";
-        canvas.style.zIndex = "2";
-        canvas.style.pointerEvents = "none";
-    });
-}
-
-function getCompositedCanvas() {
-    const container = document.querySelector("#arContainer");
-    const video = container?.querySelector("video");
-    const webglCanvas = container?.querySelector("canvas");
-
-    if (!video || !webglCanvas) return null;
-
-    const width = webglCanvas.width;
-    const height = webglCanvas.height;
-
-    const output = document.createElement("canvas");
-    output.width = width;
-    output.height = height;
-
-    const ctx = output.getContext("2d");
-
-    ctx.drawImage(video, 0, 0, width, height);
-    ctx.drawImage(webglCanvas, 0, 0, width, height);
-
-    return output;
-}
-
-async function capturePhoto() {
-    try {
-        if (rendererRef && sceneRef && cameraRef) {
-            rendererRef.render(sceneRef, cameraRef);
-        }
-
-        const canvas = getCompositedCanvas();
-
-        if (!canvas) {
-            alert("写真を撮れませんでした。");
-            return;
-        }
-
-        canvas.toBlob(async blob => {
-            if (!blob) return;
-
-            const file = new File([blob], "ARCharacter.png", {
-                type: "image/png"
-            });
-
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                try {
-                    await navigator.share({
-                        files: [file],
-                        title: "AR Character",
-                        text: "AR Event"
-                    });
-                } catch (error) {
-                    console.log("Share canceled:", error);
-                }
-            } else {
-                const link = document.createElement("a");
-                link.download = "ARCharacter.png";
-                link.href = URL.createObjectURL(blob);
-                link.click();
-            }
-        }, "image/png");
-
-    } catch (error) {
-        console.error(error);
-        alert("Capture error: " + error.message);
-    }
+    return plane;
 }
 
 async function startAR() {
-    try {
-        log("MindAR読み込み中...");
+    const mindarThree = new MindARThree({
+        container: document.body,
+        imageTargetSrc: "./assets/targets/targets.mind"
+    });
 
-        const mindarThree = new MindARThree({
-            container: document.querySelector("#arContainer"),
-            imageTargetSrc: "./assets/targets/targets.mind",
-            maxTrack: 1,
-            filterMinCF: 0.001,
-            filterBeta: 0.01
-        });
+    const { renderer, scene, camera } = mindarThree;
 
-        const { renderer, scene, camera } = mindarThree;
+    rendererRef = renderer;
+    sceneRef = scene;
+    cameraRef = camera;
 
-        rendererRef = renderer;
-        sceneRef = scene;
-        cameraRef = camera;
+    targetList.forEach((targetData) => {
+        const anchor = mindarThree.addAnchor(targetData.index);
 
-        renderer.setClearColor(0x000000, 0);
-        renderer.setClearAlpha(0);
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        const character = createCharacterPlane(targetData.image);
+        anchor.group.add(character);
 
-        const meshes = [];
+        anchor.onTargetFound = async () => {
+            setScanningUI(false);
 
-        for (const item of targetList) {
-            const anchor = mindarThree.addAnchor(item.index);
+            const characterId = targetData.characterId;
 
-            const smoothGroup = new THREE.Group();
-            anchor.group.add(smoothGroup);
+            if (!scannedCharacters.has(characterId)) {
+                scannedCharacters.add(characterId);
+                await saveCharacterStamp(characterId);
+            } else {
+                showMessage("このスタンプはすでに取得済みです");
+            }
+        };
 
-            const texture = await loadTexture(item.image);
-            const mesh = createCharacterMesh(texture);
+        anchor.onTargetLost = () => {
+            setScanningUI(true);
+        };
+    });
 
-            smoothGroup.add(mesh);
+    await mindarThree.start();
 
-            meshes[item.index] = {
-                mesh,
-                smoothGroup,
-                visible: false
-            };
+    setScanningUI(true);
+    log("カメラをマーカーに向けてください");
 
-            anchor.onTargetFound = () => {
-                log(`marker${item.index + 1} 検出`);
-                meshes[item.index].visible = true;
-                setScanningUI(false);
-            };
-
-            anchor.onTargetLost = () => {
-                log("マーカーをスキャンしてください");
-                meshes[item.index].visible = false;
-                mesh.scale.set(0.001, 0.001, 0.001);
-                setScanningUI(true);
-            };
-        }
-
-        log("カメラ起動中...");
-
-        await mindarThree.start();
-
-        fixMindARVideoLayer();
-        setTimeout(fixMindARVideoLayer, 300);
-        setTimeout(fixMindARVideoLayer, 800);
-        setTimeout(fixMindARVideoLayer, 1500);
-
-        log("マーカーをスキャンしてください");
-        setScanningUI(true);
-
-        renderer.setAnimationLoop(() => {
-            meshes.forEach(item => {
-                if (!item) return;
-
-                const mesh = item.mesh;
-
-                if (item.visible) {
-                    const s = THREE.MathUtils.lerp(mesh.scale.x, 1, 0.08);
-                    mesh.scale.set(s, s, s);
-
-                    mesh.position.set(0, 0.05, 0);
-
-                    item.smoothGroup.position.lerp(zeroPos, 0.12);
-                    item.smoothGroup.quaternion.slerp(zeroQuat, 0.12);
-                }
-            });
-
-            renderer.render(scene, camera);
-        });
-
-    } catch (error) {
-        console.error(error);
-        log("ERROR: " + error.message);
-        alert("AR Error: " + error.message);
-    }
+    renderer.setAnimationLoop(() => {
+        renderer.render(scene, camera);
+    });
 }
 
 if (captureButton) {
-    captureButton.addEventListener("click", capturePhoto);
+    captureButton.addEventListener("click", () => {
+        showMessage("撮影機能は後で追加します");
+    });
 }
 
 startAR();
