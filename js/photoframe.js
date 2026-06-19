@@ -30,18 +30,18 @@ frames.forEach((src, index) => {
 
 function createCameraPage() {
     const oldCameraPage = document.getElementById("cameraPage");
-
-    if (oldCameraPage) {
-        oldCameraPage.remove();
-    }
+    if (oldCameraPage) oldCameraPage.remove();
 
     const cameraPage = document.createElement("div");
     cameraPage.id = "cameraPage";
 
     cameraPage.innerHTML = `
-        <video id="cameraVideo" autoplay playsinline muted></video>
+        <video id="cameraVideoBg" autoplay playsinline muted></video>
 
-        <img id="selectedPhotoFrame" src="${selectedFrame}" alt="フォトフレーム">
+        <div id="cameraStage">
+            <video id="cameraVideo" autoplay playsinline muted></video>
+            <img id="selectedPhotoFrame" src="${selectedFrame}" alt="フォトフレーム">
+        </div>
 
         <canvas id="captureCanvas"></canvas>
 
@@ -80,19 +80,23 @@ async function startCamera() {
     stopCamera();
 
     const video = document.getElementById("cameraVideo");
+    const videoBg = document.getElementById("cameraVideoBg");
 
     try {
         currentStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: facingMode,
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+                width: { ideal: 1080 },
+                height: { ideal: 1920 }
             },
             audio: false
         });
 
         video.srcObject = currentStream;
+        videoBg.srcObject = currentStream;
+
         await video.play();
+        await videoBg.play();
 
     } catch (error) {
         alert("カメラを起動できませんでした");
@@ -117,12 +121,9 @@ function drawCover(ctx, img, canvasW, canvasH) {
     const imgW = img.videoWidth || img.naturalWidth;
     const imgH = img.videoHeight || img.naturalHeight;
 
-    if (!imgW || !imgH) {
-        return;
-    }
+    if (!imgW || !imgH) return;
 
     const scale = Math.max(canvasW / imgW, canvasH / imgH);
-
     const drawW = imgW * scale;
     const drawH = imgH * scale;
 
@@ -139,27 +140,22 @@ function capturePhoto() {
     const previewArea = document.getElementById("previewArea");
     const previewImage = document.getElementById("previewImage");
 
-    const width = FRAME_WIDTH;
-    const height = FRAME_HEIGHT;
-
-    canvas.width = width;
-    canvas.height = height;
+    canvas.width = FRAME_WIDTH;
+    canvas.height = FRAME_HEIGHT;
 
     const ctx = canvas.getContext("2d");
 
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
-    drawCover(ctx, video, width, height);
-
-    ctx.drawImage(frame, 0, 0, width, height);
+    drawCover(ctx, video, FRAME_WIDTH, FRAME_HEIGHT);
+    ctx.drawImage(frame, 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
     previewImage.src = canvas.toDataURL("image/png");
     previewArea.classList.remove("hidden");
 }
 
 function retakePhoto() {
-    const previewArea = document.getElementById("previewArea");
-    previewArea.classList.add("hidden");
+    document.getElementById("previewArea").classList.add("hidden");
 }
 
 async function savePhoto() {
@@ -210,8 +206,5 @@ function closeCamera() {
     stopCamera();
 
     const cameraPage = document.getElementById("cameraPage");
-
-    if (cameraPage) {
-        cameraPage.remove();
-    }
+    if (cameraPage) cameraPage.remove();
 }
