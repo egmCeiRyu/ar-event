@@ -9,6 +9,31 @@ const captureButton = document.getElementById("captureButton");
 const stampMessage = document.getElementById("stampMessage");
 const stampGetSound = document.getElementById("stampGetSound");
 
+let soundReady = false;
+
+function unlockStampSound() {
+    if (!stampGetSound || soundReady) return;
+
+    stampGetSound.volume = 1;
+    stampGetSound.muted = true;
+
+    stampGetSound.play()
+        .then(() => {
+            stampGetSound.pause();
+            stampGetSound.currentTime = 0;
+            stampGetSound.muted = false;
+            soundReady = true;
+            console.log("Stamp sound ready");
+        })
+        .catch(error => {
+            stampGetSound.muted = false;
+            console.log("Stamp sound unlock failed:", error);
+        });
+}
+
+document.addEventListener("touchstart", unlockStampSound, { once: true });
+document.addEventListener("click", unlockStampSound, { once: true });
+
 const targetList = [
     { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
     { index: 1, image: "./assets/characters/character02.webp", characterId: 5 },
@@ -105,9 +130,10 @@ function showStampMessage(message) {
 function playStampSound() {
     if (!stampGetSound) return;
 
+    stampGetSound.muted = false;
+    stampGetSound.volume = 1;
     stampGetSound.pause();
     stampGetSound.currentTime = 0;
-    stampGetSound.volume = 1;
 
     stampGetSound.play().catch(error => {
         console.log("Sound play failed:", error);
