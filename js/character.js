@@ -83,7 +83,6 @@ let cameraRef = null;
 const zeroPos = new THREE.Vector3(0, 0, 0);
 const zeroQuat = new THREE.Quaternion();
 
-// funcao das estampas
 function log(message) {
     console.log(message);
     if (debugText) debugText.textContent = message;
@@ -102,19 +101,6 @@ function showStampMessage(message, playSound = false) {
         stampGetSound.play().catch(() => {});
     }
 }
-
-function showStampMessage(message) {
-    if (!stampMessage) return;
-
-    stampMessage.textContent = message;
-    stampMessage.style.display = "block";
-
-    setTimeout(() => {
-        stampMessage.style.display = "none";
-    }, 1800);
-}
-// funcao das estampas
-
 
 function setScanningUI(isScanning) {
     if (scanText) scanText.style.display = isScanning ? "block" : "none";
