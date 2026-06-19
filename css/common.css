@@ -30,7 +30,7 @@ body{
 
     left: max(
         16px,
-        calc(50vw - 215px + 16px)
+        calc(47vw - 215px + 16px)
     );
 
     width: 48px;
