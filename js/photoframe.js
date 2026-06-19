@@ -4,7 +4,10 @@ let currentStream = null;
 let facingMode = "user";
 let selectedFrame = "assets/photoframe/frame01.webp";
 
-const frames = Array.from({ length: 14 }, () => "assets/photoframe/frame01.webp");
+const frames = Array.from(
+    { length: 14 },
+    () => "assets/photoframe/frame01.webp"
+);
 
 frames.forEach((src, index) => {
     const btn = document.createElement("button");
@@ -23,6 +26,12 @@ frames.forEach((src, index) => {
 });
 
 function createCameraPage() {
+    const oldCameraPage = document.getElementById("cameraPage");
+
+    if (oldCameraPage) {
+        oldCameraPage.remove();
+    }
+
     const cameraPage = document.createElement("div");
     cameraPage.id = "cameraPage";
 
@@ -80,6 +89,9 @@ async function startCamera() {
         });
 
         video.srcObject = currentStream;
+
+        await video.play();
+
     } catch (error) {
         alert("カメラを起動できませんでした");
         console.error(error);
@@ -99,6 +111,21 @@ async function switchCamera() {
     await startCamera();
 }
 
+function drawCover(ctx, img, canvasW, canvasH) {
+    const imgW = img.videoWidth || img.naturalWidth;
+    const imgH = img.videoHeight || img.naturalHeight;
+
+    const scale = Math.max(canvasW / imgW, canvasH / imgH);
+
+    const drawW = imgW * scale;
+    const drawH = imgH * scale;
+
+    const x = (canvasW - drawW) / 2;
+    const y = (canvasH - drawH) / 2;
+
+    ctx.drawImage(img, x, y, drawW, drawH);
+}
+
 function capturePhoto() {
     const video = document.getElementById("cameraVideo");
     const frame = document.getElementById("selectedPhotoFrame");
@@ -114,24 +141,62 @@ function capturePhoto() {
 
     const ctx = canvas.getContext("2d");
 
-    ctx.drawImage(video, 0, 0, width, height);
-    ctx.drawImage(frame, 0, 0, width, height);
+    ctx.clearRect(0, 0, width, height);
+
+    drawCover(ctx, video, width, height);
+    drawCover(ctx, frame, width, height);
 
     previewImage.src = canvas.toDataURL("image/png");
     previewArea.classList.remove("hidden");
 }
 
 function retakePhoto() {
-    document.getElementById("previewArea").classList.add("hidden");
+    const previewArea = document.getElementById("previewArea");
+    previewArea.classList.add("hidden");
 }
 
-function savePhoto() {
+async function savePhoto() {
     const canvas = document.getElementById("captureCanvas");
 
+    canvas.toBlob(async (blob) => {
+        if (!blob) {
+            alert("画像を保存できませんでした");
+            return;
+        }
+
+        const file = new File([blob], "photo-frame.png", {
+            type: "image/png"
+        });
+
+        try {
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    files: [file],
+                    title: "フォトフレーム",
+                    text: "フォトフレーム写真"
+                });
+            } else {
+                downloadImage(blob);
+            }
+        } catch (error) {
+            console.error(error);
+            downloadImage(blob);
+        }
+
+    }, "image/png");
+}
+
+function downloadImage(blob) {
+    const url = URL.createObjectURL(blob);
+
     const link = document.createElement("a");
+    link.href = url;
     link.download = "photo-frame.png";
-    link.href = canvas.toDataURL("image/png");
+    document.body.appendChild(link);
     link.click();
+    link.remove();
+
+    URL.revokeObjectURL(url);
 }
 
 function closeCamera() {
