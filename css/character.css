@@ -62,16 +62,6 @@ body {
     white-space: nowrap;
 }
 
-#scanFrame {
-    position: absolute;
-    left: 50%;
-    top: 46%;
-    width: 72%;
-    height: 38%;
-    transform: translate(-50%, -50%);
-    pointer-events: none;
-    z-index: 15;
-}
 
 .corner {
     position: absolute;
@@ -177,10 +167,10 @@ body {
 
     #phone {
         position: relative;
-        width: 390px;
+        width: 460px;
         height: 844px;
         max-height: 94vh;
-        aspect-ratio: 390 / 844;
+        aspect-ratio: 460 / 844;
         border-radius: 28px;
         overflow: hidden;
         box-shadow: 0 18px 50px rgba(0,0,0,.35);
