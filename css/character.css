@@ -130,11 +130,29 @@ body {
 }
 
 #captureButton {
-    display: none;
+    position: absolute;
+    right: 22px;
+    bottom: 26px;
+    width: 70px;
+    height: 70px;
+    z-index: 9999999;
+    border-radius: 50%;
+    border: 5px solid rgba(255,255,255,.95);
+    background: rgba(255,255,255,.35);
+    cursor: pointer;
+    box-shadow: 0 5px 14px rgba(0,0,0,.28);
+    pointer-events: auto !important;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0.85);
+    transition: opacity .2s ease, transform .2s ease, visibility .2s ease;
 }
 
 #captureButton.show {
-    display: block;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transform: scale(1);
 }
 
 #safetyMessage {

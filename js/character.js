@@ -383,14 +383,19 @@ async function startAR() {
             anchor.onTargetFound = async () => {
                 log(`marker${item.index + 1} 検出`);
 
-                    meshes.forEach(m => {
-                        if (!m) return;
-                        m.visible = false;
-                        m.mesh.scale.set(0.001, 0.001, 0.001);
-                    });
+                meshes.forEach(m => {
+                    if (!m) return;
+                    m.visible = false;
+                    m.mesh.scale.set(0.001, 0.001, 0.001);
+                });
 
                 meshes[item.index].visible = true;
                 setScanningUI(false);
+
+                // MOSTRA O BOTÃO IMEDIATAMENTE AO ENTRAR EM AR
+                if (captureButton) {
+                    captureButton.classList.add("show");
+                }
 
                 const characterId = item.characterId;
 
@@ -403,10 +408,6 @@ async function startAR() {
                 } else {
                     showStampMessage("このスタンプはすでに取得済みです");
                 }
-
-                if (captureButton) {
-                    captureButton.classList.add("show");
-                }
             };
 
             anchor.onTargetLost = () => {
@@ -417,9 +418,12 @@ async function startAR() {
 
                 setScanningUI(true);
 
-                if (captureButton) {
-                    captureButton.classList.remove("show");
-                }
+                // ESPERA UM POUCO ANTES DE ESCONDER
+                setTimeout(() => {
+                    if (!meshes[item.index].visible && captureButton) {
+                        captureButton.classList.remove("show");
+                    }
+                }, 800);
             };
         }
 
