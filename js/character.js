@@ -15,6 +15,8 @@ const stampParticles = document.getElementById("stampParticles");
 const stampGetOverlay = document.getElementById("stampGetOverlay");
 const stampGetImage = document.getElementById("stampGetImage");
 
+const safetyMessage = document.getElementById("safetyMessage");
+
 const targetList = [
     { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
     { index: 1, image: "./assets/characters/character02.webp", characterId: 5 },
@@ -126,8 +128,19 @@ function playStampSound() {
 }
 
 function setScanningUI(isScanning) {
-    if (scanText) scanText.style.display = isScanning ? "block" : "none";
-    if (scanFrame) scanFrame.style.display = isScanning ? "block" : "none";
+
+    if (scanText) {
+        scanText.style.display = isScanning ? "block" : "none";
+    }
+
+    if (scanFrame) {
+        scanFrame.style.display = isScanning ? "block" : "none";
+    }
+
+    if (safetyMessage) {
+        safetyMessage.style.display = isScanning ? "block" : "none";
+    }
+
 }
 
 async function getCurrentUser() {
