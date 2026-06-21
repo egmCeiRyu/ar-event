@@ -140,7 +140,7 @@ body {
 #safetyMessage {
     position: absolute;
     left: 50%;
-    bottom: 350px;
+    bottom: 100px;
     transform: translateX(-50%);
     z-index: 25;
 
