@@ -390,6 +390,10 @@ async function startAR() {
                 } else {
                     showStampMessage("このスタンプはすでに取得済みです");
                 }
+
+                if (captureButton) {
+                    captureButton.classList.add("show");
+                }
             };
 
             anchor.onTargetLost = () => {
@@ -399,6 +403,10 @@ async function startAR() {
                 mesh.scale.set(0.001, 0.001, 0.001);
 
                 setScanningUI(true);
+
+                if (captureButton) {
+                    captureButton.classList.remove("show");
+                }
             };
         }
 
