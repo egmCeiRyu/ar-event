@@ -1,49 +1,131 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AR Event</title>
-  <link rel="stylesheet" href="css/common.css">
-  <link rel="stylesheet" href="css/home.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>AR Event</title>
+
+    <link rel="stylesheet" href="css/index.css">
 </head>
 
 <body>
 
-  <main class="home">
+    <main class="home-page">
 
-    <section class="keyvisual">
-      <h1>キービジュアル</h1>
-    </section>
+        <section class="hero-area">
 
-    <section class="main-menu">
-      <a href="photoframe.html" class="menu-card">
-        <div class="icon">📷</div>
-        <p>フォトフレーム</p>
-      </a>
+            <section class="menu-grid">
 
-      <a href="stampbook.html" class="menu-card">
-        <div class="icon">📖</div>
-        <p>stamp book</p>
-      </a>
+                <a href="photoframe.html" class="menu-card">
 
-      <a href="character.html" class="menu-card">
-        <div class="icon">📍</div>
-        <p>character<br>marker</p>
-      </a>
-    </section>
 
-    <a href="notice.html" class="notice-card">
-      <h2>注意事項</h2>
-    </a>
+                    <h2>フォトフレーム</h2>
 
-    <footer>
-      © 2026 AR Event
-    </footer>
 
-  </main>
+                    <img src="assets/images/chibi-photo.png" alt="">
+                </a>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="js/supabase.js"></script>
+                <a href="stampbook.html" class="menu-card">
+
+ 
+
+                    <h2>スタンプブック</h2>
+
+
+
+                    <img src="assets/images/chibi-stamp.png" alt="">
+                </a>
+
+                <a href="character.html" class="menu-card">
+
+
+
+                    <h2>キャラクターAR</h2>
+
+
+                    <img src="assets/images/chibi-ar.png" alt="">
+                </a>
+
+                <a href="notice.html" class="menu-card">
+
+
+                    <h2>注意事項</h2>
+
+
+                    <img src="assets/images/chibi-notice.png" alt="">
+                </a>
+
+            </section>
+
+            <section class="stamp-card">
+
+                <div class="stamp-header">
+                    スタンプ収集状況
+                </div>
+
+                <div class="stamp-body">
+
+                    <div class="stamp-list">
+
+                        <img id="stamp01"
+                            src="assets/stamps/stamp01.png"
+                            class="stamp locked">
+
+                        <img id="stamp02"
+                            src="assets/stamps/stamp02.png"
+                            class="stamp locked">
+
+                        <img id="stamp03"
+                            src="assets/stamps/stamp03.png"
+                            class="stamp locked">
+
+                    </div>
+
+                    <div class="stamp-progress">
+
+                        <div>
+                            <span id="stampCount">0</span>
+                            <span>/3</span>
+                        </div>
+
+                        <p id="stampMessage">
+                            スタンプを集めよう！
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <section class="reward-banner">
+
+                🎁
+
+                <div>
+                    <h3>
+                        コンプリートでプレゼントGET！
+                    </h3>
+
+                    <p>
+                        3つのスタンプを集めよう！
+                    </p>
+                </div>
+
+            </section>
+
+        </section>
+
+        <footer>
+            © 2026 AR Event
+        </footer>
+
+    </main>
+
+    <script src="js/supabase.js"></script>
+    <script src="js/main.js"></script>
+
 </body>
+
 </html>
