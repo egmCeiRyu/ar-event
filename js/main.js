@@ -5,20 +5,16 @@ const stampMap = {
 };
 
 async function getCurrentUser() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
 
-    const {
-        data: { session }
-    } = await supabaseClient.auth.getSession();
-
-    if (session?.user) {
+    if (session && session.user) {
         return session.user;
     }
 
-    const { data, error } =
-        await supabaseClient.auth.signInAnonymously();
+    const { data, error } = await supabaseClient.auth.signInAnonymously();
 
     if (error) {
-        console.error(error);
+        console.error("Anonymous login error:", error);
         return null;
     }
 
@@ -26,67 +22,44 @@ async function getCurrentUser() {
 }
 
 async function loadHomeStamps() {
-
     const user = await getCurrentUser();
 
     if (!user) return;
 
-    const { data, error } =
-        await supabaseClient
+    const { data, error } = await supabaseClient
         .from("user_stamps")
         .select("character_id")
         .eq("user_id", user.id);
 
     if (error) {
-        console.error(error);
+        console.error("Erro ao carregar stamps:", error);
         return;
     }
 
-    const collected =
-        new Set(
-            data.map(
-                item => item.character_id
-            )
-        );
-
     let count = 0;
 
-    Object.entries(stampMap)
-        .forEach(([characterId, stampId]) => {
+    data.forEach(item => {
+        const stampId = stampMap[item.character_id];
 
-            if (
-                collected.has(
-                    Number(characterId)
-                )
-            ) {
+        if (!stampId) return;
 
-                document
-                    .getElementById(stampId)
-                    .classList
-                    .remove("locked");
+        const stampElement = document.getElementById(stampId);
 
-                count++;
-            }
-        });
+        if (stampElement) {
+            stampElement.classList.remove("locked");
+            count++;
+        }
+    });
 
-    document.getElementById(
-        "stampCount"
-    ).textContent = count;
+    document.getElementById("stampCount").textContent = count;
 
-    if (count === 3) {
+    const message = document.getElementById("stampMessage");
 
-        document.getElementById(
-            "stampMessage"
-        ).textContent =
-        "コンプリート！";
-
+    if (count >= 3) {
+        message.textContent = "コンプリート！";
     } else {
-
-        document.getElementById(
-            "stampMessage"
-        ).textContent =
-        `あと${3 - count}個でコンプリート！`;
+        message.textContent = `あと${3 - count}個でコンプリート！`;
     }
 }
 
-loadHomeStamps();
+document.addEventListener("DOMContentLoaded", loadHomeStamps);

@@ -28,11 +28,24 @@ body {
 
 .hero-area {
     background-image: url("../assets/images/hero-main.png");
-    background-size: cover;
-    background-position: center -15px;
+    background-size: 100% auto;
+    background-position: center top;
     background-repeat: no-repeat;
 
-    padding: 420px 14px 30px;
+    padding: 390px 14px 30px;
+}
+
+@media (max-width: 430px) {
+    .hero-area {
+        background-size: 100% auto;
+        padding-top: 360px;
+    }
+}
+
+@media (max-width: 390px) {
+    .hero-area {
+        padding-top: 335px;
+    }
 }
 
 .hero-bg {
@@ -56,7 +69,7 @@ body {
 }
 
 .menu-card {
-    min-height: 220px;
+     min-height: 145px;
     border-radius: 22px;
     background: rgba(255,255,255,.92);
     border: 3px solid #d7e9ff;
@@ -96,15 +109,19 @@ body {
 
 .menu-card img {
     position: absolute;
-
-    width: 200px;
-
-    right: -35px;
-    bottom: -40px;
-
+    width: 160px;
+    right: -42px;
+    bottom: -32px;
     z-index: 10;
-
     pointer-events: none;
+}
+
+@media (max-width: 390px) {
+    .menu-card img {
+        width: 145px;
+        right: -36px;
+        bottom: -28px;
+    }
 }
 
 .card-icon {
