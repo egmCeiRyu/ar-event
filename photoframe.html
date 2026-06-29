@@ -14,17 +14,39 @@
 <body>
 
 <div id="cameraPage">
+
     <video id="cameraVideo" autoplay playsinline muted></video>
 
     <img id="selectedPhotoFrame" alt="フォトフレーム">
 
     <canvas id="captureCanvas"></canvas>
 
-    <button id="closeFrameBtn" class="close-frame-btn">✕</button>
-    <button id="switchCameraBtn" class="switch-camera-btn">切替</button>
-    <button id="captureBtn" class="capture-btn">撮影</button>
+    <div class="bottom-menu">
+        <a class="menu-btn" href="index.html">
+            <span>🏠</span>
+            <small>ホーム</small>
+        </a>
 
-    <div id="frameCarousel" class="frame-carousel"></div>
+        <button id="captureBtn" class="capture-main-btn">
+            <span>●</span>
+            <small>撮影</small>
+        </button>
+
+        <button id="openFramePanelBtn" class="menu-btn">
+            <span>🖼</span>
+            <small>フレーム</small>
+        </button>
+    </div>
+
+    <div id="framePanel" class="frame-panel hidden">
+        <button id="closeFramePanelBtn" class="frame-panel-close">✕</button>
+
+        <div class="frame-panel-title">
+            フレームを選択してください
+        </div>
+
+        <div id="frameCarousel" class="frame-carousel"></div>
+    </div>
 
     <div id="previewArea" class="preview-area hidden">
         <img id="previewImage" alt="プレビュー">
@@ -34,6 +56,7 @@
             <button id="saveBtn">保存</button>
         </div>
     </div>
+
 </div>
 
 <script src="js/photoframe.js"></script>

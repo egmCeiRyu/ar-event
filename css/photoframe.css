@@ -1,33 +1,27 @@
 body {
     margin: 0;
     background: #000;
-    font-family: sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     overflow: hidden;
 }
-
-/* =========================
-   Camera
-========================= */
 
 #cameraPage {
     position: fixed;
     inset: 0;
     background: #000;
     overflow: hidden;
-    z-index: 9999;
 }
 
 #cameraVideo,
 #selectedPhotoFrame {
     position: absolute;
+    left: 50%;
+    top: 50%;
 
     width: min(100vw, calc(100dvh * 9 / 16));
     height: min(100dvh, calc(100vw * 16 / 9));
 
-    left: 50%;
-    top: 50%;
     transform: translate(-50%, -50%);
-
     object-fit: cover;
 }
 
@@ -45,36 +39,146 @@ body {
     display: none;
 }
 
-/* =========================
-   Carousel
-========================= */
+/* bottom menu */
 
-.frame-carousel {
+.bottom-menu {
     position: absolute;
     left: 50%;
-    bottom: calc(22px + env(safe-area-inset-bottom));
+    bottom: calc(18px + env(safe-area-inset-bottom));
     transform: translateX(-50%);
 
     width: min(100vw, calc(100dvh * 9 / 16));
 
     display: flex;
-    gap: 14px;
-
-    padding: 14px 18px;
-    overflow-x: auto;
+    align-items: center;
+    justify-content: space-around;
 
     z-index: 5;
+    pointer-events: auto;
+}
 
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
+.menu-btn,
+.capture-main-btn {
+    border: none;
+    background: rgba(255,255,255,.92);
+    color: #222;
+
+    font-weight: 900;
+    text-decoration: none;
+
+    box-shadow: 0 8px 22px rgba(0,0,0,.35);
+}
+
+.menu-btn {
+    width: 66px;
+    height: 66px;
+    border-radius: 50%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+}
+
+.menu-btn span {
+    font-size: 22px;
+}
+
+.menu-btn small,
+.capture-main-btn small {
+    font-size: 10px;
+}
+
+.capture-main-btn {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+
+    background: #ff6f91;
+    color: #fff;
+
+    border: 5px solid rgba(255,255,255,.95);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.capture-main-btn span {
+    font-size: 30px;
+    line-height: 1;
+}
+
+.menu-btn:active,
+.capture-main-btn:active {
+    transform: scale(.94);
+}
+
+/* frame panel */
+
+.frame-panel {
+    position: absolute;
+    left: 50%;
+    bottom: calc(106px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+
+    width: min(100vw, calc(100dvh * 9 / 16));
+    min-height: 190px;
+
+    padding: 42px 14px 18px;
+
+    background: rgba(0,0,0,.78);
+    backdrop-filter: blur(8px);
+
+    border-radius: 24px 24px 0 0;
+
+    z-index: 8;
 
     transition: opacity .25s ease, transform .25s ease;
 }
 
-.frame-carousel.hidden {
+.frame-panel.hidden {
     opacity: 0;
     pointer-events: none;
-    transform: translateX(-50%) translateY(120px);
+    transform: translateX(-50%) translateY(40px);
+}
+
+.frame-panel-close {
+    position: absolute;
+    right: 14px;
+    top: 12px;
+
+    width: 36px;
+    height: 36px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255,255,255,.95);
+    color: #222;
+
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.frame-panel-title {
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    margin: 0 44px 12px 4px;
+}
+
+.frame-carousel {
+    display: flex;
+    gap: 14px;
+
+    overflow-x: auto;
+    padding: 4px 4px 8px;
+
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
 }
 
 .frame-carousel::-webkit-scrollbar {
@@ -84,130 +188,43 @@ body {
 .frame-btn {
     flex: 0 0 auto;
 
-    width: 78px;
-    height: 138px;
+    width: 76px;
+    height: 136px;
 
     padding: 4px;
 
-    border: 3px solid rgba(255,255,255,.75);
+    border: 3px solid rgba(255,255,255,.55);
     border-radius: 16px;
 
     background: rgba(255,255,255,.9);
 
-    box-shadow: 0 6px 18px rgba(0,0,0,.35);
-
     scroll-snap-align: center;
 
-    transition: transform .2s ease, border .2s ease;
+    transition: transform .2s ease, border-color .2s ease;
+}
+
+.frame-btn.selected {
+    border-color: #ff6f91;
+    transform: scale(1.08);
 }
 
 .frame-btn img {
     width: 100%;
     height: 100%;
-    display: block;
 
+    display: block;
     object-fit: contain;
+
     border-radius: 11px;
 }
 
-.frame-btn:active {
-    transform: scale(.94);
-}
-
-/* =========================
-   Buttons
-========================= */
-
-.capture-btn,
-.close-frame-btn,
-.switch-camera-btn {
-    position: absolute;
-    z-index: 6;
-
-    border: none;
-    font-weight: 900;
-
-    box-shadow: 0 8px 24px rgba(0,0,0,.35);
-
-    opacity: 0;
-    pointer-events: none;
-
-    transition: opacity .25s ease, transform .25s ease;
-}
-
-.capture-btn.visible,
-.close-frame-btn.visible,
-.switch-camera-btn.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
-.capture-btn {
-    left: 50%;
-    bottom: calc(60px + env(safe-area-inset-bottom));
-    transform: translateX(-50%) scale(.85);
-
-    width: 86px;
-    height: 86px;
-
-    border-radius: 50%;
-    border: 5px solid rgba(255,255,255,.95);
-
-    background: #ff6f91;
-    color: #fff;
-
-    font-size: 18px;
-}
-
-.capture-btn.visible {
-    transform: translateX(-50%) scale(1);
-}
-
-.capture-btn:active {
-    transform: translateX(-50%) scale(.94);
-}
-
-.close-frame-btn {
-    left: calc(18px + env(safe-area-inset-left));
-    top: calc(18px + env(safe-area-inset-top));
-
-    width: 48px;
-    height: 48px;
-
-    border-radius: 50%;
-    background: rgba(255,255,255,.92);
-    color: #333;
-
-    font-size: 22px;
-}
-
-.switch-camera-btn {
-    right: calc(18px + env(safe-area-inset-right));
-    top: calc(18px + env(safe-area-inset-top));
-
-    width: 58px;
-    height: 48px;
-
-    border-radius: 999px;
-    background: rgba(255,255,255,.92);
-    color: #333;
-
-    font-size: 13px;
-}
-
-.close-frame-btn:active,
-.switch-camera-btn:active {
-    transform: scale(.94);
-}
-
-/* =========================
-   Preview
-========================= */
+/* preview */
 
 .preview-area {
     position: absolute;
     inset: 0;
-    z-index: 10;
+
+    z-index: 20;
     background: #000;
 
     display: flex;
@@ -234,8 +251,6 @@ body {
     display: flex;
     justify-content: center;
     gap: 16px;
-
-    z-index: 20;
 }
 
 .preview-bottom button {
@@ -247,18 +262,20 @@ body {
     background: #fff;
     color: #333;
 
-    font-weight: 900;
     font-size: 15px;
+    font-weight: 900;
 
     box-shadow: 0 6px 18px rgba(0,0,0,.25);
 }
 
-/* PC preview */
+/* PC */
+
 @media (min-width: 768px) {
     #cameraVideo,
     #selectedPhotoFrame,
     #previewImage,
-    .frame-carousel {
+    .bottom-menu,
+    .frame-panel {
         width: min(420px, calc(100dvh * 9 / 16));
     }
 

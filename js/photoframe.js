@@ -2,10 +2,11 @@ const cameraVideo = document.getElementById("cameraVideo");
 const selectedPhotoFrame = document.getElementById("selectedPhotoFrame");
 const captureCanvas = document.getElementById("captureCanvas");
 
-const frameCarousel = document.getElementById("frameCarousel");
 const captureBtn = document.getElementById("captureBtn");
-const closeFrameBtn = document.getElementById("closeFrameBtn");
-const switchCameraBtn = document.getElementById("switchCameraBtn");
+const openFramePanelBtn = document.getElementById("openFramePanelBtn");
+const framePanel = document.getElementById("framePanel");
+const closeFramePanelBtn = document.getElementById("closeFramePanelBtn");
+const frameCarousel = document.getElementById("frameCarousel");
 
 const previewArea = document.getElementById("previewArea");
 const previewImage = document.getElementById("previewImage");
@@ -18,47 +19,53 @@ let selectedFrame = null;
 
 const FRAME_WIDTH = 1080;
 const FRAME_HEIGHT = 1920;
+const TOTAL_FRAMES = 40;
 
-const frameCount = 40;
-
-const frames = Array.from({ length: frameCount }, (_, index) => {
-    const number = String(index + 1).padStart(2, "0");
+const frames = Array.from({ length: TOTAL_FRAMES }, (_, index) => {
+    const num = String(index + 1).padStart(2, "0");
 
     return {
-        full: `assets/photoframe/frame${number}.webp`,
-        thumb: `assets/photoframe/thumbs/frame${number}.webp`
+        full: `assets/photoframe/frame${num}.webp`,
+        thumb: `assets/photoframe/thumbs/frame${num}.webp`
     };
 });
 
 initialize();
 
 async function initialize() {
-    createCarousel();
+    createFrameCarousel();
     bindEvents();
     await startCamera();
 }
 
-function createCarousel() {
+function createFrameCarousel() {
     frames.forEach((frame, index) => {
-        const btn = document.createElement("button");
-        btn.className = "frame-btn";
+        const button = document.createElement("button");
+        button.className = "frame-btn";
 
-        btn.innerHTML = `
+        button.innerHTML = `
             <img src="${frame.thumb}" alt="フレーム${index + 1}">
         `;
 
-        btn.addEventListener("click", () => {
-            selectFrame(frame.full);
+        button.addEventListener("click", () => {
+            selectFrame(frame.full, button);
         });
 
-        frameCarousel.appendChild(btn);
+        frameCarousel.appendChild(button);
     });
 }
 
 function bindEvents() {
     captureBtn.addEventListener("click", capturePhoto);
-    closeFrameBtn.addEventListener("click", cancelFrameSelection);
-    switchCameraBtn.addEventListener("click", switchCamera);
+
+    openFramePanelBtn.addEventListener("click", () => {
+        framePanel.classList.remove("hidden");
+    });
+
+    closeFramePanelBtn.addEventListener("click", () => {
+        framePanel.classList.add("hidden");
+    });
+
     retakeBtn.addEventListener("click", retakePhoto);
     saveBtn.addEventListener("click", savePhoto);
 
@@ -89,50 +96,30 @@ async function startCamera() {
 }
 
 function stopCamera() {
-    if (currentStream) {
-        currentStream.getTracks().forEach(track => track.stop());
-        currentStream = null;
-    }
+    if (!currentStream) return;
+
+    currentStream.getTracks().forEach(track => track.stop());
+    currentStream = null;
 }
 
-async function switchCamera() {
-    facingMode = facingMode === "user" ? "environment" : "user";
-    await startCamera();
-}
-
-function selectFrame(frameSrc) {
+function selectFrame(frameSrc, button) {
     selectedFrame = frameSrc;
 
     selectedPhotoFrame.src = selectedFrame;
     selectedPhotoFrame.style.display = "block";
 
-    frameCarousel.classList.add("hidden");
+    document
+        .querySelectorAll(".frame-btn")
+        .forEach(btn => btn.classList.remove("selected"));
 
-    captureBtn.classList.add("visible");
-    closeFrameBtn.classList.add("visible");
-    switchCameraBtn.classList.add("visible");
-}
-
-function cancelFrameSelection() {
-    selectedFrame = null;
-
-    selectedPhotoFrame.removeAttribute("src");
-    selectedPhotoFrame.style.display = "none";
-
-    captureBtn.classList.remove("visible");
-    closeFrameBtn.classList.remove("visible");
-    switchCameraBtn.classList.remove("visible");
-
-    frameCarousel.classList.remove("hidden");
+    button.classList.add("selected");
 }
 
 function drawCover(ctx, img, canvasW, canvasH) {
     const imgW = img.videoWidth || img.naturalWidth;
     const imgH = img.videoHeight || img.naturalHeight;
 
-    if (!imgW || !imgH) {
-        return;
-    }
+    if (!imgW || !imgH) return;
 
     const scale = Math.max(canvasW / imgW, canvasH / imgH);
 
@@ -147,21 +134,20 @@ function drawCover(ctx, img, canvasW, canvasH) {
 
 function capturePhoto() {
     if (!selectedFrame) {
+        alert("フレームを選択してください");
+        framePanel.classList.remove("hidden");
         return;
     }
 
-    const width = FRAME_WIDTH;
-    const height = FRAME_HEIGHT;
-
-    captureCanvas.width = width;
-    captureCanvas.height = height;
+    captureCanvas.width = FRAME_WIDTH;
+    captureCanvas.height = FRAME_HEIGHT;
 
     const ctx = captureCanvas.getContext("2d");
 
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
-    drawCover(ctx, cameraVideo, width, height);
-    ctx.drawImage(selectedPhotoFrame, 0, 0, width, height);
+    drawCover(ctx, cameraVideo, FRAME_WIDTH, FRAME_HEIGHT);
+    ctx.drawImage(selectedPhotoFrame, 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
     previewImage.src = captureCanvas.toDataURL("image/png");
     previewArea.classList.remove("hidden");
