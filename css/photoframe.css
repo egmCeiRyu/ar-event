@@ -241,11 +241,11 @@ body {
     position: relative;
     z-index: 3;
 
-    width: 34px;
-    height: 34px;
+    width: 54px;
+    height: 54px;
 
     fill: none;
-    stroke: #e46f4b;
+    stroke: #000000;
     stroke-width: 4;
     stroke-linecap: round;
     stroke-linejoin: round;
