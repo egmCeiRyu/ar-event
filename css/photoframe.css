@@ -241,11 +241,13 @@ body {
 
 .capture-label {
     position: absolute;
-    z-index: 3;
+    z-index: 4;
 
     left: 50%;
-    bottom: 17px;
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+    width: 100%;
 
     color: #fff;
 
@@ -253,6 +255,9 @@ body {
     font-weight: 900;
     line-height: 1;
     letter-spacing: .04em;
+    text-align: center;
+
+    pointer-events: none;
 
     text-shadow:
         0 2px 6px rgba(0, 0, 0, .58),
