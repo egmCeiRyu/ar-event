@@ -33,24 +33,38 @@
         <a
             id="homeBtn"
             class="bottom-menu-btn"
-            href="index.html">
-            <span class="bottom-icon">🏠</span>
+            href="index.html"
+            aria-label="ホーム">
+
+            <svg class="bottom-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 10.8L12 3l9 7.8v9.7a.5.5 0 0 1-.5.5H15v-6h-6v6H3.5a.5.5 0 0 1-.5-.5v-9.7Z"/>
+            </svg>
+
             <span class="bottom-label">ホーム</span>
         </a>
 
         <button
             id="captureBtn"
             class="capture-main-btn"
-            type="button">
-            <span class="capture-circle">●</span>
-            <span class="bottom-label">撮影</span>
+            type="button"
+            aria-label="撮影">
+
+            <span class="capture-core"></span>
+            <span class="capture-label">撮影</span>
         </button>
 
         <button
             id="openFramePanelBtn"
             class="bottom-menu-btn"
-            type="button">
-            <span class="bottom-icon">🖼</span>
+            type="button"
+            aria-label="フレーム">
+
+            <svg class="bottom-icon" viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="4" y="5" width="16" height="14" rx="2"/>
+                <rect x="7" y="8" width="10" height="8" rx="1.2"/>
+                <circle cx="17" cy="7" r="1.2"/>
+            </svg>
+
             <span class="bottom-label">フレーム</span>
         </button>
 
