@@ -53,64 +53,8 @@ body {
 }
 
 /* =========================
-   Switch Camera Button
-   canto superior direito
+   Bottom Menu
 ========================= */
-
-.switch-camera-btn {
-    position: absolute;
-    top: calc(18px + env(safe-area-inset-top));
-    right: calc(18px + env(safe-area-inset-right));
-
-    width: 54px;
-    height: 54px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: rgba(0, 0, 0, .18);
-    box-shadow: none;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    z-index: 12;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-
-    transition:
-        transform .16s ease,
-        background .16s ease,
-        opacity .16s ease;
-}
-
-.switch-camera-btn:active {
-    transform: scale(.92);
-    background: rgba(0, 0, 0, .28);
-    opacity: .85;
-}
-
-.switch-camera-btn:active {
-    transform: scale(.92);
-    background: rgba(0, 0, 0, .28);
-    opacity: .85;
-}
-
-.switch-camera-icon {
-    width: 34px;
-    height: 34px;
-
-    fill: none;
-    stroke: #ffffff;
-    stroke-width: 4.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-
-    filter:
-        drop-shadow(0 2px 5px rgba(0, 0, 0, .55))
-        drop-shadow(0 0 2px rgba(0, 0, 0, .45));
-}
 
 /* =========================
    Bottom Menu - Professional UI
@@ -119,9 +63,7 @@ body {
 .bottom-menu {
     position: absolute;
     left: 50%;
-
     bottom: calc(82px + env(safe-area-inset-bottom));
-
     transform: translateX(-50%);
 
     width: min(100vw, calc(100dvh * 9 / 16));
@@ -134,6 +76,8 @@ body {
     z-index: 20;
     pointer-events: auto;
 }
+
+/* Common reset */
 
 .bottom-menu-btn,
 .capture-main-btn {
@@ -162,10 +106,7 @@ body {
         box-shadow .16s ease;
 }
 
-/* =========================
-   Side Buttons
-   ホーム / フレーム
-========================= */
+/* Side buttons: ホーム / フレーム */
 
 .bottom-menu-btn {
     width: 66px;
@@ -194,6 +135,15 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, .24);
 }
 
+.bottom-menu-btn:hover {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(45, 45, 45, .78),
+            rgba(18, 18, 18, .70)
+        );
+}
+
 .bottom-menu-btn:active {
     transform: scale(.94);
 }
@@ -210,13 +160,10 @@ body {
 }
 
 .bottom-label {
-    width: 100%;
-
     font-size: 10px;
     line-height: 1;
     letter-spacing: .04em;
     color: #fff;
-    text-align: center;
 
     text-shadow:
         0 1px 4px rgba(0, 0, 0, .75),
@@ -224,29 +171,40 @@ body {
 }
 
 /* =========================
-   Capture Button
-   撮影
+   Capture Button - Camera Icon
 ========================= */
 
 .capture-main-btn {
     position: relative;
 
-    width: 82px;
-    height: 82px;
+    width: 78px;
+    height: 78px;
 
+    border: none;
     border-radius: 50%;
 
-    background: rgba(255, 255, 255, .14);
+    background: rgba(255, 255, 255, .12);
 
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 
     box-shadow:
-        0 12px 30px rgba(0, 0, 0, .42),
-        inset 0 0 0 2px rgba(255, 255, 255, .28);
+        0 10px 26px rgba(0, 0, 0, .38),
+        inset 0 0 0 2px rgba(255, 255, 255, .22);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+        transform .16s ease,
+        box-shadow .16s ease;
 }
 
-/* outer white ring */
+/* círculo externo branco */
 .capture-main-btn::before {
     content: "";
 
@@ -262,7 +220,7 @@ body {
         0 8px 22px rgba(0, 0, 0, .35);
 }
 
-/* inner white circle */
+/* círculo interno branco */
 .capture-main-btn::after {
     content: "";
 
@@ -278,26 +236,29 @@ body {
         0 2px 8px rgba(0, 0, 0, .18);
 }
 
-.capture-main-btn:active {
-    transform: scale(.94);
-}
-
-/* camera icon inside capture button */
+/* ícone da câmera em SVG */
 .capture-camera-icon {
     position: relative;
     z-index: 3;
 
-    width: 34px;
-    height: 34px;
+    width: 44px;
+    height: 44px;
+
+     /* sobe o ícone um pouco */
+    transform: translateY(-3px);
 
     fill: none;
-    stroke: #e46f4b;
-    stroke-width: 4;
+    stroke: #727272;
+    stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
-/* old capture elements hidden */
+.capture-main-btn:active {
+    transform: scale(.94);
+}
+
+/* caso ainda existam classes antigas */
 .capture-core,
 .capture-label,
 .capture-circle {
@@ -306,8 +267,6 @@ body {
 
 /* =========================
    Frame Panel
-   carrossel fixo embaixo
-   sobrepondo os botões
 ========================= */
 
 .frame-panel {
@@ -326,11 +285,8 @@ body {
         calc(32px + env(safe-area-inset-bottom));
 
     background: rgba(0, 0, 0, .84);
-
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-
-    border-radius: 24px 24px 0 0;
 
     z-index: 30;
 
@@ -350,8 +306,8 @@ body {
     right: 14px;
     top: 12px;
 
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
 
     border: none;
     border-radius: 50%;
@@ -359,14 +315,10 @@ body {
     background: rgba(255, 255, 255, .96);
     color: #222;
 
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 900;
-    line-height: 1;
 
     box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
-
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
 }
 
 .frame-panel-close:active {
@@ -459,7 +411,7 @@ body {
     position: absolute;
     inset: 0;
 
-    z-index: 40;
+    z-index: 30;
     background: #000;
 
     display: flex;
@@ -488,7 +440,7 @@ body {
     justify-content: center;
     gap: 16px;
 
-    z-index: 45;
+    z-index: 35;
 }
 
 .preview-bottom button {
@@ -504,9 +456,6 @@ body {
     font-weight: 900;
 
     box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
-
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
 }
 
 .preview-bottom button:active {
