@@ -19,7 +19,7 @@ let selectedFrame = null;
 const FRAME_WIDTH = 1080;
 const FRAME_HEIGHT = 1920;
 
-const frameCount = 14;
+const frameCount = 40;
 
 const frames = Array.from({ length: frameCount }, (_, index) => {
     const number = String(index + 1).padStart(2, "0");
