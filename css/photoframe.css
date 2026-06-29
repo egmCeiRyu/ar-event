@@ -60,11 +60,11 @@ body {
     position: absolute;
     left: 50%;
 
-    bottom: calc(42px + env(safe-area-inset-bottom));
+    bottom: calc(82px + env(safe-area-inset-bottom));
 
     transform: translateX(-50%);
 
-    width: min(82vw, calc(100dvh * 9 / 16));
+    width: min(100vw, calc(100dvh * 9 / 16));
     padding: 0 38px;
 
     display: flex;
