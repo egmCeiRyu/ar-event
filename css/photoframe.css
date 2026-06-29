@@ -1,9 +1,21 @@
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     background: #000;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
     overflow: hidden;
 }
+
+/* =========================
+   Camera Base
+========================= */
 
 #cameraPage {
     position: fixed;
@@ -27,6 +39,7 @@ body {
 
 #cameraVideo {
     z-index: 1;
+    background: #000;
 }
 
 #selectedPhotoFrame {
@@ -39,7 +52,9 @@ body {
     display: none;
 }
 
-/* bottom menu */
+/* =========================
+   Bottom Menu
+========================= */
 
 .bottom-menu {
     position: absolute;
@@ -48,101 +63,110 @@ body {
     transform: translateX(-50%);
 
     width: min(100vw, calc(100dvh * 9 / 16));
+    padding: 0 22px;
 
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
 
     z-index: 5;
-    pointer-events: auto;
 }
 
-.menu-btn,
+.bottom-menu-btn,
 .capture-main-btn {
     border: none;
-    background: rgba(255,255,255,.92);
-    color: #222;
-
-    font-weight: 900;
     text-decoration: none;
-
-    box-shadow: 0 8px 22px rgba(0,0,0,.35);
-}
-
-.menu-btn {
-    width: 66px;
-    height: 66px;
-    border-radius: 50%;
+    font-weight: 900;
+    cursor: pointer;
 
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+}
+
+.bottom-menu-btn {
+    width: 66px;
+    height: 66px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, .94);
+    color: #222;
+
     gap: 2px;
 }
 
-.menu-btn span {
+.bottom-icon {
     font-size: 22px;
+    line-height: 1;
 }
 
-.menu-btn small,
-.capture-main-btn small {
+.bottom-label {
     font-size: 10px;
+    line-height: 1.1;
 }
 
 .capture-main-btn {
-    width: 88px;
-    height: 88px;
+    width: 90px;
+    height: 90px;
+
     border-radius: 50%;
+    border: 5px solid rgba(255, 255, 255, .96);
 
     background: #ff6f91;
     color: #fff;
 
-    border: 5px solid rgba(255,255,255,.95);
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    gap: 0;
 }
 
-.capture-main-btn span {
+.capture-circle {
     font-size: 30px;
-    line-height: 1;
+    line-height: .9;
 }
 
-.menu-btn:active,
+.bottom-menu-btn:active,
 .capture-main-btn:active {
     transform: scale(.94);
 }
 
-/* frame panel */
+/* =========================
+   Frame Panel
+========================= */
 
 .frame-panel {
     position: absolute;
     left: 50%;
-    bottom: calc(106px + env(safe-area-inset-bottom));
+    bottom: 0;
     transform: translateX(-50%);
 
     width: min(100vw, calc(100dvh * 9 / 16));
-    min-height: 190px;
+    min-height: 240px;
 
-    padding: 42px 14px 18px;
+    padding:
+        48px
+        16px
+        calc(26px + env(safe-area-inset-bottom));
 
-    background: rgba(0,0,0,.78);
+    background: rgba(0, 0, 0, .82);
     backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 
-    border-radius: 24px 24px 0 0;
+    border-radius: 26px 26px 0 0;
 
-    z-index: 8;
+    z-index: 10;
 
-    transition: opacity .25s ease, transform .25s ease;
+    transition:
+        opacity .25s ease,
+        transform .25s ease;
 }
 
 .frame-panel.hidden {
     opacity: 0;
     pointer-events: none;
-    transform: translateX(-50%) translateY(40px);
+    transform: translateX(-50%) translateY(100%);
 }
 
 .frame-panel-close {
@@ -150,24 +174,33 @@ body {
     right: 14px;
     top: 12px;
 
-    width: 36px;
-    height: 36px;
+    width: 40px;
+    height: 40px;
 
     border: none;
     border-radius: 50%;
 
-    background: rgba(255,255,255,.95);
+    background: rgba(255, 255, 255, .95);
     color: #222;
 
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 900;
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+}
+
+.frame-panel-close:active {
+    transform: scale(.94);
 }
 
 .frame-panel-title {
+    margin: 0 50px 16px 4px;
+
     color: #fff;
     font-size: 14px;
     font-weight: 900;
-    margin: 0 44px 12px 4px;
+
+    text-shadow: 0 2px 8px rgba(0, 0, 0, .35);
 }
 
 .frame-carousel {
@@ -175,7 +208,9 @@ body {
     gap: 14px;
 
     overflow-x: auto;
-    padding: 4px 4px 8px;
+    overflow-y: hidden;
+
+    padding: 4px 4px 10px;
 
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
@@ -188,24 +223,28 @@ body {
 .frame-btn {
     flex: 0 0 auto;
 
-    width: 76px;
-    height: 136px;
+    width: 78px;
+    height: 138px;
 
     padding: 4px;
 
-    border: 3px solid rgba(255,255,255,.55);
-    border-radius: 16px;
+    border: 3px solid rgba(255, 255, 255, .55);
+    border-radius: 17px;
 
-    background: rgba(255,255,255,.9);
+    background: rgba(255, 255, 255, .92);
 
     scroll-snap-align: center;
 
-    transition: transform .2s ease, border-color .2s ease;
+    transition:
+        transform .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
 }
 
 .frame-btn.selected {
     border-color: #ff6f91;
     transform: scale(1.08);
+    box-shadow: 0 0 0 4px rgba(255, 111, 145, .28);
 }
 
 .frame-btn img {
@@ -213,18 +252,28 @@ body {
     height: 100%;
 
     display: block;
-    object-fit: contain;
 
+    object-fit: contain;
     border-radius: 11px;
 }
 
-/* preview */
+.frame-btn:active {
+    transform: scale(.94);
+}
+
+.frame-btn.selected:active {
+    transform: scale(1.02);
+}
+
+/* =========================
+   Preview
+========================= */
 
 .preview-area {
     position: absolute;
     inset: 0;
 
-    z-index: 20;
+    z-index: 30;
     background: #000;
 
     display: flex;
@@ -239,6 +288,7 @@ body {
 #previewImage {
     width: min(100vw, calc(100dvh * 9 / 16));
     height: min(100dvh, calc(100vw * 16 / 9));
+
     object-fit: contain;
 }
 
@@ -251,6 +301,8 @@ body {
     display: flex;
     justify-content: center;
     gap: 16px;
+
+    z-index: 35;
 }
 
 .preview-bottom button {
@@ -265,10 +317,16 @@ body {
     font-size: 15px;
     font-weight: 900;
 
-    box-shadow: 0 6px 18px rgba(0,0,0,.25);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
 }
 
-/* PC */
+.preview-bottom button:active {
+    transform: scale(.96);
+}
+
+/* =========================
+   PC Preview
+========================= */
 
 @media (min-width: 768px) {
     #cameraVideo,

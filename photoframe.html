@@ -3,7 +3,7 @@
 
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 
 <link rel="stylesheet" href="css/common.css">
 <link rel="stylesheet" href="css/photoframe.css">
@@ -15,47 +15,92 @@
 
 <div id="cameraPage">
 
-    <video id="cameraVideo" autoplay playsinline muted></video>
+    <video
+        id="cameraVideo"
+        autoplay
+        playsinline
+        muted>
+    </video>
 
-    <img id="selectedPhotoFrame" alt="フォトフレーム">
+    <img
+        id="selectedPhotoFrame"
+        alt="フォトフレーム">
 
     <canvas id="captureCanvas"></canvas>
 
-    <div class="bottom-menu">
-        <a class="menu-btn" href="index.html">
-            <span>🏠</span>
-            <small>ホーム</small>
+    <nav class="bottom-menu">
+
+        <a
+            id="homeBtn"
+            class="bottom-menu-btn"
+            href="index.html">
+            <span class="bottom-icon">🏠</span>
+            <span class="bottom-label">ホーム</span>
         </a>
 
-        <button id="captureBtn" class="capture-main-btn">
-            <span>●</span>
-            <small>撮影</small>
+        <button
+            id="captureBtn"
+            class="capture-main-btn"
+            type="button">
+            <span class="capture-circle">●</span>
+            <span class="bottom-label">撮影</span>
         </button>
 
-        <button id="openFramePanelBtn" class="menu-btn">
-            <span>🖼</span>
-            <small>フレーム</small>
+        <button
+            id="openFramePanelBtn"
+            class="bottom-menu-btn"
+            type="button">
+            <span class="bottom-icon">🖼</span>
+            <span class="bottom-label">フレーム</span>
         </button>
-    </div>
 
-    <div id="framePanel" class="frame-panel hidden">
-        <button id="closeFramePanelBtn" class="frame-panel-close">✕</button>
+    </nav>
+
+    <section
+        id="framePanel"
+        class="frame-panel hidden">
+
+        <button
+            id="closeFramePanelBtn"
+            class="frame-panel-close"
+            type="button">
+            ✕
+        </button>
 
         <div class="frame-panel-title">
             フレームを選択してください
         </div>
 
-        <div id="frameCarousel" class="frame-carousel"></div>
-    </div>
+        <div
+            id="frameCarousel"
+            class="frame-carousel">
+        </div>
 
-    <div id="previewArea" class="preview-area hidden">
-        <img id="previewImage" alt="プレビュー">
+    </section>
+
+    <section
+        id="previewArea"
+        class="preview-area hidden">
+
+        <img
+            id="previewImage"
+            alt="プレビュー">
 
         <div class="preview-bottom">
-            <button id="retakeBtn">撮り直す</button>
-            <button id="saveBtn">保存</button>
+            <button
+                id="retakeBtn"
+                type="button">
+                撮り直す
+            </button>
+
+            <button
+                id="saveBtn"
+                type="button">
+                保存
+            </button>
         </div>
-    </div>
+
+    </section>
 
 </div>
 

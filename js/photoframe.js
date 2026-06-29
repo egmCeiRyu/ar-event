@@ -2,8 +2,10 @@ const cameraVideo = document.getElementById("cameraVideo");
 const selectedPhotoFrame = document.getElementById("selectedPhotoFrame");
 const captureCanvas = document.getElementById("captureCanvas");
 
+const homeBtn = document.getElementById("homeBtn");
 const captureBtn = document.getElementById("captureBtn");
 const openFramePanelBtn = document.getElementById("openFramePanelBtn");
+
 const framePanel = document.getElementById("framePanel");
 const closeFramePanelBtn = document.getElementById("closeFramePanelBtn");
 const frameCarousel = document.getElementById("frameCarousel");
@@ -16,15 +18,18 @@ const saveBtn = document.getElementById("saveBtn");
 let currentStream = null;
 let facingMode = "user";
 let selectedFrame = null;
+let selectedFrameReady = false;
 
 const FRAME_WIDTH = 1080;
 const FRAME_HEIGHT = 1920;
+
 const TOTAL_FRAMES = 40;
 
 const frames = Array.from({ length: TOTAL_FRAMES }, (_, index) => {
     const num = String(index + 1).padStart(2, "0");
 
     return {
+        id: index + 1,
         full: `assets/photoframe/frame${num}.webp`,
         thumb: `assets/photoframe/thumbs/frame${num}.webp`
     };
@@ -39,16 +44,26 @@ async function initialize() {
 }
 
 function createFrameCarousel() {
-    frames.forEach((frame, index) => {
+    frameCarousel.innerHTML = "";
+
+    frames.forEach((frame) => {
         const button = document.createElement("button");
         button.className = "frame-btn";
+        button.type = "button";
+        button.dataset.frame = String(frame.id);
 
-        button.innerHTML = `
-            <img src="${frame.thumb}" alt="フレーム${index + 1}">
-        `;
+        const img = document.createElement("img");
+        img.src = frame.thumb;
+        img.alt = `フレーム${frame.id}`;
+
+        img.onerror = () => {
+            button.remove();
+        };
+
+        button.appendChild(img);
 
         button.addEventListener("click", () => {
-            selectFrame(frame.full, button);
+            selectFrame(frame, button);
         });
 
         frameCarousel.appendChild(button);
@@ -56,20 +71,20 @@ function createFrameCarousel() {
 }
 
 function bindEvents() {
+    homeBtn.addEventListener("click", () => {
+        stopCamera();
+    });
+
+    openFramePanelBtn.addEventListener("click", openFramePanel);
+    closeFramePanelBtn.addEventListener("click", closeFramePanel);
+
     captureBtn.addEventListener("click", capturePhoto);
-
-    openFramePanelBtn.addEventListener("click", () => {
-        framePanel.classList.remove("hidden");
-    });
-
-    closeFramePanelBtn.addEventListener("click", () => {
-        framePanel.classList.add("hidden");
-    });
 
     retakeBtn.addEventListener("click", retakePhoto);
     saveBtn.addEventListener("click", savePhoto);
 
     window.addEventListener("beforeunload", stopCamera);
+    window.addEventListener("pagehide", stopCamera);
 }
 
 async function startCamera() {
@@ -89,37 +104,78 @@ async function startCamera() {
         await cameraVideo.play();
 
     } catch (error) {
-        alert("カメラを起動できませんでした");
         console.error(error);
+        alert("カメラを起動できませんでした");
         window.location.href = "index.html";
     }
 }
 
 function stopCamera() {
-    if (!currentStream) return;
+    if (!currentStream) {
+        return;
+    }
 
-    currentStream.getTracks().forEach(track => track.stop());
+    currentStream
+        .getTracks()
+        .forEach((track) => {
+            track.stop();
+        });
+
     currentStream = null;
 }
 
-function selectFrame(frameSrc, button) {
-    selectedFrame = frameSrc;
+function openFramePanel() {
+    framePanel.classList.remove("hidden");
+}
 
-    selectedPhotoFrame.src = selectedFrame;
+function closeFramePanel() {
+    framePanel.classList.add("hidden");
+}
+
+function selectFrame(frame, button) {
+    selectedFrame = frame.full;
+    selectedFrameReady = false;
+
     selectedPhotoFrame.style.display = "block";
+
+    selectedPhotoFrame.onload = () => {
+        selectedFrameReady = true;
+    };
+
+    selectedPhotoFrame.onerror = () => {
+        selectedFrame = null;
+        selectedFrameReady = false;
+
+        selectedPhotoFrame.removeAttribute("src");
+        selectedPhotoFrame.style.display = "none";
+
+        alert("フレームを読み込めませんでした");
+    };
+
+    selectedPhotoFrame.src = frame.full;
 
     document
         .querySelectorAll(".frame-btn")
-        .forEach(btn => btn.classList.remove("selected"));
+        .forEach((btn) => {
+            btn.classList.remove("selected");
+        });
 
     button.classList.add("selected");
+
+    /*
+        Importante:
+        O carrossel NÃO fecha ao selecionar.
+        Ele só fecha quando o usuário toca no ✕.
+    */
 }
 
 function drawCover(ctx, img, canvasW, canvasH) {
     const imgW = img.videoWidth || img.naturalWidth;
     const imgH = img.videoHeight || img.naturalHeight;
 
-    if (!imgW || !imgH) return;
+    if (!imgW || !imgH) {
+        return;
+    }
 
     const scale = Math.max(canvasW / imgW, canvasH / imgH);
 
@@ -135,7 +191,12 @@ function drawCover(ctx, img, canvasW, canvasH) {
 function capturePhoto() {
     if (!selectedFrame) {
         alert("フレームを選択してください");
-        framePanel.classList.remove("hidden");
+        openFramePanel();
+        return;
+    }
+
+    if (!selectedFrameReady || !selectedPhotoFrame.complete) {
+        alert("フレームを読み込み中です");
         return;
     }
 
@@ -147,7 +208,14 @@ function capturePhoto() {
     ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
     drawCover(ctx, cameraVideo, FRAME_WIDTH, FRAME_HEIGHT);
-    ctx.drawImage(selectedPhotoFrame, 0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+
+    ctx.drawImage(
+        selectedPhotoFrame,
+        0,
+        0,
+        FRAME_WIDTH,
+        FRAME_HEIGHT
+    );
 
     previewImage.src = captureCanvas.toDataURL("image/png");
     previewArea.classList.remove("hidden");
@@ -169,7 +237,10 @@ async function savePhoto() {
         });
 
         try {
-            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            if (
+                navigator.canShare &&
+                navigator.canShare({ files: [file] })
+            ) {
                 await navigator.share({
                     files: [file],
                     title: "フォトフレーム",
