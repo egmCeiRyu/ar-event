@@ -244,6 +244,9 @@ body {
     width: 44px;
     height: 44px;
 
+     /* sobe o ícone um pouco */
+    transform: translateY(-3px);
+
     fill: none;
     stroke: #727272;
     stroke-width: 2;
