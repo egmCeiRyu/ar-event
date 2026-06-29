@@ -1,8 +1,15 @@
 const stampMap = {
     4: "stamp01",
     5: "stamp02",
-    6: "stamp03"
+    6: "stamp03",
+    7: "stamp04",
+    8: "stamp05",
+    9: "stamp06",
+    10: "stamp07",
+    11: "stamp08"
 };
+
+const MAX_STAMPS = Object.keys(stampMap).length;
 
 let USER_ID = null;
 let confettiPlayed = false;
@@ -46,7 +53,7 @@ async function loadStamps() {
         stamp.classList.remove("unlocked");
     });
 
-    let count = 0;
+    const unlockedStampIds = new Set();
 
     data.forEach(item => {
         const stampId = stampMap[item.character_id];
@@ -57,20 +64,23 @@ async function loadStamps() {
             if (stamp) {
                 stamp.classList.remove("locked");
                 stamp.classList.add("unlocked");
-                count++;
+
+                unlockedStampIds.add(item.character_id);
             }
         }
     });
 
+    const count = unlockedStampIds.size;
+
     updateStampLevel(count);
 
-    if (count >= 3) {
+    if (count >= MAX_STAMPS) {
         launchConfetti();
     }
 }
 
 function updateStampLevel(total) {
-    const max = 3;
+    const max = MAX_STAMPS;
     const percent = Math.min((total / max) * 100, 100);
 
     document.getElementById("progressText").textContent = `${total} / ${max}`;

@@ -1,21 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="ja">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stamp Book</title>
+    <title>スタンプブック</title>
 
     <link rel="stylesheet" href="css/stampbook.css">
     <link rel="stylesheet" href="css/common.css">
-    
 </head>
 
 <body>
 
     <div class="container">
 
-        <h1>Stamp Book</h1>
+        <h1>スタンプブック</h1>
+
         <div class="subtitle">
             キャラクタースタンプを集めよう！
         </div>
@@ -23,18 +23,43 @@
         <div class="stamp-grid">
 
             <div class="stamp-card">
-                <img id="stamp01" class="stamp locked" src="assets/stamps/stamp01.png">
-                <div class="stamp-label">Stamp 01</div>
+                <img id="stamp01" class="stamp locked" src="assets/stamps/stamp01.png" alt="スタンプ 01">
+                <div class="stamp-label">スタンプ 01</div>
             </div>
 
             <div class="stamp-card">
-                <img id="stamp02" class="stamp locked" src="assets/stamps/stamp02.png">
-                <div class="stamp-label">Stamp 02</div>
+                <img id="stamp02" class="stamp locked" src="assets/stamps/stamp02.png" alt="スタンプ 02">
+                <div class="stamp-label">スタンプ 02</div>
             </div>
 
             <div class="stamp-card">
-                <img id="stamp03" class="stamp locked" src="assets/stamps/stamp03.png">
-                <div class="stamp-label">Stamp 03</div>
+                <img id="stamp03" class="stamp locked" src="assets/stamps/stamp03.png" alt="スタンプ 03">
+                <div class="stamp-label">スタンプ 03</div>
+            </div>
+
+            <div class="stamp-card">
+                <img id="stamp04" class="stamp locked" src="assets/stamps/stamp04.png" alt="スタンプ 04">
+                <div class="stamp-label">スタンプ 04</div>
+            </div>
+
+            <div class="stamp-card">
+                <img id="stamp05" class="stamp locked" src="assets/stamps/stamp05.png" alt="スタンプ 05">
+                <div class="stamp-label">スタンプ 05</div>
+            </div>
+
+            <div class="stamp-card">
+                <img id="stamp06" class="stamp locked" src="assets/stamps/stamp06.png" alt="スタンプ 06">
+                <div class="stamp-label">スタンプ 06</div>
+            </div>
+
+            <div class="stamp-card">
+                <img id="stamp07" class="stamp locked" src="assets/stamps/stamp07.png" alt="スタンプ 07">
+                <div class="stamp-label">スタンプ 07</div>
+            </div>
+
+            <div class="stamp-card">
+                <img id="stamp08" class="stamp locked" src="assets/stamps/stamp08.png" alt="スタンプ 08">
+                <div class="stamp-label">スタンプ 08</div>
             </div>
 
         </div>
@@ -43,7 +68,7 @@
 
             <div class="level-header">
                 <span>スタンプ獲得状況</span>
-                <strong id="progressText">0 / 3</strong>
+                <strong id="progressText">0 / 8</strong>
             </div>
 
             <div class="progress-bar">
@@ -55,7 +80,7 @@
 
                 <div class="reward-text">
                     <strong>コンプリート特典</strong>
-                    <p>3つのスタンプを集めると特典がもらえるよ！</p>
+                    <p>8つのスタンプを集めると特典がもらえるよ！</p>
                 </div>
 
                 <div class="reward-gift">🎁</div>
@@ -69,26 +94,30 @@
 
         <div id="completeBox" class="complete-box">
             🎉 COMPLETE!<br>
-            3つのスタンプを集めました！
+            8つのスタンプを集めました！
 
             <br><br>
 
-            <a id="giftButton" class="gift-button" href="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGJqZXp5NHF0b2p1ZjgwNXpkdTJucGtmamplcG0xMTc5b3Vibjc4MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FIZ1QC610AAhi/giphy.gif" target="_blank">
+            <a
+                id="giftButton"
+                class="gift-button"
+                href="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGJqZXp5NHF0b2p1ZjgwNXpkdTJucGtmamplcG0xMTc5b3Vibjc4MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FIZ1QC610AAhi/giphy.gif"
+                target="_blank"
+            >
                 🎁 プレゼントを受け取る
             </a>
         </div>
 
         <div class="buttons">
             <button class="back" onclick="location.href='character.html'">
-                Back
+                戻る
             </button>
 
             <button class="reset" onclick="resetStamps()">
-                Reset Test
+                テストリセット
             </button>
         </div>
 
-        
     </div>
 
     <a id="homeButton" href="index.html">🏠</a>
@@ -97,6 +126,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
     <script src="js/stampbook.js"></script>
+
 </body>
 
 </html>
