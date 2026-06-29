@@ -274,22 +274,29 @@ body {
     top: calc(18px + env(safe-area-inset-top));
     right: calc(18px + env(safe-area-inset-right));
 
-    width: 56px;
-    height: 56px;
+    width: 58px;
+    height: 58px;
 
     border: none;
     border-radius: 50%;
 
-    background: rgba(255, 255, 255, .92);
-    color: #111;
+    background:
+        linear-gradient(
+            180deg,
+            rgba(255, 255, 255, .96),
+            rgba(235, 235, 235, .90)
+        );
+
+    color: #222;
 
     display: flex;
     align-items: center;
     justify-content: center;
 
     box-shadow:
-        0 8px 22px rgba(0, 0, 0, .28),
-        inset 0 0 0 1px rgba(255, 255, 255, .65);
+        0 10px 26px rgba(0, 0, 0, .32),
+        inset 0 0 0 1px rgba(255, 255, 255, .75),
+        inset 0 1px 0 rgba(255, 255, 255, .9);
 
     z-index: 12;
     cursor: pointer;
@@ -297,12 +304,8 @@ body {
 
     transition:
         transform .16s ease,
-        background .16s ease,
-        box-shadow .16s ease;
-}
-
-.switch-camera-btn:hover {
-    background: rgba(255, 255, 255, .98);
+        box-shadow .16s ease,
+        background .16s ease;
 }
 
 .switch-camera-btn:active {
@@ -310,14 +313,30 @@ body {
 }
 
 .switch-camera-icon {
-    width: 30px;
-    height: 30px;
+    width: 38px;
+    height: 38px;
 
     fill: none;
     stroke: currentColor;
-    stroke-width: 2.8;
     stroke-linecap: round;
     stroke-linejoin: round;
+}
+
+.switch-arrow {
+    stroke-width: 3.2;
+}
+
+.switch-camera-body {
+    stroke-width: 3.1;
+}
+
+.switch-camera-lens {
+    stroke-width: 3.1;
+}
+
+.switch-camera-dot {
+    fill: currentColor;
+    stroke: none;
 }
 
 /* =========================
