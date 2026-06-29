@@ -64,7 +64,7 @@ body {
 
     transform: translateX(-50%);
 
-    width: min(100vw, calc(100dvh * 9 / 16));
+    width: min(82vw, calc(100dvh * 9 / 16));
     padding: 0 38px;
 
     display: flex;
