@@ -20,13 +20,23 @@ const safetyMessage = document.getElementById("safetyMessage");
 const targetList = [
     { index: 0, image: "./assets/characters/character01.webp", characterId: 4 },
     { index: 1, image: "./assets/characters/character02.webp", characterId: 5 },
-    { index: 2, image: "./assets/characters/character03.webp", characterId: 6 }
+    { index: 2, image: "./assets/characters/character03.webp", characterId: 6 },
+    { index: 3, image: "./assets/characters/character04.webp", characterId: 7 },
+    { index: 4, image: "./assets/characters/character05.webp", characterId: 8 },
+    { index: 5, image: "./assets/characters/character06.webp", characterId: 9 },
+    { index: 6, image: "./assets/characters/character07.webp", characterId: 10 },
+    { index: 7, image: "./assets/characters/character08.webp", characterId: 11 }
 ];
 
 const stampImageMap = {
     4: "./assets/stamps/stamp01.png",
     5: "./assets/stamps/stamp02.png",
-    6: "./assets/stamps/stamp03.png"
+    6: "./assets/stamps/stamp03.png",
+    7: "./assets/stamps/stamp04.png",
+    8: "./assets/stamps/stamp05.png",
+    9: "./assets/stamps/stamp06.png",
+    10: "./assets/stamps/stamp07.png",
+    11: "./assets/stamps/stamp08.png"
 };
 
 function showStampGetOverlay(characterId) {
