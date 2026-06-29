@@ -144,7 +144,7 @@ body {
 
 .capture-btn {
     left: 50%;
-    bottom: calc(22px + env(safe-area-inset-bottom));
+    bottom: calc(60px + env(safe-area-inset-bottom));
     transform: translateX(-50%) scale(.85);
 
     width: 86px;
