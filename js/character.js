@@ -357,8 +357,8 @@ async function startAR() {
             container: document.querySelector("#arContainer"),
             imageTargetSrc: "./assets/targets/targets.mind",
             maxTrack: 1,
-            filterMinCF: 0.01,
-            filterBeta: 0.001
+            filterMinCF: 0.001,
+            filterBeta: 0.01
         });
 
         const { renderer, scene, camera } = mindarThree;
@@ -424,7 +424,7 @@ async function startAR() {
                 log("マーカーをスキャンしてください");
 
                 meshes[item.index].visible = false;
-                mesh.scale.set(0.001, 0.001, 0.001);
+                meshes[item.index].mesh.scale.set(0.001, 0.001, 0.001);
 
                 setScanningUI(true);
 
