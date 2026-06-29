@@ -9,7 +9,6 @@ const startARButton = document.getElementById("startARButton");
 
 const stampMessage = document.getElementById("stampMessage");
 const stampGetSound = document.getElementById("stampGetSound");
-
 const stampParticles = document.getElementById("stampParticles");
 
 const stampGetOverlay = document.getElementById("stampGetOverlay");
@@ -39,6 +38,40 @@ const stampImageMap = {
     11: "./assets/stamps/stamp08.png"
 };
 
+const scannedCharacters = new Set();
+
+let rendererRef = null;
+let sceneRef = null;
+let cameraRef = null;
+let arStarted = false;
+let soundUnlocked = false;
+
+let activeTargetIndex = null;
+let lastTargetFoundTime = 0;
+
+const TARGET_SWITCH_LOCK_TIME = 1200;
+const TARGET_LOST_DELAY = 900;
+
+const zeroPos = new THREE.Vector3(0, 0, 0);
+const tempCameraPos = new THREE.Vector3();
+const tempMeshPos = new THREE.Vector3();
+
+function log(message) {
+    console.log(message);
+    if (debugText) debugText.textContent = message;
+}
+
+function showStampMessage(message) {
+    if (!stampMessage) return;
+
+    stampMessage.textContent = message;
+    stampMessage.style.display = "block";
+
+    setTimeout(() => {
+        stampMessage.style.display = "none";
+    }, 1800);
+}
+
 function showStampGetOverlay(characterId) {
     if (!stampGetOverlay || !stampGetImage) return;
 
@@ -55,18 +88,6 @@ function showStampGetOverlay(characterId) {
         stampGetOverlay.classList.remove("show");
     }, 2400);
 }
-
-const scannedCharacters = new Set();
-
-let rendererRef = null;
-let sceneRef = null;
-let cameraRef = null;
-let arStarted = false;
-let soundUnlocked = false;
-
-const zeroPos = new THREE.Vector3(0, 0, 0);
-const zeroQuat = new THREE.Quaternion();
-
 
 function playStampParticles() {
     if (!stampParticles) return;
@@ -94,23 +115,6 @@ function playStampParticles() {
     }, 900);
 }
 
-
-function log(message) {
-    console.log(message);
-    if (debugText) debugText.textContent = message;
-}
-
-function showStampMessage(message) {
-    if (!stampMessage) return;
-
-    stampMessage.textContent = message;
-    stampMessage.style.display = "block";
-
-    setTimeout(() => {
-        stampMessage.style.display = "none";
-    }, 1800);
-}
-
 function unlockStampSound() {
     if (!stampGetSound || soundUnlocked) return;
 
@@ -121,7 +125,6 @@ function unlockStampSound() {
     stampGetSound.load();
 
     soundUnlocked = true;
-    console.log("Stamp sound prepared");
 }
 
 function playStampSound() {
@@ -138,7 +141,6 @@ function playStampSound() {
 }
 
 function setScanningUI(isScanning) {
-
     if (scanText) {
         scanText.style.display = isScanning ? "block" : "none";
     }
@@ -150,7 +152,6 @@ function setScanningUI(isScanning) {
     if (safetyMessage) {
         safetyMessage.style.display = isScanning ? "block" : "none";
     }
-
 }
 
 async function getCurrentUser() {
@@ -209,6 +210,7 @@ async function saveCharacterStamp(characterId) {
     }
 
     playStampSound();
+    playStampParticles();
     showStampGetOverlay(characterId);
     showStampMessage("スタンプをゲットしました！");
     return true;
@@ -346,6 +348,26 @@ async function capturePhoto() {
     }
 }
 
+function hideAllMeshes(meshes) {
+    meshes.forEach(item => {
+        if (!item) return;
+
+        item.visible = false;
+        item.mesh.scale.set(0.001, 0.001, 0.001);
+    });
+}
+
+function faceCameraOnlyYaw(mesh, camera) {
+    camera.getWorldPosition(tempCameraPos);
+    mesh.getWorldPosition(tempMeshPos);
+
+    mesh.lookAt(
+        tempCameraPos.x,
+        tempMeshPos.y,
+        tempCameraPos.z
+    );
+}
+
 async function startAR() {
     if (arStarted) return;
     arStarted = true;
@@ -355,10 +377,12 @@ async function startAR() {
 
         const mindarThree = new MindARThree({
             container: document.querySelector("#arContainer"),
-            imageTargetSrc: "./assets/targets/targets.mind",
+            imageTargetSrc: "./assets/targets/targets.mind?v=8",
             maxTrack: 1,
-            filterMinCF: 0.001,
-            filterBeta: 0.01
+            filterMinCF: 0.0001,
+            filterBeta: 0.001,
+            warmupTolerance: 8,
+            missTolerance: 8
         });
 
         const { renderer, scene, camera } = mindarThree;
@@ -387,22 +411,31 @@ async function startAR() {
             meshes[item.index] = {
                 mesh,
                 smoothGroup,
-                visible: false
+                visible: false,
+                characterId: item.characterId
             };
 
             anchor.onTargetFound = async () => {
+                const now = performance.now();
+
+                if (
+                    activeTargetIndex !== null &&
+                    activeTargetIndex !== item.index &&
+                    now - lastTargetFoundTime < TARGET_SWITCH_LOCK_TIME
+                ) {
+                    return;
+                }
+
+                activeTargetIndex = item.index;
+                lastTargetFoundTime = now;
+
                 log(`Index: ${item.index} / Character: ${item.characterId}`);
 
-                meshes.forEach(m => {
-                    if (!m) return;
-                    m.visible = false;
-                    m.mesh.scale.set(0.001, 0.001, 0.001);
-                });
+                hideAllMeshes(meshes);
 
                 meshes[item.index].visible = true;
                 setScanningUI(false);
 
-                // MOSTRA O BOTÃO IMEDIATAMENTE AO ENTRAR EM AR
                 if (captureButton) {
                     captureButton.classList.add("show");
                 }
@@ -421,19 +454,22 @@ async function startAR() {
             };
 
             anchor.onTargetLost = () => {
-                log("マーカーをスキャンしてください");
-
-                meshes[item.index].visible = false;
-                mesh.scale.set(0.001, 0.001, 0.001);
-
-                setScanningUI(true);
-
-                // ESPERA UM POUCO ANTES DE ESCONDER
                 setTimeout(() => {
-                    if (!meshes[item.index].visible && captureButton) {
-                        captureButton.classList.remove("show");
+                    if (activeTargetIndex === item.index) {
+                        activeTargetIndex = null;
+
+                        meshes[item.index].visible = false;
+                        meshes[item.index].mesh.scale.set(0.001, 0.001, 0.001);
+
+                        setScanningUI(true);
+
+                        if (captureButton) {
+                            captureButton.classList.remove("show");
+                        }
+
+                        log("マーカーをスキャンしてください");
                     }
-                }, 800);
+                }, TARGET_LOST_DELAY);
             };
         }
 
@@ -451,20 +487,18 @@ async function startAR() {
 
         renderer.setAnimationLoop(() => {
             meshes.forEach(item => {
-                if (!item) return;
+                if (!item || !item.visible) return;
 
                 const mesh = item.mesh;
 
-                if (item.visible) {
-                    const s = THREE.MathUtils.lerp(mesh.scale.x, 1, 0.25);
-                    mesh.scale.set(s, s, s);
+                const s = THREE.MathUtils.lerp(mesh.scale.x, 1, 0.18);
+                mesh.scale.set(s, s, s);
 
-                    mesh.position.set(0, 0.05, 0);
+                mesh.position.set(0, 0.05, 0);
 
-                    mesh.quaternion.copy(camera.quaternion);
+                faceCameraOnlyYaw(mesh, camera);
 
-                    item.smoothGroup.position.lerp(zeroPos, 0.12);
-                }
+                item.smoothGroup.position.lerp(zeroPos, 0.1);
             });
 
             renderer.render(scene, camera);
