@@ -14,7 +14,9 @@ const MAX_STAMPS = Object.keys(stampMap).length;
 async function initHomeStamps() {
     const { data: { session } } = await supabaseClient.auth.getSession();
 
-    if (!session) return;
+    if (!session) {
+        return;
+    }
 
     const userId = session.user.id;
 
@@ -27,6 +29,11 @@ async function initHomeStamps() {
         console.error("Erro ao carregar stamps no index:", error);
         return;
     }
+
+    document.querySelectorAll(".stamp").forEach(stamp => {
+        stamp.classList.add("locked");
+        stamp.classList.remove("unlocked");
+    });
 
     const unlockedStampIds = new Set();
 
