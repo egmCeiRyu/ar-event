@@ -381,8 +381,8 @@ async function startAR() {
             maxTrack: 1,
             filterMinCF: 0.001,
             filterBeta: 0.01,
-            warmupTolerance: 3,
-            missTolerance: 5
+            warmupTolerance: 1,
+            missTolerance: 3
         });
 
         const { renderer, scene, camera } = mindarThree;
