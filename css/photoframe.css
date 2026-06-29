@@ -405,7 +405,7 @@ body {
 
 /* =========================
    Switch Camera Button
-   somente setas, sem fundo
+   bitmap icon
 ========================= */
 
 .switch-camera-btn {
@@ -413,11 +413,12 @@ body {
     top: calc(18px + env(safe-area-inset-top));
     right: calc(18px + env(safe-area-inset-right));
 
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
 
     border: none;
     padding: 0;
+
     background: transparent;
     box-shadow: none;
 
@@ -439,21 +440,18 @@ body {
     opacity: .8;
 }
 
-.switch-camera-icon {
-    width: 30px;
-    height: 30px;
+.switch-camera-img {
+    width: 38px;
+    height: 38px;
 
-    fill: none;
-    stroke: #ffffff;
-    stroke-width: 3.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+    display: block;
+    object-fit: contain;
 
-    overflow: visible;
+    pointer-events: none;
 
     filter:
-        drop-shadow(0 2px 4px rgba(0, 0, 0, .55))
-        drop-shadow(0 0 2px rgba(0, 0, 0, .45));
+        drop-shadow(0 2px 5px rgba(0, 0, 0, .65))
+        drop-shadow(0 0 2px rgba(0, 0, 0, .55));
 }
 
 /* =========================
