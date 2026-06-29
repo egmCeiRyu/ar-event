@@ -357,8 +357,8 @@ async function startAR() {
             container: document.querySelector("#arContainer"),
             imageTargetSrc: "./assets/targets/targets.mind",
             maxTrack: 1,
-            filterMinCF: 0.001,
-            filterBeta: 0.01
+            filterMinCF: 0.01,
+            filterBeta: 0.001
         });
 
         const { renderer, scene, camera } = mindarThree;
