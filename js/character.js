@@ -391,12 +391,7 @@ async function startAR() {
             };
 
             anchor.onTargetFound = async () => {
-                console.log(
-                "Target Index:",
-                item.index,
-                "Character:",
-                item.characterId
-            );
+                log(`Index: ${item.index} / Character: ${item.characterId}`);
 
                 meshes.forEach(m => {
                     if (!m) return;
