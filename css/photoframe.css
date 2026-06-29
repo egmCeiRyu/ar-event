@@ -60,7 +60,7 @@ body {
     position: absolute;
     left: 50%;
 
-    bottom: calc(58px + env(safe-area-inset-bottom));
+    bottom: calc(42px + env(safe-area-inset-bottom));
 
     transform: translateX(-50%);
 
@@ -172,7 +172,8 @@ body {
     position: absolute;
     left: 50%;
 
-    bottom: calc(142px + env(safe-area-inset-bottom));
+    /* carrossel mais acima dos botões */
+    bottom: calc(168px + env(safe-area-inset-bottom));
 
     transform: translateX(-50%);
 
@@ -184,8 +185,6 @@ body {
     background: rgba(0, 0, 0, .82);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-
-    border-radius: 24px;
 
     z-index: 15;
 
