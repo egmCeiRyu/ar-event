@@ -59,24 +59,24 @@ body {
 .bottom-menu {
     position: absolute;
     left: 50%;
-    bottom: calc(18px + env(safe-area-inset-bottom));
+    bottom: calc(20px + env(safe-area-inset-bottom));
     transform: translateX(-50%);
 
     width: min(100vw, calc(100dvh * 9 / 16));
-    padding: 0 22px;
+    padding: 0 34px;
 
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
 
-    z-index: 5;
+    z-index: 20;
+    pointer-events: auto;
 }
 
 .bottom-menu-btn,
 .capture-main-btn {
     border: none;
     text-decoration: none;
-    font-weight: 900;
     cursor: pointer;
 
     display: flex;
@@ -84,17 +84,22 @@ body {
     align-items: center;
     justify-content: center;
 
-    box-shadow: 0 8px 24px rgba(0, 0, 0, .35);
+    font-weight: 900;
 }
 
+/* Home / Frame buttons */
 .bottom-menu-btn {
-    width: 66px;
-    height: 66px;
+    width: 58px;
+    height: 58px;
 
     border-radius: 50%;
 
     background: rgba(255, 255, 255, .94);
     color: #222;
+
+    box-shadow:
+        0 8px 22px rgba(0, 0, 0, .28),
+        inset 0 0 0 1px rgba(255, 255, 255, .7);
 
     gap: 2px;
 }
@@ -104,27 +109,59 @@ body {
     line-height: 1;
 }
 
-.bottom-label {
-    font-size: 10px;
-    line-height: 1.1;
+.bottom-menu-btn .bottom-label {
+    font-size: 9px;
+    line-height: 1;
 }
 
+/* Capture button */
 .capture-main-btn {
-    width: 90px;
-    height: 90px;
+    position: relative;
+
+    width: 78px;
+    height: 78px;
 
     border-radius: 50%;
-    border: 5px solid rgba(255, 255, 255, .96);
 
-    background: #ff6f91;
+    background: rgba(255, 255, 255, .96);
     color: #fff;
 
-    gap: 0;
+    box-shadow:
+        0 10px 28px rgba(0, 0, 0, .35),
+        inset 0 0 0 3px rgba(255, 255, 255, .85);
+}
+
+.capture-main-btn::before {
+    content: "";
+
+    width: 54px;
+    height: 54px;
+
+    border-radius: 50%;
+
+    background: linear-gradient(180deg, #ff7ca1, #ff4f82);
+    box-shadow: inset 0 -3px 8px rgba(0, 0, 0, .12);
 }
 
 .capture-circle {
-    font-size: 30px;
-    line-height: .9;
+    display: none;
+}
+
+.capture-main-btn .bottom-label {
+    position: absolute;
+    left: 50%;
+    bottom: -20px;
+    transform: translateX(-50%);
+
+    color: #fff;
+
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1;
+
+    text-shadow:
+        0 2px 6px rgba(0, 0, 0, .55),
+        0 0 2px rgba(0, 0, 0, .6);
 }
 
 .bottom-menu-btn:active,
@@ -134,39 +171,38 @@ body {
 
 /* =========================
    Frame Panel
+   fica acima dos botões
 ========================= */
 
 .frame-panel {
     position: absolute;
     left: 50%;
-    bottom: 0;
+
+    bottom: calc(108px + env(safe-area-inset-bottom));
+
     transform: translateX(-50%);
 
     width: min(100vw, calc(100dvh * 9 / 16));
-    min-height: 240px;
+    min-height: 178px;
 
-    padding:
-        48px
-        16px
-        calc(26px + env(safe-area-inset-bottom));
+    padding: 18px 16px 18px;
 
     background: rgba(0, 0, 0, .82);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 
-    border-radius: 26px 26px 0 0;
+    border-radius: 24px;
 
-    z-index: 10;
+    z-index: 15;
 
     transition:
-        opacity .25s ease,
-        transform .25s ease;
+        opacity .22s ease,
+        transform .22s ease;
 }
-
 .frame-panel.hidden {
     opacity: 0;
     pointer-events: none;
-    transform: translateX(-50%) translateY(100%);
+    transform: translateX(-50%) translateY(28px);
 }
 
 .frame-panel-close {
@@ -174,19 +210,19 @@ body {
     right: 14px;
     top: 12px;
 
-    width: 40px;
-    height: 40px;
+    width: 38px;
+    height: 38px;
 
     border: none;
     border-radius: 50%;
 
-    background: rgba(255, 255, 255, .95);
+    background: rgba(255, 255, 255, .96);
     color: #222;
 
-    font-size: 22px;
+    font-size: 21px;
     font-weight: 900;
 
-    box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
 }
 
 .frame-panel-close:active {
@@ -194,13 +230,13 @@ body {
 }
 
 .frame-panel-title {
-    margin: 0 50px 16px 4px;
+    margin: 0 52px 14px 2px;
 
     color: #fff;
     font-size: 14px;
     font-weight: 900;
 
-    text-shadow: 0 2px 8px rgba(0, 0, 0, .35);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, .4);
 }
 
 .frame-carousel {
@@ -210,7 +246,7 @@ body {
     overflow-x: auto;
     overflow-y: hidden;
 
-    padding: 4px 4px 10px;
+    padding: 4px 4px 8px;
 
     scroll-snap-type: x mandatory;
     -webkit-overflow-scrolling: touch;
@@ -223,17 +259,19 @@ body {
 .frame-btn {
     flex: 0 0 auto;
 
-    width: 78px;
-    height: 138px;
+    width: 72px;
+    height: 126px;
 
     padding: 4px;
 
-    border: 3px solid rgba(255, 255, 255, .55);
-    border-radius: 17px;
+    border: 3px solid rgba(255, 255, 255, .65);
+    border-radius: 16px;
 
-    background: rgba(255, 255, 255, .92);
+    background: rgba(255, 255, 255, .94);
 
     scroll-snap-align: center;
+
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .28);
 
     transition:
         transform .18s ease,
@@ -244,7 +282,9 @@ body {
 .frame-btn.selected {
     border-color: #ff6f91;
     transform: scale(1.08);
-    box-shadow: 0 0 0 4px rgba(255, 111, 145, .28);
+    box-shadow:
+        0 0 0 4px rgba(255, 111, 145, .30),
+        0 8px 20px rgba(0, 0, 0, .35);
 }
 
 .frame-btn img {
@@ -254,7 +294,7 @@ body {
     display: block;
 
     object-fit: contain;
-    border-radius: 11px;
+    border-radius: 10px;
 }
 
 .frame-btn:active {
