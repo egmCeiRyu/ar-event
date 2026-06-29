@@ -49,8 +49,8 @@ let soundUnlocked = false;
 let activeTargetIndex = null;
 let lastTargetFoundTime = 0;
 
-const TARGET_SWITCH_LOCK_TIME = 1200;
-const TARGET_LOST_DELAY = 900;
+const TARGET_SWITCH_LOCK_TIME = 600;
+const TARGET_LOST_DELAY = 500;
 
 const zeroPos = new THREE.Vector3(0, 0, 0);
 const tempCameraPos = new THREE.Vector3();
@@ -379,10 +379,10 @@ async function startAR() {
             container: document.querySelector("#arContainer"),
             imageTargetSrc: "./assets/targets/targets.mind?v=8",
             maxTrack: 1,
-            filterMinCF: 0.0001,
-            filterBeta: 0.001,
-            warmupTolerance: 8,
-            missTolerance: 8
+            filterMinCF: 0.001,
+            filterBeta: 0.01,
+            warmupTolerance: 3,
+            missTolerance: 5
         });
 
         const { renderer, scene, camera } = mindarThree;
