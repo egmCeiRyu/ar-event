@@ -5,6 +5,7 @@ const captureCanvas = document.getElementById("captureCanvas");
 const homeBtn = document.getElementById("homeBtn");
 const captureBtn = document.getElementById("captureBtn");
 const openFramePanelBtn = document.getElementById("openFramePanelBtn");
+const switchCameraBtn = document.getElementById("switchCameraBtn");
 
 const framePanel = document.getElementById("framePanel");
 const closeFramePanelBtn = document.getElementById("closeFramePanelBtn");
@@ -24,14 +25,15 @@ const FRAME_WIDTH = 1080;
 const FRAME_HEIGHT = 1920;
 
 const TOTAL_FRAMES = 40;
+const ASSET_VERSION = "20260629_03";
 
 const frames = Array.from({ length: TOTAL_FRAMES }, (_, index) => {
     const num = String(index + 1).padStart(2, "0");
 
     return {
         id: index + 1,
-        full: `assets/photoframe/frame${num}.webp`,
-        thumb: `assets/photoframe/thumbs/frame${num}.webp`
+        full: `assets/photoframe/frame${num}.webp?v=${ASSET_VERSION}`,
+        thumb: `assets/photoframe/thumbs/frame${num}.webp?v=${ASSET_VERSION}`
     };
 });
 
@@ -74,6 +76,10 @@ function bindEvents() {
     homeBtn.addEventListener("click", () => {
         stopCamera();
     });
+
+    if (switchCameraBtn) {
+        switchCameraBtn.addEventListener("click", switchCamera);
+    }
 
     openFramePanelBtn.addEventListener("click", openFramePanel);
     closeFramePanelBtn.addEventListener("click", closeFramePanel);
@@ -124,6 +130,15 @@ function stopCamera() {
     currentStream = null;
 }
 
+async function switchCamera() {
+    facingMode =
+        facingMode === "user"
+            ? "environment"
+            : "user";
+
+    await startCamera();
+}
+
 function openFramePanel() {
     framePanel.classList.remove("hidden");
 }
@@ -161,12 +176,6 @@ function selectFrame(frame, button) {
         });
 
     button.classList.add("selected");
-
-    /*
-        Importante:
-        O carrossel NÃO fecha ao selecionar.
-        Ele só fecha quando o usuário toca no ✕.
-    */
 }
 
 function drawCover(ctx, img, canvasW, canvasH) {
