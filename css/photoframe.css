@@ -241,12 +241,12 @@ body {
     position: relative;
     z-index: 3;
 
-    width: 54px;
-    height: 54px;
+    width: 44px;
+    height: 44px;
 
     fill: none;
-    stroke: #000000;
-    stroke-width: 4;
+    stroke: #727272;
+    stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
