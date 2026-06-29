@@ -404,6 +404,67 @@ body {
 }
 
 /* =========================
+   Switch Camera Button
+========================= */
+
+.switch-camera-btn {
+    position: absolute;
+    top: calc(18px + env(safe-area-inset-top));
+    right: calc(18px + env(safe-area-inset-right));
+
+    width: 56px;
+    height: 56px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(0, 0, 0, .28);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 12;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+
+    box-shadow:
+        0 6px 16px rgba(0, 0, 0, .28),
+        inset 0 0 0 1px rgba(255, 255, 255, .12);
+
+    transition:
+        transform .16s ease,
+        background .16s ease,
+        opacity .16s ease;
+}
+
+.switch-camera-btn:active {
+    transform: scale(.92);
+    background: rgba(0, 0, 0, .38);
+    opacity: .85;
+}
+
+.switch-camera-icon {
+    width: 38px;
+    height: 38px;
+
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 4.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    overflow: visible;
+
+    filter:
+        drop-shadow(0 2px 5px rgba(0, 0, 0, .65))
+        drop-shadow(0 0 2px rgba(0, 0, 0, .55));
+}
+
+/* =========================
    Preview
 ========================= */
 
