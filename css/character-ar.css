@@ -87,23 +87,36 @@ body {
     cursor: default;
 }
 
+#characterViewer {
+    position: fixed;
+    left: -9999px;
+    top: -9999px;
+
+    width: 10px;
+    height: 10px;
+
+    opacity: 0.01;
+    pointer-events: none;
+    overflow: hidden;
+
+    z-index: -1;
+}
+
 #homeButton {
     z-index: 9999;
 }
 
-@media (max-width:480px){
-
-    .page{
-        padding:64px 14px 24px;
+@media (max-width:480px) {
+    .page {
+        padding: 64px 14px 24px;
     }
 
-    #characterName{
-        font-size:24px;
+    #characterName {
+        font-size: 24px;
     }
 
     .ar-button,
-    .back-button{
-        width:calc(100% - 32px);
+    .back-button {
+        width: calc(100% - 32px);
     }
-
 }
