@@ -15,6 +15,8 @@ const modalText = document.getElementById("modalText");
 const modalCloseButton = document.getElementById("modalCloseButton");
 const characterScanVoice = document.getElementById("characterScanVoice");
 
+const characterVoiceButton = document.getElementById("characterVoiceButton");
+
 const scannedCharacters = new Set();
 
 let arStarted = false;
@@ -79,7 +81,7 @@ function playCharacterVoice(character) {
     characterScanVoice.muted = false;
     characterScanVoice.volume = 1;
 
-    characterScanVoice.play().catch(error => {
+    return characterScanVoice.play().catch(error => {
         console.log("Voice play error:", error);
     });
 }
@@ -115,9 +117,19 @@ function openCharacterModal(character, alreadyOwned = false) {
         characterModal.classList.remove("hidden");
     }
 
-    setTimeout(() => {
-        playCharacterVoice(character);
+    setTimeout(async () => {
+        try {
+            await playCharacterVoice(character);
+        } catch (e) {
+            console.log(e);
+        }
     }, 250);
+
+    if (characterVoiceButton) {
+        characterVoiceButton.onclick = () => {
+            playCharacterVoice(character);
+        };
+    }
 }
 
 function closeCharacterModal() {
