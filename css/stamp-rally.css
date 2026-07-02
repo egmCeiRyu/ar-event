@@ -205,3 +205,79 @@ button {
     }
 }
 
+.character-card-modal{
+
+    position:fixed;
+    inset:0;
+
+    display:none;
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(0,0,0,.75);
+
+    z-index:9999;
+
+}
+
+.character-card-modal.show{
+
+    display:flex;
+
+}
+
+.character-card-box{
+
+    width:90%;
+    max-width:420px;
+
+    background:#fff;
+
+    border-radius:22px;
+
+    padding:24px;
+
+    text-align:center;
+
+}
+
+.character-card-box img{
+
+    width:100%;
+
+    border-radius:16px;
+
+    margin-bottom:20px;
+
+}
+
+.character-card-box button{
+
+    width:100%;
+
+    padding:16px;
+
+    margin-top:12px;
+
+    border:none;
+
+    border-radius:14px;
+
+    font-size:18px;
+
+    cursor:pointer;
+
+}
+
+#voiceButton{
+
+    background:#3b82f6;
+    color:white;
+
+}
+
+#closeCardButton{
+
+    background:#e5e7eb;
+
+}

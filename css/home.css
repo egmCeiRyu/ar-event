@@ -1,0 +1,152 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+body {
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background:
+        linear-gradient(
+            180deg,
+            #eaf5ff 0%,
+            #ffffff 100%
+        );
+
+    color: #102044;
+}
+
+.home-page {
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    margin: 0 auto;
+    padding: 24px 20px 32px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.home-hero {
+    text-align: center;
+    padding-top: 8px;
+    margin-bottom: 28px;
+}
+
+.home-hero-image {
+    width: 100%;
+    max-width: 320px;
+    display: block;
+    margin: 0 auto 10px;
+}
+
+.home-hero h1 {
+    margin: 0;
+
+    font-size: 34px;
+    line-height: 1.15;
+    font-weight: 900;
+    letter-spacing: .04em;
+
+    color: #006bff;
+}
+
+.home-menu {
+    display: grid;
+    gap: 18px;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.home-menu-button {
+    width: 100%;
+    min-height: 96px;
+
+    display: flex;
+    align-items: center;
+    gap: 18px;
+
+    padding: 16px 22px;
+
+    background: rgba(255,255,255,.96);
+    border: 3px solid #d7e9ff;
+    border-radius: 28px;
+
+    color: #102044;
+    text-decoration: none;
+
+    box-shadow:
+        0 10px 24px rgba(0,80,180,.12);
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.home-menu-button:active {
+    transform: scale(.97);
+    box-shadow:
+        0 6px 16px rgba(0,80,180,.10);
+}
+
+.home-menu-button img {
+    flex: 0 0 72px;
+
+    width: 72px;
+    height: 72px;
+
+    object-fit: contain;
+}
+
+.home-menu-button span {
+    flex: 1;
+
+    font-size: 22px;
+    line-height: 1.25;
+    font-weight: 900;
+    letter-spacing: .03em;
+
+    color: #006bff;
+}
+
+@media (max-height: 720px) {
+    .home-page {
+        padding-top: 16px;
+    }
+
+    .home-hero {
+        margin-bottom: 18px;
+    }
+
+    .home-hero-image {
+        max-width: 250px;
+    }
+
+    .home-menu {
+        gap: 14px;
+    }
+
+    .home-menu-button {
+        min-height: 82px;
+        border-radius: 24px;
+    }
+
+    .home-menu-button img {
+        width: 62px;
+        height: 62px;
+        flex-basis: 62px;
+    }
+
+    .home-menu-button span {
+        font-size: 20px;
+    }
+}

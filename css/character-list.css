@@ -1,0 +1,105 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, #fff7d6 0%, #ffffff 100%);
+}
+
+.page {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 72px 18px 32px;
+}
+
+.page-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.page-header h1 {
+    margin: 0;
+    font-size: 30px;
+    color: #333;
+}
+
+.subtitle {
+    margin-top: 10px;
+    color: #666;
+    font-size: 15px;
+}
+
+.character-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.character-card {
+    border: none;
+    border-radius: 22px;
+    background: #ffffff;
+    box-shadow: 0 10px 28px rgba(0,0,0,.12);
+    overflow: hidden;
+    padding: 0;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.character-card:active {
+    transform: scale(.97);
+}
+
+.character-card.locked {
+    cursor: default;
+    opacity: .45;
+}
+
+.character-image-wrap {
+    position: relative;
+    background: #f8f8f8;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.character-image-wrap img {
+    width: 82%;
+    height: 82%;
+    object-fit: contain;
+}
+
+.character-card.locked img {
+    filter: grayscale(1);
+}
+
+.lock-icon {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 46px;
+    background: rgba(255,255,255,.45);
+}
+
+.character-name {
+    padding-top: 14px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #333;
+}
+
+.character-status {
+    margin: 12px;
+    border-radius: 999px;
+    padding: 12px;
+    font-weight: 700;
+    font-size: 14px;
+    background: #d9d9d9;
+    color: #444;
+}
+
+.character-card.unlocked .character-status {
+    background: #25b864;
+    color: white;
+}

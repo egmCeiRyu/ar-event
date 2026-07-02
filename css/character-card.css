@@ -1,0 +1,114 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, #fff3c4 0%, #ffffff 100%);
+}
+
+.card-page {
+    min-height: 100vh;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 72px 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.character-card {
+    width: 100%;
+    background: #ffffff;
+    border: 3px solid #ffbe32;
+    border-radius: 28px;
+    padding: 22px;
+    text-align: center;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.16);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.card-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 54px;
+    height: 32px;
+    border-radius: 999px;
+    background: #ff5a5f;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+#characterName {
+    margin: 0;
+    font-size: 25px;
+    color: #333333;
+}
+
+.card-image-frame {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    border-radius: 22px;
+    background: #c9fbf3;
+    border: 3px solid #35d0c8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.character-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.card-text {
+    margin: 18px 0 22px;
+    color: #555555;
+    font-size: 15px;
+    line-height: 1.7;
+}
+
+.card-actions {
+    display: grid;
+    gap: 12px;
+}
+
+.voice-button,
+.ar-button,
+.close-button {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    padding: 15px;
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.voice-button {
+    background: #5b8cff;
+    color: #ffffff;
+}
+
+.ar-button {
+    background: #27b86f;
+    color: #ffffff;
+}
+
+.close-button {
+    background: #555555;
+    color: #ffffff;
+}
+
+.voice-button:active,
+.ar-button:active,
+.close-button:active {
+    transform: scale(0.98);
+}

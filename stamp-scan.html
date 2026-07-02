@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+    <title>スタンプスキャン</title>
+
+    <link rel="stylesheet" href="css/stamp-scan.css">
+    <link rel="stylesheet" href="css/common.css">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three":"https://cdn.jsdelivr.net/npm/three@0.156.1/build/three.module.js",
+            "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.156.1/examples/jsm/",
+            "mindar-image-three":"https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+        }
+    }
+    </script>
+
+</head>
+
+<body>
+
+<div id="phone">
+
+    <button id="startARButton">
+
+        ▶ AR START
+
+    </button>
+
+    <div id="arContainer"></div>
+
+    <div id="stampMessage"></div>
+
+    <div id="scanText">
+
+        スタンド画像をスキャンしてください
+
+    </div>
+
+    <div id="safetyMessage">
+
+        周囲に注意し、
+        歩きながら使用しないでください
+
+    </div>
+
+    <div id="debugText">
+
+        AR起動中...
+
+    </div>
+
+</div>
+
+<a id="homeButton" href="home.html">🏠</a>
+
+<audio
+    id="stampGetSound"
+    src="./assets/sounds/stamp.mp3"
+    preload="auto">
+</audio>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="js/supabase.js"></script>
+
+<script type="module" src="js/stamp-scan.js"></script>
+
+</body>
+
+</html>

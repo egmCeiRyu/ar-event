@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width,initial-scale=1.0,user-scalable=no">
+
+    <title>キャラクターAR</title>
+
+    <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/character-ar.css">
+
+    <script
+        type="module"
+        src="https://cdn.jsdelivr.net/npm/@google/model-viewer/dist/model-viewer.min.js">
+    </script>
+
+</head>
+
+<body>
+
+    <main class="page">
+
+        <section class="character-panel">
+
+            <img
+                id="characterPortrait"
+                class="character-portrait"
+                src=""
+                alt="">
+
+            <h1 id="characterName">
+
+                キャラクター
+
+            </h1>
+
+            <p class="character-description">
+
+                キャラクターを現実世界に配置して
+                一緒に写真を撮ろう！
+
+            </p>
+
+            <button
+                id="startARButton"
+                class="ar-button">
+
+                ARスタート
+
+            </button>
+
+            <button
+                class="back-button"
+                type="button"
+                onclick="location.href='character-list.html'">
+
+                一覧へ戻る
+
+            </button>
+
+        </section>
+
+    </main>
+
+    <model-viewer
+
+        id="characterViewer"
+
+        src=""
+
+        ar
+
+        ar-modes="webxr scene-viewer"
+
+        camera-controls
+
+        touch-action="pan-y"
+
+        shadow-intensity="1"
+
+        environment-image="neutral"
+
+        reveal="manual"
+
+        style="
+            position:absolute;
+            width:1px;
+            height:1px;
+            left:-9999px;
+            opacity:0;
+        ">
+
+    </model-viewer>
+
+    <a id="homeButton" href="home.html">🏠</a>
+
+    <script
+        type="module"
+        src="js/character-ar.js">
+    </script>
+
+</body>
+
+</html>

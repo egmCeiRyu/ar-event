@@ -1,0 +1,109 @@
+body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: linear-gradient(180deg, #fff7d9 0%, #ffffff 100%);
+}
+
+.page {
+    min-height: 100vh;
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 72px 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.character-panel {
+    width: 100%;
+    background: #ffffff;
+    border-radius: 28px;
+    overflow: hidden;
+    box-shadow: 0 16px 36px rgba(0,0,0,.16);
+    border: 3px solid #ffd24d;
+}
+
+.character-portrait {
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: contain;
+    background: linear-gradient(180deg,#dffff7,#ffffff);
+    display: block;
+}
+
+#characterName {
+    margin: 24px 24px 8px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 800;
+    color: #333;
+}
+
+.character-description {
+    margin: 0 28px 28px;
+    text-align: center;
+    color: #666;
+    line-height: 1.7;
+    font-size: 15px;
+}
+
+.ar-button,
+.back-button {
+    display: block;
+    width: calc(100% - 48px);
+    margin: 0 auto 16px;
+    padding: 17px;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: .18s;
+}
+
+.ar-button {
+    background: #22b76c;
+    color: #fff;
+}
+
+.back-button {
+    background: #555;
+    color: #fff;
+    margin-bottom: 28px;
+}
+
+.ar-button:hover,
+.back-button:hover {
+    transform: translateY(-2px);
+}
+
+.ar-button:active,
+.back-button:active {
+    transform: scale(.98);
+}
+
+.ar-button:disabled {
+    background: #bbbbbb;
+    cursor: default;
+}
+
+#homeButton {
+    z-index: 9999;
+}
+
+@media (max-width:480px){
+
+    .page{
+        padding:64px 14px 24px;
+    }
+
+    #characterName{
+        font-size:24px;
+    }
+
+    .ar-button,
+    .back-button{
+        width:calc(100% - 32px);
+    }
+
+}

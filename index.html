@@ -11,118 +11,43 @@
 
 <body>
 
-    <main class="home-page">
+    <main class="index-page">
 
-        <section class="hero-area">
+        <section class="notice-screen">
 
-            <section class="menu-grid">
+            <div class="notice-visual">
+                <img
+                    src="assets/notice_images/notice_main.webp"
+                    alt="注意事項">
+            </div>
 
-                <a href="photoframe.html" class="menu-card">
+            <div class="notice-content">
 
+                <h1>注意事項</h1>
 
-                    <h2>フォトフレーム</h2>
+                <p>
+                    ARコンテンツを安全にお楽しみいただくため、
+                    カメラの使用、通信環境、周囲の安全をご確認ください。
+                </p>
 
-
-                    <img src="assets/images/chibi-photo.png" alt="">
-                </a>
-
-                <a href="stampbook.html" class="menu-card">
-
- 
-
-                    <h2>スタンプブック</h2>
-
-
-
-                    <img src="assets/images/chibi-stamp.png" alt="">
-                </a>
-
-                <a href="character.html" class="menu-card">
-
-
-
-                    <h2>キャラクターAR</h2>
-
-
-                    <img src="assets/images/chibi-ar.png" alt="">
-                </a>
-
-                <a href="notice.html" class="menu-card">
-
-
-                    <h2>注意事項</h2>
-
-
-                    <img src="assets/images/chibi-notice.png" alt="">
-                </a>
-
-            </section>
-
-            <section class="stamp-card">
-
-                <div class="stamp-header">
-                    スタンプ収集状況
+                <div class="notice-list">
+                    <p>・カメラの使用を許可してください。</p>
+                    <p>・歩きながらの操作はおやめください。</p>
+                    <p>・スタンプは同じブラウザに保存されます。</p>
+                    <p>・シークレットモードでは保存されない場合があります。</p>
                 </div>
 
-                <div class="stamp-body">
-
-                    <div class="stamp-list">
-
-                        <img id="stamp01" src="assets/stamps/stamp01.png" class="stamp locked">
-                        <img id="stamp02" src="assets/stamps/stamp02.png" class="stamp locked">
-                        <img id="stamp03" src="assets/stamps/stamp03.png" class="stamp locked">
-                        <img id="stamp04" src="assets/stamps/stamp04.png" class="stamp locked">
-                        <img id="stamp05" src="assets/stamps/stamp05.png" class="stamp locked">
-                        <img id="stamp06" src="assets/stamps/stamp06.png" class="stamp locked">
-                        <img id="stamp07" src="assets/stamps/stamp07.png" class="stamp locked">
-                        <img id="stamp08" src="assets/stamps/stamp08.png" class="stamp locked">
-
-                    </div>
-
-                    <div class="stamp-progress">
-
-                        <div>
-                            <span id="stampCount">0</span>
-                            <span>/8</span>
-                        </div>
-
-                        <p id="stampMessage">
-                            スタンプを集めよう！
-                        </p>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-            <section class="reward-banner">
-
-                🎁
-
-                <div>
-                    <h3>
-                        コンプリートでプレゼントGET！
-                    </h3>
-
-                    <p>
-                        8つのスタンプを集めよう！
-                    </p>
-                </div>
-
-            </section>
+            </div>
 
         </section>
 
-        <footer>
-            © 2026 AR Event
-        </footer>
+        <div class="bottom-action">
+            <a class="next-button" href="home.html">
+                同意して開始
+            </a>
+        </div>
 
     </main>
-    
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase.js"></script>
-    <script src="js/main.js"></script>
 
 </body>
 
