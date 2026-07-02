@@ -331,3 +331,48 @@ body.modal-open #stampMessage {
     opacity: 0 !important;
     pointer-events: none !important;
 }
+
+/* ==========================
+   Character Modal Buttons
+========================== */
+
+.voice-button,
+#modalCloseButton {
+    width: 100%;
+    height: 56px;
+    border: none;
+    border-radius: 16px;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all .2s ease;
+    margin-top: 12px;
+}
+
+.voice-button {
+    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(37, 99, 235, .35);
+}
+
+.voice-button:hover {
+    transform: translateY(-2px);
+}
+
+.voice-button:active {
+    transform: scale(.98);
+}
+
+#modalCloseButton {
+    background: #f2f2f2;
+    color: #333;
+    box-shadow: 0 4px 12px rgba(0,0,0,.08);
+}
+
+#modalCloseButton:hover {
+    background: #e8e8e8;
+}
+
+#modalCloseButton:active {
+    transform: scale(.98);
+}
