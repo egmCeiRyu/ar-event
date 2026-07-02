@@ -1,5 +1,3 @@
-// js/character-card.js
-
 import { characters } from "./data/characters.js";
 
 const characterName = document.getElementById("characterName");
@@ -17,7 +15,7 @@ function getUrlParams() {
     };
 }
 
-const { id, from } = getUrlParams();
+const { id } = getUrlParams();
 
 const character = characters.find(item => item.id === id);
 
@@ -47,16 +45,10 @@ function playVoice() {
     });
 }
 
-
 function closeCard() {
     if (characterVoice) {
         characterVoice.pause();
         characterVoice.currentTime = 0;
-    }
-
-    if (from === "scan") {
-        location.href = "stamp-rally.html";
-        return;
     }
 
     location.href = "stamp-rally.html";
