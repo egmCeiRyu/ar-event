@@ -18,7 +18,6 @@ const characterScanVoice = document.getElementById("characterScanVoice");
 const scannedCharacters = new Set();
 
 let arStarted = false;
-let audioUnlocked = false;
 
 function log(message) {
     console.log(message);
@@ -30,7 +29,6 @@ function log(message) {
 
 function showStampMessage(message) {
     if (!stampMessage) return;
-
     if (document.body.classList.contains("modal-open")) return;
 
     stampMessage.textContent = message;
@@ -46,6 +44,14 @@ function hideScanOverlays() {
     if (safetyMessage) safetyMessage.style.display = "none";
     if (debugText) debugText.style.display = "none";
     if (stampMessage) stampMessage.style.display = "none";
+
+    document
+        .querySelectorAll(".mindar-ui-overlay, .mindar-ui-scanning, .mindar-ui-loading")
+        .forEach(element => {
+            element.style.display = "none";
+            element.style.opacity = "0";
+            element.style.pointerEvents = "none";
+        });
 }
 
 function setScanningUI(isScanning) {
@@ -61,33 +67,6 @@ function setScanningUI(isScanning) {
     if (safetyMessage) {
         safetyMessage.style.display = isScanning ? "block" : "none";
     }
-}
-
-function unlockVoiceAudio() {
-    if (!characterScanVoice || audioUnlocked) return;
-
-    audioUnlocked = true;
-
-    characterScanVoice.src = characters[0]?.voice || "";
-    characterScanVoice.muted = true;
-    characterScanVoice.volume = 0;
-    characterScanVoice.currentTime = 0;
-
-    characterScanVoice.play()
-        .then(() => {
-            characterScanVoice.pause();
-            characterScanVoice.currentTime = 0;
-            characterScanVoice.muted = false;
-            characterScanVoice.volume = 1;
-        })
-        .catch(error => {
-            console.log("Audio unlock error:", error);
-
-            characterScanVoice.pause();
-            characterScanVoice.currentTime = 0;
-            characterScanVoice.muted = false;
-            characterScanVoice.volume = 1;
-        });
 }
 
 function playCharacterVoice(character) {
@@ -136,7 +115,7 @@ function openCharacterModal(character, alreadyOwned = false) {
         characterModal.classList.remove("hidden");
     }
 
-    window.setTimeout(() => {
+    setTimeout(() => {
         playCharacterVoice(character);
     }, 250);
 }
@@ -323,8 +302,6 @@ async function startAR() {
 
 if (startARButton) {
     startARButton.addEventListener("click", async () => {
-        unlockVoiceAudio();
-
         document.body.classList.add("is-ar-started");
 
         await startAR();
