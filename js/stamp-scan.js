@@ -306,7 +306,7 @@ if (startARButton) {
 
         unlockStampSound();
 
-        startARButton.style.display = "none";
+        document.body.classList.add("is-ar-started");
 
         await startAR();
 

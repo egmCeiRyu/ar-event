@@ -2,16 +2,15 @@
 <html lang="ja">
 
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width,initial-scale=1.0,user-scalable=no">
+    <meta
+        name="viewport"
+        content="width=device-width,initial-scale=1.0,user-scalable=no,viewport-fit=cover">
 
     <title>スタンプスキャン</title>
 
-    <link rel="stylesheet" href="css/stamp-scan.css">
     <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/stamp-scan.css">
 
     <script type="importmap">
     {
@@ -22,57 +21,64 @@
         }
     }
     </script>
-
 </head>
 
 <body>
 
-<div id="phone">
+    <main id="phone">
 
-    <button id="startARButton">
+        <section id="scanIntro" class="scan-intro">
 
-        ▶ AR START
+            <div class="scan-icon">📷</div>
 
-    </button>
+            <h1>パネルSCAN</h1>
 
-    <div id="arContainer"></div>
+            <p>
+                スタンプを獲得するには、<br>
+                会場のキャラクターパネルをスキャンしてください。
+            </p>
 
-    <div id="stampMessage"></div>
+            <div class="notice-box">
+                <p>・カメラの使用を許可してください。</p>
+                <p>・周囲に注意してご利用ください。</p>
+                <p>・歩きながらの操作はおやめください。</p>
+            </div>
 
-    <div id="scanText">
+            <button id="startARButton" type="button">
+                SCAN開始
+            </button>
 
-        スタンド画像をスキャンしてください
+        </section>
 
-    </div>
+        <div id="arContainer"></div>
 
-    <div id="safetyMessage">
+        <div id="stampMessage"></div>
 
-        周囲に注意し、
-        歩きながら使用しないでください
+        <div id="scanText">
+            パネルを画面中央に合わせてください
+        </div>
 
-    </div>
+        <div id="safetyMessage">
+            周囲に注意し、歩きながら使用しないでください
+        </div>
 
-    <div id="debugText">
+        <div id="debugText">
+            AR起動準備中...
+        </div>
 
-        AR起動中...
+    </main>
 
-    </div>
+    <a id="homeButton" href="home.html">🏠</a>
 
-</div>
+    <audio
+        id="stampGetSound"
+        src="./assets/sounds/stamp.mp3"
+        preload="auto">
+    </audio>
 
-<a id="homeButton" href="home.html">🏠</a>
-
-<audio
-    id="stampGetSound"
-    src="./assets/sounds/stamp.mp3"
-    preload="auto">
-</audio>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<script src="js/supabase.js"></script>
-
-<script type="module" src="js/stamp-scan.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script type="module" src="js/stamp-scan.js"></script>
 
 </body>
 

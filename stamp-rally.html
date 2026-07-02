@@ -3,70 +3,56 @@
 
 <head>
     <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>スタンプラリー</title>
 
-    <link rel="stylesheet" href="css/stamp-rally.css">
     <link rel="stylesheet" href="css/common.css">
+    <link rel="stylesheet" href="css/stamp-rally.css">
 </head>
 
 <body>
 
-    <div class="container">
+    <main class="container">
 
         <h1>スタンプラリー</h1>
 
-        <div class="subtitle">
-            キャラクタースタンプを集めよう！
-        </div>
-
-        <div class="stamp-grid">
+        <section class="stamp-grid">
 
             <button class="stamp-card locked" data-character-id="4" type="button">
                 <img class="stamp" src="assets/stamps/stamp01.png" alt="スタンプ01">
-                <span class="stamp-label">スタンプ 01</span>
             </button>
 
             <button class="stamp-card locked" data-character-id="5" type="button">
                 <img class="stamp" src="assets/stamps/stamp02.png" alt="スタンプ02">
-                <span class="stamp-label">スタンプ 02</span>
             </button>
 
             <button class="stamp-card locked" data-character-id="6" type="button">
                 <img class="stamp" src="assets/stamps/stamp03.png" alt="スタンプ03">
-                <span class="stamp-label">スタンプ 03</span>
             </button>
 
             <button class="stamp-card locked" data-character-id="7" type="button">
                 <img class="stamp" src="assets/stamps/stamp04.png" alt="スタンプ04">
-                <span class="stamp-label">スタンプ 04</span>
             </button>
 
             <button class="stamp-card locked" data-character-id="8" type="button">
                 <img class="stamp" src="assets/stamps/stamp05.png" alt="スタンプ05">
-                <span class="stamp-label">スタンプ 05</span>
             </button>
 
             <button class="stamp-card locked" data-character-id="9" type="button">
                 <img class="stamp" src="assets/stamps/stamp06.png" alt="スタンプ06">
-                <span class="stamp-label">スタンプ 06</span>
             </button>
 
             <button class="stamp-card locked" data-character-id="10" type="button">
                 <img class="stamp" src="assets/stamps/stamp07.png" alt="スタンプ07">
-                <span class="stamp-label">スタンプ 07</span>
             </button>
 
             <button class="stamp-card locked" data-character-id="11" type="button">
                 <img class="stamp" src="assets/stamps/stamp08.png" alt="スタンプ08">
-                <span class="stamp-label">スタンプ 08</span>
             </button>
 
-        </div>
+        </section>
 
-        <div class="stamp-level-card">
+        <section class="stamp-level-card">
 
             <div class="level-header">
                 <span>スタンプ獲得状況</span>
@@ -77,57 +63,40 @@
                 <div id="progressFill"></div>
             </div>
 
-            <div id="rewardBox" class="reward-box">
+        </section>
 
-                <div class="reward-icon">🏆</div>
+        <section id="rewardBox" class="reward-box">
 
-                <div class="reward-text">
-                    <strong>コンプリート特典</strong>
-                    <p>8つのスタンプを集めると特典がもらえるよ！</p>
-                </div>
+            <h2>特典画像</h2>
 
-                <div class="reward-gift">🎁</div>
-
+            <div class="reward-image-frame">
+                <img src="assets/reward/reward.png" alt="特典画像">
+                <div class="reward-lock">🔒</div>
             </div>
 
-            <p class="reward-note">
-                ※ 特典の内容は変更になる場合があります。
-            </p>
+        </section>
 
-        </div>
+        <section id="completeBox" class="complete-box">
 
-        <div id="completeBox" class="complete-box">
-
-            🎉 COMPLETE!
-            <br>
-            8つのスタンプを集めました！
-
-            <br><br>
+            <p>コンプリートしました！</p>
 
             <a
                 id="giftButton"
                 class="gift-button"
-                href="https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNGJqZXp5NHF0b2p1ZjgwNXpkdTJucGtmamplcG0xMTc5b3Vibjc4MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/FIZ1QC610AAhi/giphy.gif"
-                target="_blank"
-            >
-                🎁 プレゼントを受け取る
+                href="assets/reward/reward.png"
+                target="_blank">
+                特典を見る
             </a>
 
-        </div>
+        </section>
 
         <div class="buttons">
-
-            <button class="back" onclick="location.href='stamp-scan.html'" type="button">
-                SCAN開始
+            <button class="scan-button" onclick="location.href='stamp-scan.html'" type="button">
+                パネルSCAN
             </button>
-
-            <button class="reset" onclick="resetStamps()" type="button">
-                テストリセット
-            </button>
-
         </div>
 
-    </div>
+    </main>
 
     <a id="homeButton" href="home.html">🏠</a>
 
