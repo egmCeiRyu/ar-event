@@ -209,9 +209,35 @@ async function saveCharacterStamp(character) {
         return false;
     }
 
-    openCharacterModal(character, false);
+    const completed = await hasCompletedAllStamps(user.id);
+
+    if (completed) {
+
+        location.href = "complete.html";
+
+    } else {
+
+        openCharacterModal(character, false);
+
+    }
 
     return true;
+}
+
+async function hasCompletedAllStamps(userId) {
+
+    const { count, error } = await supabaseClient
+        .from("user_stamps")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId);
+
+    if (error) {
+        console.error(error);
+        return false;
+    }
+
+    return count >= characters.length;
+
 }
 
 function fixMindARVideoLayer() {
