@@ -5,7 +5,6 @@ import { characters } from "./data/characters.js";
 const characterName = document.getElementById("characterName");
 const characterCardImage = document.getElementById("characterCardImage");
 const voiceButton = document.getElementById("voiceButton");
-const arButton = document.getElementById("arButton");
 const closeButton = document.getElementById("closeButton");
 const characterVoice = document.getElementById("characterVoice");
 
@@ -48,9 +47,6 @@ function playVoice() {
     });
 }
 
-function openCharacterAR() {
-    location.href = `character-ar.html?id=${character.id}`;
-}
 
 function closeCard() {
     if (characterVoice) {
@@ -67,7 +63,6 @@ function closeCard() {
 }
 
 voiceButton.addEventListener("click", playVoice);
-arButton.addEventListener("click", openCharacterAR);
 closeButton.addEventListener("click", closeCard);
 
 initCharacterCard();

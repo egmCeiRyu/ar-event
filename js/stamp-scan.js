@@ -23,7 +23,6 @@ function log(message) {
 }
 
 function showStampMessage(message) {
-
     if (!stampMessage) return;
 
     stampMessage.textContent = message;
@@ -32,11 +31,9 @@ function showStampMessage(message) {
     setTimeout(() => {
         stampMessage.style.display = "none";
     }, 1800);
-
 }
 
 function setScanningUI(isScanning) {
-
     if (scanText) {
         scanText.style.display = isScanning ? "block" : "none";
     }
@@ -44,11 +41,9 @@ function setScanningUI(isScanning) {
     if (safetyMessage) {
         safetyMessage.style.display = isScanning ? "block" : "none";
     }
-
 }
 
 function unlockStampSound() {
-
     if (!stampGetSound || soundUnlocked) return;
 
     stampGetSound.pause();
@@ -58,11 +53,9 @@ function unlockStampSound() {
     stampGetSound.load();
 
     soundUnlocked = true;
-
 }
 
 function playStampSound() {
-
     if (!stampGetSound) return;
 
     stampGetSound.pause();
@@ -71,11 +64,9 @@ function playStampSound() {
     stampGetSound.muted = false;
 
     stampGetSound.play().catch(console.error);
-
 }
 
 async function getCurrentUser() {
-
     const {
         data: { session }
     } = await supabaseClient.auth.getSession();
@@ -88,21 +79,15 @@ async function getCurrentUser() {
         await supabaseClient.auth.signInAnonymously();
 
     if (error) {
-
         console.error(error);
-
         showStampMessage("ログインエラー");
-
         return null;
-
     }
 
     return data.user;
-
 }
 
 async function saveCharacterStamp(characterId) {
-
     const user = await getCurrentUser();
 
     if (!user) return false;
@@ -112,55 +97,40 @@ async function saveCharacterStamp(characterId) {
         error: checkError
     } = await supabaseClient
         .from("user_stamps")
-        .select("id")
+        .select("character_id")
         .eq("user_id", user.id)
         .eq("character_id", characterId)
         .maybeSingle();
 
     if (checkError) {
-
         console.error(checkError);
-
         showStampMessage("通信エラー");
-
         return false;
-
     }
 
     if (existing) {
-
         showStampMessage("このスタンプはすでに取得済みです");
 
         setTimeout(() => {
-
             location.href =
                 `character-card.html?id=${characterId}&from=scan`;
-
         }, 800);
 
         return true;
-
     }
 
     const { error } =
         await supabaseClient
             .from("user_stamps")
             .insert({
-
                 user_id: user.id,
-
                 character_id: characterId
-
             });
 
     if (error) {
-
         console.error(error);
-
         showStampMessage("保存エラー");
-
         return false;
-
     }
 
     playStampSound();
@@ -168,69 +138,52 @@ async function saveCharacterStamp(characterId) {
     showStampMessage("スタンプをゲットしました！");
 
     setTimeout(() => {
-
         location.href =
             `character-card.html?id=${characterId}&from=scan`;
-
     }, 900);
 
     return true;
-
 }
 
 function fixMindARVideoLayer() {
-
     const container =
         document.querySelector("#arContainer");
 
     if (!container) return;
 
     container.querySelectorAll("video").forEach(video => {
-
         video.style.position = "absolute";
         video.style.inset = "0";
         video.style.width = "100%";
         video.style.height = "100%";
         video.style.objectFit = "cover";
         video.style.zIndex = "1";
-
     });
 
     container.querySelectorAll("canvas").forEach(canvas => {
-
         canvas.style.position = "absolute";
         canvas.style.inset = "0";
         canvas.style.width = "100%";
         canvas.style.height = "100%";
         canvas.style.background = "transparent";
         canvas.style.zIndex = "2";
-
     });
-
 }
 
 async function startAR() {
-
     if (arStarted) return;
 
     arStarted = true;
 
     try {
-
         log("MindAR読み込み中...");
 
         const mindarThree = new MindARThree({
-
             container: document.querySelector("#arContainer"),
-
             imageTargetSrc: "./assets/targets/targets.mind",
-
             maxTrack: 1,
-
             filterMinCF: 0.001,
-
             filterBeta: 0.01
-
         });
 
         const { renderer, scene, camera } = mindarThree;
@@ -240,12 +193,10 @@ async function startAR() {
         renderer.outputColorSpace = THREE.SRGBColorSpace;
 
         characters.forEach(character => {
-
             const anchor =
                 mindarThree.addAnchor(character.markerIndex);
 
             anchor.onTargetFound = async () => {
-
                 log(`${character.name} 検出`);
 
                 setScanningUI(false);
@@ -255,17 +206,12 @@ async function startAR() {
                 scannedCharacters.add(character.id);
 
                 await saveCharacterStamp(character.id);
-
             };
 
             anchor.onTargetLost = () => {
-
                 log("マーカーをスキャンしてください");
-
                 setScanningUI(true);
-
             };
-
         });
 
         log("カメラ起動中...");
@@ -283,33 +229,27 @@ async function startAR() {
         setScanningUI(true);
 
         renderer.setAnimationLoop(() => {
-
             renderer.render(scene, camera);
-
         });
 
     } catch (error) {
-
         console.error(error);
+
+        arStarted = false;
+        document.body.classList.remove("is-ar-started");
 
         log("ERROR: " + error.message);
 
-        alert("AR Error: " + error.message);
-
+        alert("ARを開始できませんでした。");
     }
-
 }
 
 if (startARButton) {
-
     startARButton.addEventListener("click", async () => {
-
         unlockStampSound();
 
         document.body.classList.add("is-ar-started");
 
         await startAR();
-
     });
-
 }
