@@ -126,8 +126,16 @@ function openCharacterModal(character, alreadyOwned = false) {
     }, 250);
 
     if (characterVoiceButton) {
-        characterVoiceButton.onclick = () => {
-            playCharacterVoice(character);
+        characterVoiceButton.onclick = async () => {
+            characterVoiceButton.disabled = true;
+
+            try {
+                await playCharacterVoice(character);
+            } finally {
+                setTimeout(() => {
+                    characterVoiceButton.disabled = false;
+                }, 300);
+            }
         };
     }
 }
