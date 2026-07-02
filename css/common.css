@@ -1,37 +1,12 @@
-body{
-
-    margin:0;
-
-    background:#dfe5d8;
-
-    display:flex;
-
-    justify-content:center;
-
-}
-
-.app{
-
-    width:100%;
-    max-width:430px;
-
-    min-height:100vh;
-
-    background:white;
-
-    padding:25px;
-
+* {
+    box-sizing: border-box;
 }
 
 #homeButton {
     position: fixed;
 
-    top: 16px;
-
-    left: max(
-        16px,
-        calc(47vw - 215px + 16px)
-    );
+    top: calc(16px + env(safe-area-inset-top));
+    left: max(16px, calc(50vw - 215px + 16px));
 
     width: 48px;
     height: 48px;
@@ -41,18 +16,22 @@ body{
     justify-content: center;
 
     border-radius: 50%;
-    background: rgba(255,255,255,.9);
+
+    background: rgba(255,255,255,.92);
+    color: #102044;
 
     text-decoration: none;
     font-size: 24px;
+    font-weight: 900;
 
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    box-shadow:
+        0 6px 18px rgba(0,0,0,.18);
 
     z-index: 9999;
+
+    -webkit-tap-highlight-color: transparent;
 }
 
-.page,
-.container,
-.content {
-    padding-top: 72px;
+#homeButton:active {
+    transform: scale(.94);
 }
