@@ -18,7 +18,7 @@ const characterScanVoice = document.getElementById("characterScanVoice");
 const scannedCharacters = new Set();
 
 let arStarted = false;
-let currentCharacter = null;
+let audioUnlocked = false;
 
 function log(message) {
     console.log(message);
@@ -31,15 +31,29 @@ function log(message) {
 function showStampMessage(message) {
     if (!stampMessage) return;
 
+    if (document.body.classList.contains("modal-open")) return;
+
     stampMessage.textContent = message;
     stampMessage.style.display = "block";
 
     setTimeout(() => {
         stampMessage.style.display = "none";
-    }, 1200);
+    }, 900);
+}
+
+function hideScanOverlays() {
+    if (scanText) scanText.style.display = "none";
+    if (safetyMessage) safetyMessage.style.display = "none";
+    if (debugText) debugText.style.display = "none";
+    if (stampMessage) stampMessage.style.display = "none";
 }
 
 function setScanningUI(isScanning) {
+    if (document.body.classList.contains("modal-open")) {
+        hideScanOverlays();
+        return;
+    }
+
     if (scanText) {
         scanText.style.display = isScanning ? "block" : "none";
     }
@@ -49,6 +63,33 @@ function setScanningUI(isScanning) {
     }
 }
 
+function unlockVoiceAudio() {
+    if (!characterScanVoice || audioUnlocked) return;
+
+    audioUnlocked = true;
+
+    characterScanVoice.src = characters[0]?.voice || "";
+    characterScanVoice.muted = true;
+    characterScanVoice.volume = 0;
+    characterScanVoice.currentTime = 0;
+
+    characterScanVoice.play()
+        .then(() => {
+            characterScanVoice.pause();
+            characterScanVoice.currentTime = 0;
+            characterScanVoice.muted = false;
+            characterScanVoice.volume = 1;
+        })
+        .catch(error => {
+            console.log("Audio unlock error:", error);
+
+            characterScanVoice.pause();
+            characterScanVoice.currentTime = 0;
+            characterScanVoice.muted = false;
+            characterScanVoice.volume = 1;
+        });
+}
+
 function playCharacterVoice(character) {
     if (!characterScanVoice || !character?.voice) return;
 
@@ -56,8 +97,8 @@ function playCharacterVoice(character) {
     characterScanVoice.currentTime = 0;
 
     characterScanVoice.src = character.voice;
-    characterScanVoice.volume = 1;
     characterScanVoice.muted = false;
+    characterScanVoice.volume = 1;
 
     characterScanVoice.play().catch(error => {
         console.log("Voice play error:", error);
@@ -72,9 +113,9 @@ function stopCharacterVoice() {
 }
 
 function openCharacterModal(character, alreadyOwned = false) {
-    currentCharacter = character;
-
     document.body.classList.add("modal-open");
+
+    hideScanOverlays();
 
     if (modalCharacterName) {
         modalCharacterName.textContent = character.name;
@@ -95,13 +136,16 @@ function openCharacterModal(character, alreadyOwned = false) {
         characterModal.classList.remove("hidden");
     }
 
-    setScanningUI(false);
-    playCharacterVoice(character);
+    window.setTimeout(() => {
+        playCharacterVoice(character);
+    }, 250);
 }
 
 function closeCharacterModal() {
-    stopCharacterVoice();
     document.body.classList.remove("modal-open");
+
+    stopCharacterVoice();
+
     location.href = "stamp-rally.html";
 }
 
@@ -148,7 +192,6 @@ async function saveCharacterStamp(character) {
     }
 
     if (existing) {
-        showStampMessage("取得済みです");
         openCharacterModal(character, true);
         return true;
     }
@@ -167,15 +210,13 @@ async function saveCharacterStamp(character) {
         return false;
     }
 
-    showStampMessage("スタンプをゲットしました！");
     openCharacterModal(character, false);
 
     return true;
 }
 
 function fixMindARVideoLayer() {
-    const container =
-        document.querySelector("#arContainer");
+    const container = document.querySelector("#arContainer");
 
     if (!container) return;
 
@@ -225,9 +266,11 @@ async function startAR() {
                 mindarThree.addAnchor(character.markerIndex);
 
             anchor.onTargetFound = async () => {
+                if (document.body.classList.contains("modal-open")) return;
+
                 log(`${character.name} 検出`);
 
-                setScanningUI(false);
+                hideScanOverlays();
 
                 if (scannedCharacters.has(character.id)) return;
 
@@ -237,7 +280,8 @@ async function startAR() {
             };
 
             anchor.onTargetLost = () => {
-                if (characterModal && !characterModal.classList.contains("hidden")) {
+                if (document.body.classList.contains("modal-open")) {
+                    hideScanOverlays();
                     return;
                 }
 
@@ -269,6 +313,7 @@ async function startAR() {
 
         arStarted = false;
         document.body.classList.remove("is-ar-started");
+        document.body.classList.remove("modal-open");
 
         log("ERROR: " + error.message);
 
@@ -278,6 +323,8 @@ async function startAR() {
 
 if (startARButton) {
     startARButton.addEventListener("click", async () => {
+        unlockVoiceAudio();
+
         document.body.classList.add("is-ar-started");
 
         await startAR();
