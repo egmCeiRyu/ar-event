@@ -340,18 +340,21 @@ body.modal-open #stampMessage {
 #modalCloseButton {
     width: 100%;
     min-height: 56px;
-    border: none;
-    border-radius: 16px;
-    font-size: 18px;
-    font-weight: 700;
     margin-top: 12px;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #006bff, #22b7ff);
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: 900;
+    box-shadow: 0 10px 22px rgba(0,107,255,.28);
+    transition: transform .15s ease;
     -webkit-tap-highlight-color: transparent;
 }
 
-.voice-button {
-    background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
-    color: #fff;
-    box-shadow: 0 6px 18px rgba(37, 99, 235, .35);
+.voice-button:active,
+#modalCloseButton:active {
+    transform: scale(.97);
 }
 
 .voice-button:hover {
