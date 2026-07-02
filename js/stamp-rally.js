@@ -5,6 +5,10 @@ const MAX_STAMPS = characters.length;
 let USER_ID = null;
 let confettiPlayed = false;
 
+const fromComplete =
+    new URLSearchParams(window.location.search)
+        .get("from") === "complete";
+
 async function initStampRally() {
     const {
         data: { session }
@@ -79,7 +83,7 @@ async function loadStamps() {
 
     updateStampLevel(unlocked.size);
 
-    if (unlocked.size >= MAX_STAMPS) {
+    if (unlocked.size >= MAX_STAMPS && !fromComplete) {
         launchConfetti();
     }
 }

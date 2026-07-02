@@ -2,6 +2,32 @@ const completeVoice = document.getElementById("completeVoice");
 const playVoiceButton = document.getElementById("playVoiceButton");
 const rewardButton = document.getElementById("rewardButton");
 
+let autoPlayed = false;
+
+// Tenta tocar automaticamente ao abrir a página
+window.addEventListener("load", async () => {
+
+    try {
+
+        completeVoice.currentTime = 0;
+
+        await completeVoice.play();
+
+        autoPlayed = true;
+
+        if (playVoiceButton) {
+            playVoiceButton.textContent = "▶ もう一度再生";
+        }
+
+    } catch (error) {
+
+        console.log("Autoplay failed:", error);
+
+    }
+
+});
+
+// Botão para tocar novamente
 if (playVoiceButton) {
 
     playVoiceButton.addEventListener("click", async () => {
@@ -13,6 +39,14 @@ if (playVoiceButton) {
 
             await completeVoice.play();
 
+            if (!autoPlayed) {
+
+                autoPlayed = true;
+
+                playVoiceButton.textContent = "▶ もう一度再生";
+
+            }
+
         } catch (error) {
 
             console.log("Complete voice error:", error);
@@ -23,6 +57,7 @@ if (playVoiceButton) {
 
 }
 
+// Botão da recompensa
 if (rewardButton) {
 
     rewardButton.addEventListener("click", () => {
@@ -32,31 +67,3 @@ if (rewardButton) {
     });
 
 }
-
-const stars = document.querySelector(".stars");
-
-function createStar(){
-
-    const star = document.createElement("div");
-
-    star.className = "star";
-
-    star.textContent = Math.random() > .5 ? "✨" : "⭐";
-
-    star.style.left = Math.random()*100 + "%";
-
-    star.style.animationDuration =
-        (4 + Math.random()*3) + "s";
-
-    star.style.fontSize =
-        (14 + Math.random()*18) + "px";
-
-    stars.appendChild(star);
-
-    setTimeout(()=>{
-        star.remove();
-    },7000);
-
-}
-
-setInterval(createStar,350);
