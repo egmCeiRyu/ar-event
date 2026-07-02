@@ -6,7 +6,7 @@ const debugText = document.getElementById("debugText");
 const scanText = document.getElementById("scanText");
 const startARButton = document.getElementById("startARButton");
 const stampMessage = document.getElementById("stampMessage");
-const stampGetSound = document.getElementById("stampGetSound");
+const characterScanVoice = document.getElementById("characterScanVoice");
 const safetyMessage = document.getElementById("safetyMessage");
 
 const scannedCharacters = new Set();
@@ -43,27 +43,30 @@ function setScanningUI(isScanning) {
     }
 }
 
-function unlockStampSound() {
-    if (!stampGetSound || soundUnlocked) return;
+function unlockVoice() {
+    if (!characterScanVoice || soundUnlocked) return;
 
-    stampGetSound.pause();
-    stampGetSound.currentTime = 0;
-    stampGetSound.volume = 1;
-    stampGetSound.muted = false;
-    stampGetSound.load();
+    characterScanVoice.pause();
+    characterScanVoice.currentTime = 0;
+    characterScanVoice.volume = 1;
+    characterScanVoice.muted = false;
+    characterScanVoice.load();
 
     soundUnlocked = true;
 }
 
-function playStampSound() {
-    if (!stampGetSound) return;
+function playCharacterVoice(character) {
+    if (!characterScanVoice || !character?.voice) return;
 
-    stampGetSound.pause();
-    stampGetSound.currentTime = 0;
-    stampGetSound.volume = 1;
-    stampGetSound.muted = false;
+    characterScanVoice.pause();
+    characterScanVoice.currentTime = 0;
+    characterScanVoice.src = character.voice;
+    characterScanVoice.volume = 1;
+    characterScanVoice.muted = false;
 
-    stampGetSound.play().catch(console.error);
+    characterScanVoice.play().catch(error => {
+        console.log("Voice play error:", error);
+    });
 }
 
 async function getCurrentUser() {
@@ -87,7 +90,7 @@ async function getCurrentUser() {
     return data.user;
 }
 
-async function saveCharacterStamp(characterId) {
+async function saveCharacterStamp(character) {
     const user = await getCurrentUser();
 
     if (!user) return false;
@@ -99,7 +102,7 @@ async function saveCharacterStamp(characterId) {
         .from("user_stamps")
         .select("character_id")
         .eq("user_id", user.id)
-        .eq("character_id", characterId)
+        .eq("character_id", character.id)
         .maybeSingle();
 
     if (checkError) {
@@ -109,12 +112,14 @@ async function saveCharacterStamp(characterId) {
     }
 
     if (existing) {
+        playCharacterVoice(character);
+
         showStampMessage("このスタンプはすでに取得済みです");
 
         setTimeout(() => {
             location.href =
-                `character-card.html?id=${characterId}&from=scan`;
-        }, 800);
+                `character-card.html?id=${character.id}&from=scan`;
+        }, 1800);
 
         return true;
     }
@@ -124,7 +129,7 @@ async function saveCharacterStamp(characterId) {
             .from("user_stamps")
             .insert({
                 user_id: user.id,
-                character_id: characterId
+                character_id: character.id
             });
 
     if (error) {
@@ -133,14 +138,14 @@ async function saveCharacterStamp(characterId) {
         return false;
     }
 
-    playStampSound();
+    playCharacterVoice(character);
 
     showStampMessage("スタンプをゲットしました！");
 
     setTimeout(() => {
         location.href =
-            `character-card.html?id=${characterId}&from=scan`;
-    }, 900);
+            `character-card.html?id=${character.id}&from=scan`;
+    }, 1800);
 
     return true;
 }
@@ -205,7 +210,7 @@ async function startAR() {
 
                 scannedCharacters.add(character.id);
 
-                await saveCharacterStamp(character.id);
+                await saveCharacterStamp(character);
             };
 
             anchor.onTargetLost = () => {
@@ -246,7 +251,7 @@ async function startAR() {
 
 if (startARButton) {
     startARButton.addEventListener("click", async () => {
-        unlockStampSound();
+        unlockVoice();
 
         document.body.classList.add("is-ar-started");
 
