@@ -115,13 +115,36 @@ function updateStampLevel(total) {
     }
 
     if (rewardBox && completeBox) {
+
         if (total >= MAX_STAMPS) {
+
             rewardBox.classList.add("completed");
             completeBox.style.display = "block";
+
+            rewardBox.style.cursor = "pointer";
+            completeBox.style.cursor = "pointer";
+
+            rewardBox.onclick = () => {
+                location.href = "complete.html";
+            };
+
+            completeBox.onclick = () => {
+                location.href = "complete.html";
+            };
+
         } else {
+
             rewardBox.classList.remove("completed");
             completeBox.style.display = "none";
+
+            rewardBox.style.cursor = "default";
+            completeBox.style.cursor = "default";
+
+            rewardBox.onclick = null;
+            completeBox.onclick = null;
+
         }
+
     }
 }
 

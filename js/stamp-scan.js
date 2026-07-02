@@ -14,12 +14,12 @@ const modalCharacterImage = document.getElementById("modalCharacterImage");
 const modalText = document.getElementById("modalText");
 const modalCloseButton = document.getElementById("modalCloseButton");
 const characterScanVoice = document.getElementById("characterScanVoice");
-
 const characterVoiceButton = document.getElementById("characterVoiceButton");
 
 const scannedCharacters = new Set();
 
 let arStarted = false;
+let shouldGoToComplete = false;
 
 function log(message) {
     console.log(message);
@@ -145,7 +145,12 @@ function closeCharacterModal() {
 
     stopCharacterVoice();
 
-    location.href = "stamp-rally.html";
+    if (shouldGoToComplete) {
+        shouldGoToComplete = false;
+        location.href = "complete.html";
+    } else {
+        location.href = "stamp-rally.html";
+    }
 }
 
 async function getCurrentUser() {
@@ -209,17 +214,11 @@ async function saveCharacterStamp(character) {
         return false;
     }
 
-    // const completed = await hasCompletedAllStamps(user.id);
+    const completed = await hasCompletedAllStamps(user.id);
 
-    // if (completed) {
-
-    //     location.href = "complete.html";
-
-    // } else {
-
-    //     openCharacterModal(character, false);
-
-    // }
+    if (completed) {
+        shouldGoToComplete = true;
+    }
 
     openCharacterModal(character, false);
 
@@ -227,7 +226,6 @@ async function saveCharacterStamp(character) {
 }
 
 async function hasCompletedAllStamps(userId) {
-
     const { count, error } = await supabaseClient
         .from("user_stamps")
         .select("*", { count: "exact", head: true })
@@ -239,7 +237,6 @@ async function hasCompletedAllStamps(userId) {
     }
 
     return count >= characters.length;
-
 }
 
 function fixMindARVideoLayer() {
@@ -313,9 +310,12 @@ async function startAR() {
 
                     if (scannedCharacters.has(character.id)) return;
 
-                    scannedCharacters.add(character.id);
+                    const saved = await saveCharacterStamp(character);
 
-                    await saveCharacterStamp(character);
+                    if (saved) {
+                        scannedCharacters.add(character.id);
+                    }
+
                 }, 400);
             };
 
