@@ -11,11 +11,12 @@ function getUrlParams() {
 
     return {
         id: Number(params.get("id")),
-        from: params.get("from") || "rally"
+        from: params.get("from") || "rally",
+        autoplay: params.get("autoplay") === "1"
     };
 }
 
-const { id } = getUrlParams();
+const { id, autoplay } = getUrlParams();
 
 const character = characters.find(item => item.id === id);
 
@@ -32,6 +33,12 @@ function initCharacterCard() {
     characterCardImage.alt = character.name;
 
     characterVoice.src = character.voice;
+
+    if (autoplay) {
+        setTimeout(() => {
+            playVoice();
+        }, 350);
+    }
 }
 
 function playVoice() {
@@ -39,6 +46,8 @@ function playVoice() {
 
     characterVoice.pause();
     characterVoice.currentTime = 0;
+    characterVoice.volume = 1;
+    characterVoice.muted = false;
 
     characterVoice.play().catch(error => {
         console.log("Voice play error:", error);

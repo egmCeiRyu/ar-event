@@ -6,13 +6,11 @@ const debugText = document.getElementById("debugText");
 const scanText = document.getElementById("scanText");
 const startARButton = document.getElementById("startARButton");
 const stampMessage = document.getElementById("stampMessage");
-const characterScanVoice = document.getElementById("characterScanVoice");
 const safetyMessage = document.getElementById("safetyMessage");
 
 const scannedCharacters = new Set();
 
 let arStarted = false;
-let soundUnlocked = false;
 
 function log(message) {
     console.log(message);
@@ -30,7 +28,7 @@ function showStampMessage(message) {
 
     setTimeout(() => {
         stampMessage.style.display = "none";
-    }, 1800);
+    }, 1200);
 }
 
 function setScanningUI(isScanning) {
@@ -41,32 +39,6 @@ function setScanningUI(isScanning) {
     if (safetyMessage) {
         safetyMessage.style.display = isScanning ? "block" : "none";
     }
-}
-
-function unlockVoice() {
-    if (!characterScanVoice || soundUnlocked) return;
-
-    characterScanVoice.pause();
-    characterScanVoice.currentTime = 0;
-    characterScanVoice.volume = 1;
-    characterScanVoice.muted = false;
-    characterScanVoice.load();
-
-    soundUnlocked = true;
-}
-
-function playCharacterVoice(character) {
-    if (!characterScanVoice || !character?.voice) return;
-
-    characterScanVoice.pause();
-    characterScanVoice.currentTime = 0;
-    characterScanVoice.src = character.voice;
-    characterScanVoice.volume = 1;
-    characterScanVoice.muted = false;
-
-    characterScanVoice.play().catch(error => {
-        console.log("Voice play error:", error);
-    });
 }
 
 async function getCurrentUser() {
@@ -112,14 +84,12 @@ async function saveCharacterStamp(character) {
     }
 
     if (existing) {
-        playCharacterVoice(character);
-
-        showStampMessage("このスタンプはすでに取得済みです");
+        showStampMessage("取得済みです");
 
         setTimeout(() => {
             location.href =
-                `character-card.html?id=${character.id}&from=scan`;
-        }, 1800);
+                `character-card.html?id=${character.id}&from=scan&autoplay=1`;
+        }, 700);
 
         return true;
     }
@@ -138,14 +108,12 @@ async function saveCharacterStamp(character) {
         return false;
     }
 
-    playCharacterVoice(character);
-
     showStampMessage("スタンプをゲットしました！");
 
     setTimeout(() => {
         location.href =
-            `character-card.html?id=${character.id}&from=scan`;
-    }, 1800);
+            `character-card.html?id=${character.id}&from=scan&autoplay=1`;
+    }, 700);
 
     return true;
 }
@@ -251,8 +219,6 @@ async function startAR() {
 
 if (startARButton) {
     startARButton.addEventListener("click", async () => {
-        unlockVoice();
-
         document.body.classList.add("is-ar-started");
 
         await startAR();
