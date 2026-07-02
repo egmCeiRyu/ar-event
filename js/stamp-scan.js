@@ -290,38 +290,35 @@ async function startAR() {
             const anchor =
                 mindarThree.addAnchor(character.markerIndex);
 
-            let foundFrames = 0;
+            let foundTimer = null;
             let foundConfirmed = false;
 
-            let foundTimer = null;
-
-            anchor.onTargetFound = async () => {
-
+            anchor.onTargetFound = () => {
                 if (document.body.classList.contains("modal-open")) return;
+                if (foundConfirmed) return;
 
                 hideScanOverlays();
 
-                if (foundConfirmed) return;
+                clearTimeout(foundTimer);
 
-                foundFrames++;
+                foundTimer = setTimeout(async () => {
+                    if (document.body.classList.contains("modal-open")) return;
+                    if (foundConfirmed) return;
 
-                // precisa permanecer detectado por alguns frames
-                if (foundFrames < 6) return;
+                    foundConfirmed = true;
 
-                foundConfirmed = true;
+                    log(`${character.name} 検出`);
 
-                log(`${character.name} 検出`);
+                    if (scannedCharacters.has(character.id)) return;
 
-                if (scannedCharacters.has(character.id)) return;
+                    scannedCharacters.add(character.id);
 
-                scannedCharacters.add(character.id);
-
-                await saveCharacterStamp(character);
+                    await saveCharacterStamp(character);
+                }, 400);
             };
 
             anchor.onTargetLost = () => {
-
-                foundFrames = 0;
+                clearTimeout(foundTimer);
                 foundConfirmed = false;
 
                 if (document.body.classList.contains("modal-open")) {
