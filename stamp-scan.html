@@ -65,10 +65,45 @@
             AR起動準備中...
         </div>
 
+        <section id="characterModal" class="character-modal hidden">
+
+            <div class="character-modal-card">
+
+                <div class="modal-badge">GET</div>
+
+                <h2 id="modalCharacterName">
+                    キャラクター
+                </h2>
+
+                <div class="modal-image-frame">
+                    <img
+                        id="modalCharacterImage"
+                        src=""
+                        alt="">
+                </div>
+
+                <p id="modalText">
+                    キャラクターカードを獲得しました！
+                </p>
+
+                <button
+                    id="modalCloseButton"
+                    type="button">
+                    閉じる
+                </button>
+
+            </div>
+
+        </section>
+
     </main>
 
     <a id="homeButton" href="home.html">🏠</a>
 
+    <audio
+        id="characterScanVoice"
+        preload="auto">
+    </audio>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>

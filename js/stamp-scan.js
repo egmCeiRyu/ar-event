@@ -8,9 +8,17 @@ const startARButton = document.getElementById("startARButton");
 const stampMessage = document.getElementById("stampMessage");
 const safetyMessage = document.getElementById("safetyMessage");
 
+const characterModal = document.getElementById("characterModal");
+const modalCharacterName = document.getElementById("modalCharacterName");
+const modalCharacterImage = document.getElementById("modalCharacterImage");
+const modalText = document.getElementById("modalText");
+const modalCloseButton = document.getElementById("modalCloseButton");
+const characterScanVoice = document.getElementById("characterScanVoice");
+
 const scannedCharacters = new Set();
 
 let arStarted = false;
+let currentCharacter = null;
 
 function log(message) {
     console.log(message);
@@ -39,6 +47,60 @@ function setScanningUI(isScanning) {
     if (safetyMessage) {
         safetyMessage.style.display = isScanning ? "block" : "none";
     }
+}
+
+function playCharacterVoice(character) {
+    if (!characterScanVoice || !character?.voice) return;
+
+    characterScanVoice.pause();
+    characterScanVoice.currentTime = 0;
+
+    characterScanVoice.src = character.voice;
+    characterScanVoice.volume = 1;
+    characterScanVoice.muted = false;
+
+    characterScanVoice.play().catch(error => {
+        console.log("Voice play error:", error);
+    });
+}
+
+function stopCharacterVoice() {
+    if (!characterScanVoice) return;
+
+    characterScanVoice.pause();
+    characterScanVoice.currentTime = 0;
+}
+
+function openCharacterModal(character, alreadyOwned = false) {
+    currentCharacter = character;
+
+    if (modalCharacterName) {
+        modalCharacterName.textContent = character.name;
+    }
+
+    if (modalCharacterImage) {
+        modalCharacterImage.src = character.card;
+        modalCharacterImage.alt = character.name;
+    }
+
+    if (modalText) {
+        modalText.textContent = alreadyOwned
+            ? "このキャラクターはすでに取得済みです。"
+            : "キャラクターカードを獲得しました！";
+    }
+
+    if (characterModal) {
+        characterModal.classList.remove("hidden");
+    }
+
+    setScanningUI(false);
+    playCharacterVoice(character);
+}
+
+function closeCharacterModal() {
+    stopCharacterVoice();
+
+    location.href = "stamp-rally.html";
 }
 
 async function getCurrentUser() {
@@ -85,12 +147,7 @@ async function saveCharacterStamp(character) {
 
     if (existing) {
         showStampMessage("取得済みです");
-
-        setTimeout(() => {
-            location.href =
-                `character-card.html?id=${character.id}&from=scan&autoplay=1`;
-        }, 700);
-
+        openCharacterModal(character, true);
         return true;
     }
 
@@ -109,11 +166,7 @@ async function saveCharacterStamp(character) {
     }
 
     showStampMessage("スタンプをゲットしました！");
-
-    setTimeout(() => {
-        location.href =
-            `character-card.html?id=${character.id}&from=scan&autoplay=1`;
-    }, 700);
+    openCharacterModal(character, false);
 
     return true;
 }
@@ -182,6 +235,10 @@ async function startAR() {
             };
 
             anchor.onTargetLost = () => {
+                if (characterModal && !characterModal.classList.contains("hidden")) {
+                    return;
+                }
+
                 log("マーカーをスキャンしてください");
                 setScanningUI(true);
             };
@@ -224,3 +281,9 @@ if (startARButton) {
         await startAR();
     });
 }
+
+if (modalCloseButton) {
+    modalCloseButton.addEventListener("click", closeCharacterModal);
+}
+
+window.addEventListener("pagehide", stopCharacterVoice);
