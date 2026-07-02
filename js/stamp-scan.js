@@ -209,17 +209,19 @@ async function saveCharacterStamp(character) {
         return false;
     }
 
-    const completed = await hasCompletedAllStamps(user.id);
+    // const completed = await hasCompletedAllStamps(user.id);
 
-    if (completed) {
+    // if (completed) {
 
-        location.href = "complete.html";
+    //     location.href = "complete.html";
 
-    } else {
+    // } else {
 
-        openCharacterModal(character, false);
+    //     openCharacterModal(character, false);
 
-    }
+    // }
+
+    openCharacterModal(character, false);
 
     return true;
 }
