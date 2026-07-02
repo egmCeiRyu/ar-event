@@ -74,6 +74,8 @@ function stopCharacterVoice() {
 function openCharacterModal(character, alreadyOwned = false) {
     currentCharacter = character;
 
+    document.body.classList.add("modal-open");
+
     if (modalCharacterName) {
         modalCharacterName.textContent = character.name;
     }
@@ -99,7 +101,7 @@ function openCharacterModal(character, alreadyOwned = false) {
 
 function closeCharacterModal() {
     stopCharacterVoice();
-
+    document.body.classList.remove("modal-open");
     location.href = "stamp-rally.html";
 }
 

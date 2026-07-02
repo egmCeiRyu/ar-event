@@ -11,12 +11,7 @@ body {
 }
 
 body {
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: #000;
     color: #ffffff;
 }
@@ -24,120 +19,76 @@ body {
 #phone {
     position: fixed;
     inset: 0;
-
     width: 100%;
     height: 100%;
-
     overflow: hidden;
-
-    background:
-        linear-gradient(
-            180deg,
-            #eaf5ff 0%,
-            #ffffff 100%
-        );
+    background: linear-gradient(180deg, #eaf5ff 0%, #ffffff 100%);
 }
 
 .scan-intro {
     position: absolute;
     inset: 0;
-
     z-index: 20;
-
     width: 100%;
     max-width: 430px;
     margin: 0 auto;
-
     left: 50%;
     transform: translateX(-50%);
-
-    padding:
-        calc(86px + env(safe-area-inset-top))
-        20px
-        calc(28px + env(safe-area-inset-bottom));
-
+    padding: calc(86px + env(safe-area-inset-top)) 20px calc(28px + env(safe-area-inset-bottom));
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-
     text-align: center;
-
-    background:
-        linear-gradient(
-            180deg,
-            #eaf5ff 0%,
-            #ffffff 100%
-        );
-
+    background: linear-gradient(180deg, #eaf5ff 0%, #ffffff 100%);
     color: #102044;
 }
 
 .scan-icon {
     width: 92px;
     height: 92px;
-
     display: flex;
     align-items: center;
     justify-content: center;
-
     margin-bottom: 18px;
-
     border-radius: 28px;
-
     background: rgba(255,255,255,.96);
     border: 3px solid #d7e9ff;
-
     font-size: 48px;
-
-    box-shadow:
-        0 10px 22px rgba(0,80,180,.12);
+    box-shadow: 0 10px 22px rgba(0,80,180,.12);
 }
 
 .scan-intro h1 {
     margin: 0 0 14px;
-
     font-size: 30px;
     font-weight: 900;
-    line-height: 1.2;
-
     color: #006bff;
 }
 
 .scan-intro > p {
     margin: 0 0 20px;
-
     font-size: 15px;
     line-height: 1.8;
     font-weight: 800;
-
     color: #33415f;
 }
 
 .notice-box {
     width: 100%;
-
     margin-bottom: 24px;
     padding: 16px;
-
     border-radius: 22px;
     border: 3px solid #d7e9ff;
-
     background: rgba(255,255,255,.96);
-
-    box-shadow:
-        0 10px 22px rgba(0,80,180,.10);
-
+    box-shadow: 0 10px 22px rgba(0,80,180,.10);
     text-align: left;
 }
 
 .notice-box p {
     margin: 0 0 8px;
-
     font-size: 14px;
     line-height: 1.6;
     font-weight: 700;
-
     color: #33415f;
 }
 
@@ -148,25 +99,14 @@ body {
 #startARButton {
     width: 100%;
     min-height: 62px;
-
     border: none;
     border-radius: 999px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #006bff,
-            #22b7ff
-        );
-
+    background: linear-gradient(90deg, #006bff, #22b7ff);
     color: #ffffff;
-
     font-size: 20px;
     font-weight: 900;
     letter-spacing: .06em;
-
-    box-shadow:
-        0 10px 24px rgba(0,107,255,.30);
+    box-shadow: 0 10px 24px rgba(0,107,255,.30);
 }
 
 #startARButton:active {
@@ -176,126 +116,77 @@ body {
 #arContainer {
     position: fixed;
     inset: 0;
-
     width: 100%;
     height: 100%;
-
     overflow: hidden;
-
     background: #000;
-
     z-index: 1;
 }
 
-#stampMessage {
+#stampMessage,
+#scanText,
+#safetyMessage,
+#debugText {
     position: fixed;
     left: 50%;
-    top: calc(88px + env(safe-area-inset-top));
-
     transform: translateX(-50%);
-
-    z-index: 30;
-
     display: none;
+}
 
+#stampMessage {
+    top: calc(88px + env(safe-area-inset-top));
+    z-index: 30;
     width: calc(100% - 40px);
     max-width: 390px;
-
     padding: 16px 18px;
-
     border-radius: 999px;
-
     background: rgba(0,107,255,.94);
     color: #ffffff;
-
     text-align: center;
-
     font-size: 16px;
     font-weight: 900;
-
-    box-shadow:
-        0 10px 24px rgba(0,0,0,.28);
+    box-shadow: 0 10px 24px rgba(0,0,0,.28);
 }
 
 #scanText {
-    position: fixed;
-    left: 50%;
     bottom: calc(118px + env(safe-area-inset-bottom));
-
-    transform: translateX(-50%);
-
     z-index: 15;
-
-    display: none;
-
     width: calc(100% - 40px);
     max-width: 390px;
-
     padding: 14px 18px;
-
     border-radius: 999px;
-
     background: rgba(0,0,0,.62);
     color: #ffffff;
-
     text-align: center;
-
     font-size: 15px;
     font-weight: 900;
-
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
 
 #safetyMessage {
-    position: fixed;
-    left: 50%;
     bottom: calc(54px + env(safe-area-inset-bottom));
-
-    transform: translateX(-50%);
-
     z-index: 15;
-
-    display: none;
-
     width: calc(100% - 40px);
     max-width: 390px;
-
     padding: 12px 16px;
-
     border-radius: 18px;
-
     background: rgba(255,255,255,.92);
     color: #102044;
-
     text-align: center;
-
     font-size: 13px;
     line-height: 1.5;
     font-weight: 800;
-
-    box-shadow:
-        0 8px 18px rgba(0,0,0,.22);
+    box-shadow: 0 8px 18px rgba(0,0,0,.22);
 }
 
 #debugText {
-    position: fixed;
-    left: 50%;
     top: calc(18px + env(safe-area-inset-top));
-
-    transform: translateX(-50%);
-
     z-index: 15;
-
-    display: none;
-
     padding: 8px 12px;
-
     border-radius: 999px;
-
     background: rgba(0,0,0,.55);
     color: #ffffff;
-
     font-size: 11px;
     font-weight: 800;
 }
@@ -303,16 +194,12 @@ body {
 .character-modal {
     position: fixed;
     inset: 0;
-
-    z-index: 40;
-
+    z-index: 99999;
     display: flex;
     align-items: center;
     justify-content: center;
-
-    padding: 24px;
-
-    background: rgba(0,0,0,.62);
+    padding: 18px;
+    background: rgba(0,0,0,.68);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
 }
@@ -322,22 +209,15 @@ body {
 }
 
 .character-modal-card {
-    width: 100%;
-    max-width: 390px;
-
-    padding: 22px;
-
-    border-radius: 28px;
+    width: 86%;
+    max-width: 320px;
+    padding: 16px;
+    border-radius: 22px;
     border: 3px solid #ffd24d;
-
     background: #ffffff;
     color: #102044;
-
     text-align: center;
-
-    box-shadow:
-        0 16px 36px rgba(0,0,0,.28);
-
+    box-shadow: 0 16px 36px rgba(0,0,0,.28);
     animation: modalPop .24s ease;
 }
 
@@ -345,46 +225,33 @@ body {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    min-width: 64px;
-    height: 34px;
-
-    margin-bottom: 12px;
-
+    min-width: 52px;
+    height: 28px;
+    margin-bottom: 8px;
     border-radius: 999px;
-
     background: #ff5a5f;
     color: #ffffff;
-
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 900;
 }
 
 #modalCharacterName {
-    margin: 0 0 16px;
-
-    font-size: 26px;
+    margin: 0 0 10px;
+    font-size: 20px;
     line-height: 1.2;
     font-weight: 900;
-
     color: #102044;
 }
 
 .modal-image-frame {
     width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
     aspect-ratio: 3 / 4;
-
     overflow: hidden;
-
-    border-radius: 22px;
+    border-radius: 16px;
     border: 3px solid #35d0c8;
-
-    background:
-        linear-gradient(
-            180deg,
-            #dffff7,
-            #ffffff
-        );
+    background: linear-gradient(180deg, #dffff7, #ffffff);
 }
 
 .modal-image-frame img {
@@ -394,36 +261,23 @@ body {
 }
 
 #modalText {
-    margin: 18px 0 20px;
-
-    font-size: 15px;
+    margin: 12px 0 14px;
+    font-size: 13px;
     line-height: 1.6;
     font-weight: 800;
-
     color: #33415f;
 }
 
 #modalCloseButton {
     width: 100%;
-    min-height: 56px;
-
+    min-height: 48px;
     border: none;
     border-radius: 999px;
-
-    background:
-        linear-gradient(
-            90deg,
-            #006bff,
-            #22b7ff
-        );
-
+    background: linear-gradient(90deg, #006bff, #22b7ff);
     color: #ffffff;
-
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 900;
-
-    box-shadow:
-        0 10px 22px rgba(0,107,255,.28);
+    box-shadow: 0 10px 22px rgba(0,107,255,.28);
 }
 
 #modalCloseButton:active {
@@ -436,6 +290,18 @@ body.is-ar-started #scanIntro {
 
 body.is-ar-started #debugText {
     display: block;
+}
+
+body.modal-open #scanText,
+body.modal-open #safetyMessage,
+body.modal-open #debugText,
+body.modal-open #stampMessage {
+    display: none !important;
+}
+
+body.modal-open #arContainer canvas,
+body.modal-open #arContainer video {
+    z-index: 1 !important;
 }
 
 @keyframes modalPop {
