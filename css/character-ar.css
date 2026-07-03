@@ -127,19 +127,15 @@ body {
     display: none;
     align-items: center;
     justify-content: center;
+
+    pointer-events: none;
 }
 
-#captureBtn {
-    position: relative;
-    z-index: 2;
+#bottomControls.show {
+    display: flex;
 }
 
-#characterListBtn {
-    position: absolute;
-    right: calc(50% + 48px);
-}
-
-/* LIST BUTTON + CAPTURE BUTTON */
+/* BUTTON BASE */
 #captureBtn,
 .side-control-button {
     all: unset;
@@ -161,9 +157,23 @@ body {
     box-sizing: border-box;
     -webkit-appearance: none;
     appearance: none;
+
+    pointer-events: auto;
 }
 
-/* LIST BUTTON */
+/* CAPTURE BUTTON - CENTER */
+#captureBtn {
+    position: relative;
+    z-index: 2;
+}
+
+/* LIST BUTTON - LEFT SIDE OF CAPTURE */
+#characterListBtn {
+    position: absolute;
+    right: calc(50% + 48px);
+}
+
+/* LIST BUTTON TEXT */
 .side-control-button {
     color: #fff;
     font-size: 15px;
@@ -172,7 +182,7 @@ body {
     line-height: 1;
 }
 
-/* CAPTURE BUTTON */
+/* RED CAPTURE CIRCLE */
 #captureBtn::before {
     content: "";
 
@@ -221,10 +231,6 @@ a {
         padding: 8px 14px;
     }
 
-    #bottomControls {
-        gap: 15px;
-    }
-
     #captureBtn,
     .side-control-button {
         width: 54px;
@@ -238,5 +244,9 @@ a {
 
     .side-control-button {
         font-size: 14px;
+    }
+
+    #characterListBtn {
+        right: calc(50% + 44px);
     }
 }

@@ -173,9 +173,9 @@ AFRAME.registerComponent("character-ar-controller", {
         }
 
         if (this.bottomControls) {
+            this.bottomControls.classList.add("show");
             this.bottomControls.style.display = "flex";
         }
-
         console.log("Character placed:", placePosition);
     },
 
