@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
 
     <title>Character AR</title>
 
@@ -31,38 +31,23 @@
         data-preload-chunks="slam">
     </script>
 
-    <script src="js/character-ar.js"></script>
+    <script type="module" src="js/character-ar.js"></script>
 </head>
 
 <body>
 
-    <a class="home-button" href="character-list.html" aria-label="キャラクター一覧へ戻る">
+    <a id="homeButton" class="home-button" href="character-list.html" aria-label="キャラクター一覧へ戻る">
         🏠
     </a>
 
     <div id="targetOverlay">
-
-        <button id="targetBtn" type="button" aria-label="キャラクターを配置">
-            <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="45" cy="45" r="38" stroke="white" stroke-width="2.5" stroke-opacity="0.95" />
-                <circle cx="45" cy="45" r="10" stroke="white" stroke-width="2.5" stroke-opacity="0.95" />
-                <circle cx="45" cy="45" r="3" fill="white" fill-opacity="0.95" />
-
-                <line x1="45" y1="7" x2="45" y2="26" stroke="white" stroke-width="2.5" stroke-linecap="round" />
-                <line x1="45" y1="64" x2="45" y2="83" stroke="white" stroke-width="2.5" stroke-linecap="round" />
-                <line x1="7" y1="45" x2="26" y2="45" stroke="white" stroke-width="2.5" stroke-linecap="round" />
-                <line x1="64" y1="45" x2="83" y2="45" stroke="white" stroke-width="2.5" stroke-linecap="round" />
-            </svg>
-        </button>
-
         <div id="targetHint">
-            タップしてキャラクターを配置してください
+            キャラクターを準備しています...
         </div>
-
     </div>
 
     <button id="captureBtn" type="button" aria-label="撮影">
-        <span id="captureIcon">◉</span>
+        <span id="captureIcon"></span>
     </button>
 
     <a-scene
@@ -71,6 +56,7 @@
         landing-page
         xrextras-loading
         xrextras-runtime-error
+        xrextras-gesture-detector
 
         renderer="colorManagement:true; antialias:false; alpha:true"
         xrweb="
@@ -88,28 +74,34 @@
 
         <a-camera
             id="camera"
-            position="0 1.6 0">
+            position="0 1.6 0"
+            raycaster="objects: .cantap"
+            cursor="fuse:false; rayOrigin:mouse;">
         </a-camera>
 
         <a-light type="ambient" intensity="0.85"></a-light>
 
         <a-entity
             id="mainCharacter"
+            class="cantap"
             visible="false"
             scale="1 1 1"
             rotation="0 0 0"
-            position="0 0 -2">
+            position="0 0 -2"
+
+            xrextras-hold-drag
+            xrextras-pinch-scale>
         </a-entity>
 
         <a-box
             id="ground"
             scale="20 1 20"
             position="0 -0.05 0"
-            visible="true"
-            material="color:#ffffff; transparent:true; opacity:0.0001; depthWrite:false">
+            visible="false">
         </a-box>
 
     </a-scene>
 
 </body>
+
 </html>
