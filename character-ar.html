@@ -1,98 +1,129 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
 
 <head>
-
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
 
-    <meta
-        name="viewport"
-        content="width=device-width,initial-scale=1.0,user-scalable=no">
+    <title>Character AR</title>
 
-    <title>キャラクターAR</title>
-
-    <link rel="stylesheet" href="css/common.css">
     <link rel="stylesheet" href="css/character-ar.css">
 
+    <!-- A-Frame / 8th Wall base -->
     <script
-        type="module"
-        src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js">
+        crossorigin="anonymous"
+        src="./external/scripts/8frame-1.5.0.min.js">
     </script>
 
+    <script
+        src="https://cdn.jsdelivr.net/npm/@8thwall/xrextras@1/dist/xrextras.js"
+        crossorigin="anonymous">
+    </script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@8thwall/landing-page@1/dist/landing-page.js"
+        crossorigin="anonymous">
+    </script>
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@8thwall/engine-binary@1/dist/xr.js"
+        crossorigin="anonymous"
+        async
+        data-preload-chunks="slam">
+    </script>
+
+    <script src="js/character-ar.js"></script>
 </head>
 
 <body>
 
-    <main class="page">
+    <a class="home-button" href="index.html">🏠</a>
 
-        <section class="character-panel">
+    <div id="targetOverlay">
+        <button id="targetBtn" type="button" aria-label="キャラクターを配置">
+            <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="45" cy="45" r="38" stroke="white" stroke-width="2.5" />
+                <circle cx="45" cy="45" r="10" stroke="white" stroke-width="2.5" />
+                <circle cx="45" cy="45" r="3" fill="white" />
+                <line x1="45" y1="7" x2="45" y2="26" stroke="white" stroke-width="2.5" stroke-linecap="round" />
+                <line x1="45" y1="64" x2="45" y2="83" stroke="white" stroke-width="2.5" stroke-linecap="round" />
+                <line x1="7" y1="45" x2="26" y2="45" stroke="white" stroke-width="2.5" stroke-linecap="round" />
+                <line x1="64" y1="45" x2="83" y2="45" stroke="white" stroke-width="2.5" stroke-linecap="round" />
+            </svg>
+        </button>
 
-            <img
-                id="characterPortrait"
-                class="character-portrait"
-                src=""
-                alt="">
+        <div id="targetHint">タップしてキャラクターを配置してください</div>
+    </div>
 
-            <h1 id="characterName">
+    <div id="scaleLabel">
+        <div class="scale-title">Scale</div>
+        <div id="scaleValue">100%</div>
+    </div>
 
-                キャラクター
+    <button id="captureBtn" type="button">
+        <span id="captureIcon">◉</span>
+    </button>
 
-            </h1>
+    <a-scene
+        character-ar-controller
 
-            <p class="character-description">
+        xrextras-gesture-detector
+        landing-page
+        xrextras-loading
+        xrextras-runtime-error
 
-                キャラクターを現実世界に配置して
-                一緒に写真を撮ろう！
+        renderer="colorManagement:true; antialias:false; alpha:true"
+        xrweb="
+            allowedDevices:any;
+            defaultEnvironmentFogIntensity:0.3;
+            defaultEnvironmentFloorColor:#ffffff;
+            defaultEnvironmentSkyBottomColor:#B4C4CC;
+            defaultEnvironmentSkyTopColor:#5ac8fa;
+            defaultEnvironmentSkyGradientStrength:0.5;
+        "
+    >
 
-            </p>
+        <a-assets>
+            <!-- Aqui vamos trocar depois pelo personagem selecionado -->
+            <a-asset-item id="characterModel" src="assets/models/character01.glb"></a-asset-item>
+        </a-assets>
 
-            <button
-                id="startARButton"
-                class="ar-button">
+        <a-camera
+            id="camera"
+            position="0 1.6 0"
+            raycaster="objects: .cantap"
+            cursor="fuse:false;rayOrigin:mouse;">
+        </a-camera>
 
-                ARスタート
+        <a-light type="ambient" intensity="0.8"></a-light>
 
-            </button>
+        <a-entity
+            id="mainCharacter"
+            gltf-model="#characterModel"
+            visible="false"
 
-            <button
-                class="back-button"
-                type="button"
-                onclick="location.href='character-list.html'">
+            class="cantap"
 
-                一覧へ戻る
+            xrextras-hold-drag
+            xrextras-two-finger-rotate
+            xrextras-pinch-scale="min:0.3;max:3"
 
-            </button>
+            scale="1 1 1"
+            rotation="0 0 0"
+            position="0 0 -2">
+        </a-entity>
 
-        </section>
+        <!-- Chão invisível para ajudar o 8th Wall a posicionar -->
+        <a-box
+            id="ground"
+            class="cantap"
+            scale="20 1 20"
+            position="0 -0.05 0"
+            visible="true"
+            material="color:#ffffff; transparent:true; opacity:0.0001; depthWrite:false">
+        </a-box>
 
-    </main>
-
-    <model-viewer
-        id="characterViewer"
-        src=""
-        ar
-        ar-modes="webxr scene-viewer quick-look"
-        camera-controls
-        touch-action="pan-y"
-        shadow-intensity="0"
-        exposure = "1"
-        environment-image="neutral"
-        reveal="auto"
-        style="
-            width: 100%;
-            height: 420px;
-            background: #f6fbff;
-            border-radius: 24px;
-        ">
-    </model-viewer>
-
-    <a id="homeButton" href="home.html">🏠</a>
-
-    <script
-        type="module"
-        src="js/character-ar.js">
-    </script>
+    </a-scene>
 
 </body>
-
 </html>

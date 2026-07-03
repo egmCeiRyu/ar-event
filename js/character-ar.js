@@ -1,84 +1,171 @@
-import { characters } from "./data/characters.js";
+AFRAME.registerComponent("character-ar-controller", {
+    init: function () {
+        const scene = this.el;
 
-const viewer = document.getElementById("characterViewer");
-const portrait = document.getElementById("characterPortrait");
-const nameLabel = document.getElementById("characterName");
-const startButton = document.getElementById("startARButton");
+        const targetBtn = document.getElementById("targetBtn");
+        const targetOverlay = document.getElementById("targetOverlay");
+        const captureBtn = document.getElementById("captureBtn");
+        const scaleValue = document.getElementById("scaleValue");
 
-function getCharacterId() {
-    const params = new URLSearchParams(window.location.search);
-    return Number(params.get("id"));
-}
+        const character = document.getElementById("mainCharacter");
+        const camera = document.getElementById("camera");
 
-const characterId = getCharacterId();
+        let placed = false;
 
-const character = characters.find(c => c.id === characterId);
+        function placeCharacterInFrontOfCamera() {
+            if (!character || !camera || !AFRAME || !AFRAME.THREE) return;
 
-if (!character) {
+            const THREE = AFRAME.THREE;
+            const cameraObject = camera.object3D;
 
-    alert("キャラクターが見つかりません。");
+            const direction = new THREE.Vector3(0, 0, -1);
+            direction.applyQuaternion(cameraObject.quaternion);
 
-    location.href = "character-list.html";
+            const cameraPosition = new THREE.Vector3();
+            cameraObject.getWorldPosition(cameraPosition);
 
-    throw new Error("Character not found");
+            const distance = 2.0;
+            const placePosition = cameraPosition.clone().addScaledVector(direction, distance);
 
-}
+            // Para personagem em pé no chão.
+            // Se o personagem ficar muito baixo ou alto, ajuste este valor.
+            placePosition.y = 0;
 
-portrait.src = character.portrait;
-portrait.alt = character.name;
+            character.setAttribute("position", {
+                x: placePosition.x,
+                y: placePosition.y,
+                z: placePosition.z
+            });
 
-nameLabel.textContent = character.name;
+            character.setAttribute("visible", "true");
 
-viewer.src = character.model;
+            // Faz o personagem olhar para a câmera no momento da colocação.
+            faceCharacterToCamera();
 
-viewer.scale = `${character.scale} ${character.scale} ${character.scale}`;
+            placed = true;
 
-viewer.setAttribute(
-    "orientation",
-    `0deg ${character.rotation}deg 0deg`
-);
+            if (targetOverlay) {
+                targetOverlay.classList.add("hidden");
+            }
 
-viewer.setAttribute(
-    "shadow-intensity",
-    character.shadow ? "1" : "0"
-);
+            if (captureBtn) {
+                captureBtn.style.display = "flex";
+            }
+        }
 
-viewer.addEventListener("load", () => {
+        function faceCharacterToCamera() {
+            if (!character || !camera || !AFRAME || !AFRAME.THREE) return;
 
-    console.log(`${character.name} loaded`);
+            const THREE = AFRAME.THREE;
 
-});
+            const characterObject = character.object3D;
+            const cameraObject = camera.object3D;
 
-viewer.addEventListener("error", (event) => {
+            const characterPosition = new THREE.Vector3();
+            const cameraPosition = new THREE.Vector3();
 
-    console.error(event);
+            characterObject.getWorldPosition(characterPosition);
+            cameraObject.getWorldPosition(cameraPosition);
 
-    alert("モデルを読み込めませんでした。");
+            const dx = cameraPosition.x - characterPosition.x;
+            const dz = cameraPosition.z - characterPosition.z;
 
-});
+            const angle = Math.atan2(dx, dz);
 
-startButton.addEventListener("click", async () => {
+            characterObject.rotation.set(0, angle, 0);
+        }
 
-    startButton.disabled = true;
+        function updateScaleLabel() {
+            if (!scaleValue || !character || !character.object3D) return;
 
-    startButton.textContent = "AR起動中...";
+            const scale = character.object3D.scale.x || 1;
+            const percent = Math.round(scale * 100);
 
-    try {
+            scaleValue.textContent = `${percent}%`;
+        }
 
-        await viewer.activateAR();
+        async function capturePhoto() {
+            const canvas = document.querySelector("canvas");
+            if (!canvas) return;
 
-    } catch (error) {
+            const hiddenElements = [
+                document.querySelector(".home-button"),
+                document.getElementById("scaleLabel"),
+                document.getElementById("captureBtn")
+            ];
 
-        console.error(error);
+            hiddenElements.forEach((el) => {
+                if (el) el.style.visibility = "hidden";
+            });
 
-        alert("ARを開始できませんでした。");
+            setTimeout(() => {
+                canvas.toBlob(async (blob) => {
+                    hiddenElements.forEach((el) => {
+                        if (el) el.style.visibility = "visible";
+                    });
 
-    } finally {
+                    if (!blob) return;
 
-        startButton.disabled = false;
+                    const file = new File(
+                        [blob],
+                        "character-ar-photo.jpg",
+                        { type: "image/jpeg" }
+                    );
 
-        startButton.textContent = "ARスタート";
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: "Character AR"
+                        });
+                        return;
+                    }
 
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement("a");
+
+                    link.href = url;
+                    link.download = "character-ar-photo.jpg";
+                    link.click();
+
+                    URL.revokeObjectURL(url);
+                }, "image/jpeg", 0.95);
+            }, 120);
+        }
+
+        if (targetBtn) {
+            targetBtn.addEventListener("click", placeCharacterInFrontOfCamera);
+        }
+
+        if (captureBtn) {
+            captureBtn.addEventListener("click", capturePhoto);
+        }
+
+        character.addEventListener("model-loaded", () => {
+            character.object3D.traverse((node) => {
+                if (!node.isMesh || !node.material) return;
+
+                node.frustumCulled = false;
+
+                const materials = Array.isArray(node.material)
+                    ? node.material
+                    : [node.material];
+
+                materials.forEach((material) => {
+                    material.transparent = true;
+                    material.depthWrite = true;
+                    material.needsUpdate = true;
+                });
+            });
+        });
+
+        setInterval(() => {
+            if (placed) {
+                updateScaleLabel();
+            }
+        }, 120);
+
+        scene.addEventListener("realityready", () => {
+            console.log("8th Wall ready");
+        });
     }
-
 });
