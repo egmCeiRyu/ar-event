@@ -119,15 +119,24 @@ body {
 /* BOTTOM CONTROLS */
 #bottomControls {
     position: fixed;
-    left: 50%;
+    left: 0;
+    right: 0;
     bottom: max(32px, env(safe-area-inset-bottom));
-    transform: translateX(-50%);
     z-index: 999999;
 
     display: none;
     align-items: center;
     justify-content: center;
-    gap: 18px;
+}
+
+#captureBtn {
+    position: relative;
+    z-index: 2;
+}
+
+#characterListBtn {
+    position: absolute;
+    right: calc(50% + 48px);
 }
 
 /* LIST BUTTON + CAPTURE BUTTON */
