@@ -114,14 +114,24 @@ async function startCamera() {
         currentStream = await navigator.mediaDevices.getUserMedia({
             video: {
                 facingMode: facingMode,
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
+
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+
+                frameRate: { ideal: 30 },
+                resizeMode: "none"
             },
             audio: false
         });
 
         cameraVideo.srcObject = currentStream;
         await cameraVideo.play();
+
+        const track = currentStream.getVideoTracks()[0];
+
+        if (track) {
+            console.log("Camera settings:", track.getSettings());
+        }
 
     } catch (error) {
         console.error(error);
@@ -226,6 +236,8 @@ function capturePhoto() {
     captureCanvas.height = FRAME_HEIGHT;
 
     const ctx = captureCanvas.getContext("2d");
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
     ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
