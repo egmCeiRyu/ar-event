@@ -181,7 +181,7 @@ body {
         Antes estava perto do botão vermelho.
         Aumentei para 66px para afastar melhor.
     */
-    right: calc(50% + 66px);
+    right: calc(50% + 96px); 
 }
 
 /* LIST BUTTON TEXT */
