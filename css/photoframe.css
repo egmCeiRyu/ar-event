@@ -534,19 +534,23 @@ body {
 }
 
 /* =========================
-   Swap Photo / Frame Buttons
+   Photo / Frame Button Layout
 ========================= */
 
 .bottom-menu {
-    justify-content: space-between;
+    justify-content: center;
 }
 
-/* Frame vai para a esquerda */
+/* Frame fica à esquerda */
 #openFramePanelBtn {
-    order: 1;
+    position: absolute;
+    left: 34px;
+    top: 50%;
+    transform: translateY(-50%);
 }
 
-/* Botão de foto vai para a direita */
+/* Tirar foto fica no centro */
 #captureBtn {
-    order: 2;
+    position: relative;
+    margin: 0 auto;
 }
