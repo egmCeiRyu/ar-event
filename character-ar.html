@@ -42,8 +42,8 @@
     <a
         id="homeButton"
         class="home-button"
-        href="character-list.html"
-        aria-label="キャラクター一覧へ戻る">
+        href="home.html"
+        aria-label="ホームへ戻る">
         🏠
     </a>
 
@@ -68,9 +68,21 @@
 
     </div>
 
-    <button id="captureBtn" type="button" aria-label="撮影">
-        <span id="captureIcon"></span>
-    </button>
+    <div id="bottomControls">
+
+        <a
+            id="characterListBtn"
+            class="side-control-button"
+            href="character-list.html"
+            aria-label="キャラクター一覧へ戻る">
+            一覧
+        </a>
+
+        <button id="captureBtn" type="button" aria-label="撮影">
+            <span id="captureIcon"></span>
+        </button>
+
+    </div>
 
     <a-scene
         character-ar-controller

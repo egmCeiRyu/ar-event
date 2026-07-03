@@ -9,6 +9,8 @@ AFRAME.registerComponent("character-ar-controller", {
         this.character = document.getElementById("mainCharacter");
         this.camera = document.getElementById("camera");
 
+        this.bottomControls = document.getElementById("bottomControls");
+
         this.characterData = null;
 
         this.characterPlaced = false;
@@ -170,8 +172,8 @@ AFRAME.registerComponent("character-ar-controller", {
             this.targetOverlay.classList.add("hidden");
         }
 
-        if (this.captureBtn) {
-            this.captureBtn.style.display = "flex";
+        if (this.bottomControls) {
+            this.bottomControls.style.display = "flex";
         }
 
         console.log("Character placed:", placePosition);
@@ -234,7 +236,7 @@ AFRAME.registerComponent("character-ar-controller", {
         const hiddenElements = [
             document.querySelector(".home-button"),
             document.getElementById("homeButton"),
-            document.getElementById("captureBtn"),
+            document.getElementById("bottomControls"),
             document.getElementById("targetOverlay")
         ];
 
