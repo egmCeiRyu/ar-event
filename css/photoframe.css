@@ -549,6 +549,5 @@ body {
 
     left: calc(34px + env(safe-area-inset-left));
     bottom: calc(82px + env(safe-area-inset-bottom));
-
     z-index: 25;
 }
