@@ -573,9 +573,7 @@ body {
 /* Botão Frame à esquerda */
 #openFramePanelBtn {
     position: fixed;
-
-    left: 34px;
-    bottom: calc(28px + env(safe-area-inset-bottom));
-
-    z-index: 22;
+    left: max(16px, calc(50vw - 215px + 16px));
+    bottom: calc(22px + env(safe-area-inset-bottom));
+    z-index: 30;
 }
