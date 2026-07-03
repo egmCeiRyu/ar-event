@@ -533,6 +533,24 @@ body {
     }
 }
 
+/* =========================
+   Photo Frame Wireframe Layout
+========================= */
+
+/* Bottom menu fica responsável só pelo botão de撮影 */
+.bottom-menu {
+    left: 50%;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+
+    width: min(100vw, calc(100dvh * 9 / 16));
+    padding: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
 /* Home sobe para o topo esquerdo */
 #homeBtn {
     position: fixed;
@@ -551,4 +569,10 @@ body {
     bottom: calc(82px + env(safe-area-inset-bottom));
 
     z-index: 25;
+}
+
+/* Shot continua centralizado */
+#captureBtn {
+    position: relative;
+    z-index: 26;
 }
