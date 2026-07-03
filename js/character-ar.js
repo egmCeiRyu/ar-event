@@ -1,26 +1,46 @@
+import { characters } from "./data/characters.js";
+
 AFRAME.registerComponent("character-ar-controller", {
     init: function () {
+        this.targetBtn = document.getElementById("targetBtn");
         this.targetOverlay = document.getElementById("targetOverlay");
         this.captureBtn = document.getElementById("captureBtn");
 
         this.character = document.getElementById("mainCharacter");
         this.camera = document.getElementById("camera");
-        this.ground = document.getElementById("ground");
 
-        this.characters = [];
         this.characterData = null;
 
         this.characterPlaced = false;
-        this.charactersLoaded = false;
 
         this.baseScale = 1;
         this.modelYawOffsetRad = 0;
 
-        this.loadCharactersData();
+        this.fixedCharacterY = 0;
+        this.placeDistance = 1.8;
 
-        if (this.ground) {
-            this.ground.addEventListener("click", (event) => {
-                this.placeCharacterByGroundTap(event);
+        this.loadCharacterFromUrl();
+
+        if (this.targetBtn) {
+            this.targetBtn.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                this.placeCharacterInFrontOfCamera();
+            });
+
+            this.targetBtn.addEventListener("touchend", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                this.placeCharacterInFrontOfCamera();
+            }, { passive: false });
+
+            this.targetBtn.addEventListener("pointerdown", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                this.placeCharacterInFrontOfCamera();
             });
         }
 
@@ -49,27 +69,6 @@ AFRAME.registerComponent("character-ar-controller", {
         });
     },
 
-    loadCharactersData: async function () {
-        try {
-            const modulePath = new URL(
-                "js/data/characters.js",
-                document.baseURI
-            ).href;
-
-            const module = await import(modulePath);
-
-            this.characters = module.characters || [];
-            this.charactersLoaded = true;
-
-            this.loadCharacterFromUrl();
-
-            console.log("Characters data loaded:", this.characters);
-        } catch (error) {
-            console.error("Characters data load error:", error);
-            alert("キャラクターデータを読み込めませんでした。");
-        }
-    },
-
     getCharacterId: function () {
         const params = new URLSearchParams(window.location.search);
         return Number(params.get("id"));
@@ -77,11 +76,10 @@ AFRAME.registerComponent("character-ar-controller", {
 
     loadCharacterFromUrl: function () {
         if (!this.character) return;
-        if (!this.charactersLoaded) return;
 
         const characterId = this.getCharacterId();
 
-        const characterData = this.characters.find((item) => {
+        const characterData = characters.find((item) => {
             return item.id === characterId;
         });
 
@@ -126,32 +124,40 @@ AFRAME.registerComponent("character-ar-controller", {
         }
     },
 
-    placeCharacterByGroundTap: function (event) {
-        if (!this.character) return;
-        if (!this.charactersLoaded) return;
+    placeCharacterInFrontOfCamera: function () {
         if (this.characterPlaced) return;
 
-        if (!event.detail || !event.detail.intersection) {
-            console.warn("No tap intersection found");
-            return;
-        }
+        if (!this.character || !this.camera) return;
+        if (!this.character.object3D || !this.camera.object3D) return;
+        if (!AFRAME || !AFRAME.THREE) return;
 
-        const point = event.detail.intersection.point;
+        const THREE = AFRAME.THREE;
+        const cameraObject = this.camera.object3D;
 
-        this.character.setAttribute("position", {
-            x: point.x,
-            y: 0,
-            z: point.z
-        });
+        const direction = new THREE.Vector3(0, 0, -1);
+        direction.applyQuaternion(cameraObject.quaternion);
 
-        this.character.object3D.position.set(
-            point.x,
-            0,
-            point.z
+        const cameraPosition = new THREE.Vector3();
+        cameraObject.getWorldPosition(cameraPosition);
+
+        const placePosition = cameraPosition.clone().addScaledVector(
+            direction,
+            this.placeDistance
         );
 
-        this.character.setAttribute("visible", "true");
-        this.character.object3D.visible = true;
+        placePosition.y = this.fixedCharacterY;
+
+        this.character.object3D.position.set(
+            placePosition.x,
+            placePosition.y,
+            placePosition.z
+        );
+
+        this.character.setAttribute("position", {
+            x: placePosition.x,
+            y: placePosition.y,
+            z: placePosition.z
+        });
 
         this.character.object3D.scale.set(
             this.baseScale,
@@ -165,6 +171,9 @@ AFRAME.registerComponent("character-ar-controller", {
             z: this.baseScale
         });
 
+        this.character.object3D.visible = true;
+        this.character.setAttribute("visible", "true");
+
         this.characterPlaced = true;
 
         this.faceCharacterToCamera();
@@ -177,7 +186,7 @@ AFRAME.registerComponent("character-ar-controller", {
             this.captureBtn.style.display = "flex";
         }
 
-        console.log("Character placed by ground tap:", point);
+        console.log("Character placed:", placePosition);
     },
 
     setupCharacterModel: function () {
