@@ -53,10 +53,6 @@ body {
 }
 
 /* =========================
-   Bottom Menu
-========================= */
-
-/* =========================
    Bottom Menu - Professional UI
 ========================= */
 
@@ -244,7 +240,6 @@ body {
     width: 44px;
     height: 44px;
 
-     /* sobe o ícone um pouco */
     transform: translateY(-3px);
 
     fill: none;
@@ -521,7 +516,6 @@ body {
     #cameraVideo,
     #selectedPhotoFrame,
     #previewImage,
-    .bottom-menu,
     .frame-panel {
         width: min(420px, calc(100dvh * 9 / 16));
     }
@@ -533,9 +527,9 @@ body {
     }
 }
 
-
 /* =========================
-   Photo / Frame Button Layout - Fixed
+   Photo / Frame Button Layout
+   Apenas esta parte controla a posição dos botões inferiores
 ========================= */
 
 .bottom-menu {
@@ -546,6 +540,9 @@ body {
     z-index: 9999;
 
     height: 78px;
+    width: 100%;
+    padding: 0;
+    transform: none;
 
     display: flex;
     align-items: center;
@@ -554,15 +551,16 @@ body {
     pointer-events: none;
 }
 
-/* Botão de foto no centro exato */
+/* Botão de foto no centro */
 #captureBtn {
     position: absolute;
     left: 50%;
     bottom: 0;
+
     transform: translateX(-50%);
+    margin: 0;
 
     z-index: 2;
-
     pointer-events: auto;
 }
 
@@ -570,18 +568,17 @@ body {
     transform: translateX(-50%) scale(.94);
 }
 
-/* Botão フレーム alinhado à esquerda, igual o botão 一覧 do character-ar */
+/* Botão フレーム / voltar painel à esquerda */
 #openFramePanelBtn {
     position: absolute;
     left: max(18px, env(safe-area-inset-left));
     bottom: 6px;
 
     z-index: 3;
-
     pointer-events: auto;
 }
 
-/* Garante que o conteúdo interno do botão não bloqueie o clique */
+/* Conteúdo interno não bloqueia o clique */
 #openFramePanelBtn *,
 #captureBtn * {
     pointer-events: none;
