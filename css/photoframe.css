@@ -557,7 +557,7 @@ body {
     position: fixed;
 
     left: 50%;
-    bottom: calc(82px + env(safe-area-inset-bottom));
+    bottom: calc(52px + env(safe-area-inset-bottom));
 
     transform: translateX(-50%);
 
@@ -575,7 +575,7 @@ body {
     position: fixed;
 
     left: 34px;
-    bottom: calc(88px + env(safe-area-inset-bottom));
+    bottom: calc(58px + env(safe-area-inset-bottom));
 
     z-index: 22;
 }
