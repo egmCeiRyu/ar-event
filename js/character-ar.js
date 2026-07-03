@@ -20,18 +20,47 @@ AFRAME.registerComponent("character-ar-controller", {
 
         this.isPlaced = false;
         this.isDragging = false;
-        this.dragReady = false;
+        this.isPinching = false;
+        this.touchReady = false;
 
         this.lastTouchX = 0;
         this.lastTouchY = 0;
 
-        // Sensibilidade do arraste.
-        // Menor = mais lento.
-        this.dragSpeed = 0.0018;
+        this.initialPinchDistance = 0;
+        this.initialScale = 1;
 
-        // Altura fixa do personagem.
-        // Ajuste aqui se o personagem ficar alto ou baixo demais.
+        /*
+            Sensibilidade do arraste.
+            0.00045 = lento.
+            Se ainda estiver rápido, use 0.00025.
+        */
+        this.dragSpeed = 0.00045;
+
+        /*
+            Sensibilidade do pinch.
+            0.35 = escala suave.
+            1.0 = escala direta/rápida.
+        */
+        this.pinchSensitivity = 0.35;
+
+        this.minScale = 0.3;
+        this.maxScale = 3;
+
+        /*
+            Altura fixa do personagem.
+            Ajuste aqui se o personagem ficar alto ou baixo demais.
+        */
         this.fixedCharacterY = 0;
+
+        /*
+            Evita movimento acidental com microtoque.
+        */
+        this.dragDeadZone = 3;
+
+        /*
+            Limita deltas grandes do toque para evitar salto.
+        */
+        this.maxTouchDelta = 18;
 
         this.loadCharacterFromUrl();
 
@@ -54,15 +83,11 @@ AFRAME.registerComponent("character-ar-controller", {
         }
 
         this.el.addEventListener("loaded", () => {
-            this.setupSlowDrag();
+            this.setupTouchControl();
         });
 
         this.el.addEventListener("renderstart", () => {
-            this.setupSlowDrag();
-        });
-
-        this.el.addEventListener("realityready", () => {
-            console.log("8th Wall ready");
+            this.setupTouchControl();
         });
     },
 
@@ -97,9 +122,6 @@ AFRAME.registerComponent("character-ar-controller", {
         const distance = 2.0;
         const placePosition = cameraPosition.clone().addScaledVector(direction, distance);
 
-        // Trava a altura desde o primeiro posicionamento.
-        placePosition.y = this.fixedCharacterY;
-
         this.character.object3D.position.set(
             placePosition.x,
             this.fixedCharacterY,
@@ -121,29 +143,6 @@ AFRAME.registerComponent("character-ar-controller", {
         }
     },
 
-    faceCharacterToCamera: function () {
-        if (!this.character || !this.camera) return;
-        if (!this.character.object3D || !this.camera.object3D) return;
-        if (!AFRAME || !AFRAME.THREE) return;
-
-        const THREE = AFRAME.THREE;
-
-        const characterPosition = new THREE.Vector3();
-        const cameraPosition = new THREE.Vector3();
-
-        this.character.object3D.getWorldPosition(characterPosition);
-        this.camera.object3D.getWorldPosition(cameraPosition);
-
-        const dx = cameraPosition.x - characterPosition.x;
-        const dz = cameraPosition.z - characterPosition.z;
-
-        const angle = Math.atan2(dx, dz);
-
-        // Se algum GLB aparecer de costas, troque por:
-        // this.character.object3D.rotation.y = angle + Math.PI;
-        this.character.object3D.rotation.y = angle;
-    },
-
     setupCharacterModel: function () {
         if (!this.character || !this.character.object3D) return;
 
@@ -163,60 +162,110 @@ AFRAME.registerComponent("character-ar-controller", {
             });
         });
 
-        // Garante que ao carregar o GLB ele não muda de altura.
         this.character.object3D.position.y = this.fixedCharacterY;
 
         console.log("Character model loaded");
     },
 
-    setupSlowDrag: function () {
-        if (this.dragReady) return;
+    setupTouchControl: function () {
+        if (this.touchReady) return;
 
         const canvas = document.querySelector("canvas");
 
-        if (!canvas || !this.character || !this.camera) {
+        if (!canvas) {
             setTimeout(() => {
-                this.setupSlowDrag();
+                this.setupTouchControl();
             }, 300);
             return;
         }
 
-        this.dragReady = true;
+        this.touchReady = true;
+        canvas.style.touchAction = "none";
 
         canvas.addEventListener("touchstart", (event) => {
             if (!this.isPlaced) return;
-            if (event.touches.length !== 1) return;
-
-            this.isDragging = true;
-            this.lastTouchX = event.touches[0].clientX;
-            this.lastTouchY = event.touches[0].clientY;
-        }, { passive: false });
-
-        canvas.addEventListener("touchmove", (event) => {
-            if (!this.isDragging) return;
-            if (!this.isPlaced) return;
-            if (event.touches.length !== 1) return;
 
             event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
 
-            const touch = event.touches[0];
+            if (event.touches.length === 1) {
+                this.isDragging = true;
+                this.isPinching = false;
 
-            const deltaX = touch.clientX - this.lastTouchX;
-            const deltaY = touch.clientY - this.lastTouchY;
+                this.lastTouchX = event.touches[0].clientX;
+                this.lastTouchY = event.touches[0].clientY;
+            }
 
-            this.lastTouchX = touch.clientX;
-            this.lastTouchY = touch.clientY;
+            if (event.touches.length === 2) {
+                this.isDragging = false;
+                this.isPinching = true;
 
-            this.moveCharacterSlowly(deltaX, deltaY);
-        }, { passive: false });
+                this.initialPinchDistance = this.getPinchDistance(event);
+                this.initialScale = this.character.object3D.scale.x;
+            }
+        }, { passive: false, capture: true });
 
-        canvas.addEventListener("touchend", () => {
+        canvas.addEventListener("touchmove", (event) => {
+            if (!this.isPlaced) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            if (event.touches.length === 1 && this.isDragging) {
+                const touch = event.touches[0];
+
+                let deltaX = touch.clientX - this.lastTouchX;
+                let deltaY = touch.clientY - this.lastTouchY;
+
+                this.lastTouchX = touch.clientX;
+                this.lastTouchY = touch.clientY;
+
+                const totalDelta = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                if (totalDelta < this.dragDeadZone) {
+                    return;
+                }
+
+                deltaX = this.clamp(deltaX, -this.maxTouchDelta, this.maxTouchDelta);
+                deltaY = this.clamp(deltaY, -this.maxTouchDelta, this.maxTouchDelta);
+
+                this.moveCharacterSlowly(deltaX, deltaY);
+            }
+
+            if (event.touches.length === 2 && this.isPinching) {
+                this.scaleCharacterByPinch(event);
+            }
+        }, { passive: false, capture: true });
+
+        canvas.addEventListener("touchend", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
+            if (event.touches.length === 0) {
+                this.isDragging = false;
+                this.isPinching = false;
+            }
+
+            if (event.touches.length === 1) {
+                this.isDragging = true;
+                this.isPinching = false;
+
+                this.lastTouchX = event.touches[0].clientX;
+                this.lastTouchY = event.touches[0].clientY;
+            }
+        }, { passive: false, capture: true });
+
+        canvas.addEventListener("touchcancel", (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            event.stopImmediatePropagation();
+
             this.isDragging = false;
-        });
-
-        canvas.addEventListener("touchcancel", () => {
-            this.isDragging = false;
-        });
+            this.isPinching = false;
+        }, { passive: false, capture: true });
     },
 
     moveCharacterSlowly: function (deltaX, deltaY) {
@@ -243,10 +292,56 @@ AFRAME.registerComponent("character-ar-controller", {
         movement.addScaledVector(forward, -deltaY * this.dragSpeed);
 
         this.character.object3D.position.add(movement);
-
-        // Correção principal:
-        // Depois de qualquer movimento, força o Y fixo.
         this.character.object3D.position.y = this.fixedCharacterY;
+    },
+
+    getPinchDistance: function (event) {
+        const touch1 = event.touches[0];
+        const touch2 = event.touches[1];
+
+        const dx = touch2.clientX - touch1.clientX;
+        const dy = touch2.clientY - touch1.clientY;
+
+        return Math.sqrt(dx * dx + dy * dy);
+    },
+
+    scaleCharacterByPinch: function (event) {
+        if (!this.character || !this.character.object3D) return;
+        if (this.initialPinchDistance <= 0) return;
+
+        const currentDistance = this.getPinchDistance(event);
+        const rawScaleRatio = currentDistance / this.initialPinchDistance;
+
+        const softenedRatio =
+            1 + ((rawScaleRatio - 1) * this.pinchSensitivity);
+
+        let newScale = this.initialScale * softenedRatio;
+
+        newScale = Math.max(this.minScale, Math.min(this.maxScale, newScale));
+
+        this.character.object3D.scale.set(newScale, newScale, newScale);
+        this.character.object3D.position.y = this.fixedCharacterY;
+    },
+
+    faceCharacterToCamera: function () {
+        if (!this.character || !this.camera) return;
+        if (!this.character.object3D || !this.camera.object3D) return;
+        if (!AFRAME || !AFRAME.THREE) return;
+
+        const THREE = AFRAME.THREE;
+
+        const characterPosition = new THREE.Vector3();
+        const cameraPosition = new THREE.Vector3();
+
+        this.character.object3D.getWorldPosition(characterPosition);
+        this.camera.object3D.getWorldPosition(cameraPosition);
+
+        const dx = cameraPosition.x - characterPosition.x;
+        const dz = cameraPosition.z - characterPosition.z;
+
+        const angle = Math.atan2(dx, dz);
+
+        this.character.object3D.rotation.y = angle;
     },
 
     capturePhoto: function () {
@@ -312,10 +407,12 @@ AFRAME.registerComponent("character-ar-controller", {
         if (!this.isPlaced) return;
         if (!this.character || !this.character.object3D) return;
 
-        // Correção principal:
-        // Mantém o personagem travado na altura fixa o tempo todo.
         this.character.object3D.position.y = this.fixedCharacterY;
 
         this.faceCharacterToCamera();
+    },
+
+    clamp: function (value, min, max) {
+        return Math.max(min, Math.min(max, value));
     }
 });

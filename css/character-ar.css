@@ -16,6 +16,8 @@ body {
         sans-serif;
 
     background: #000;
+    touch-action: none;
+    overscroll-behavior: none;
 }
 
 .home-button {
@@ -123,8 +125,8 @@ body {
     transform: translateX(-50%);
     z-index: 999999;
 
-    width: 72px;
-    height: 72px;
+    width: 52px;
+    height: 52px;
     border-radius: 50%;
     border: none;
     padding: 0;
@@ -149,9 +151,11 @@ body {
     top: -2px;
 }
 
-a-scene {
+a-scene,
+canvas {
     width: 100vw;
     height: 100vh;
+    touch-action: none;
 }
 
 button,
