@@ -9,7 +9,7 @@
 
     <link rel="stylesheet" href="css/character-ar.css">
 
-    <!-- A-Frame / 8th Wall base -->
+    <!-- A-Frame / 8th Wall -->
     <script
         crossorigin="anonymous"
         src="./external/scripts/8frame-1.5.0.min.js">
@@ -37,14 +37,20 @@
 
 <body>
 
-    <a class="home-button" href="index.html">🏠</a>
+    <!-- Home volta para a lista de personagens -->
+    <a class="home-button" href="character-list.html" aria-label="キャラクター一覧へ戻る">
+        🏠
+    </a>
 
+    <!-- Alvo para posicionar o personagem -->
     <div id="targetOverlay">
+
         <button id="targetBtn" type="button" aria-label="キャラクターを配置">
             <svg viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="45" cy="45" r="38" stroke="white" stroke-width="2.5" />
-                <circle cx="45" cy="45" r="10" stroke="white" stroke-width="2.5" />
-                <circle cx="45" cy="45" r="3" fill="white" />
+                <circle cx="45" cy="45" r="38" stroke="white" stroke-width="2.5" stroke-opacity="0.95" />
+                <circle cx="45" cy="45" r="10" stroke="white" stroke-width="2.5" stroke-opacity="0.95" />
+                <circle cx="45" cy="45" r="3" fill="white" fill-opacity="0.95" />
+
                 <line x1="45" y1="7" x2="45" y2="26" stroke="white" stroke-width="2.5" stroke-linecap="round" />
                 <line x1="45" y1="64" x2="45" y2="83" stroke="white" stroke-width="2.5" stroke-linecap="round" />
                 <line x1="7" y1="45" x2="26" y2="45" stroke="white" stroke-width="2.5" stroke-linecap="round" />
@@ -52,15 +58,14 @@
             </svg>
         </button>
 
-        <div id="targetHint">タップしてキャラクターを配置してください</div>
+        <div id="targetHint">
+            タップしてキャラクターを配置してください
+        </div>
+
     </div>
 
-    <div id="scaleLabel">
-        <div class="scale-title">Scale</div>
-        <div id="scaleValue">100%</div>
-    </div>
-
-    <button id="captureBtn" type="button">
+    <!-- Botão de captura -->
+    <button id="captureBtn" type="button" aria-label="撮影">
         <span id="captureIcon">◉</span>
     </button>
 
@@ -84,7 +89,7 @@
     >
 
         <a-assets>
-            <!-- Aqui vamos trocar depois pelo personagem selecionado -->
+            <!-- Trocar depois dinamicamente pelo personagem selecionado -->
             <a-asset-item id="characterModel" src="assets/models/character01.glb"></a-asset-item>
         </a-assets>
 
@@ -95,7 +100,7 @@
             cursor="fuse:false;rayOrigin:mouse;">
         </a-camera>
 
-        <a-light type="ambient" intensity="0.8"></a-light>
+        <a-light type="ambient" intensity="0.85"></a-light>
 
         <a-entity
             id="mainCharacter"
@@ -105,7 +110,6 @@
             class="cantap"
 
             xrextras-hold-drag
-            xrextras-two-finger-rotate
             xrextras-pinch-scale="min:0.3;max:3"
 
             scale="1 1 1"
@@ -113,7 +117,7 @@
             position="0 0 -2">
         </a-entity>
 
-        <!-- Chão invisível para ajudar o 8th Wall a posicionar -->
+        <!-- Chão invisível para toque/posicionamento -->
         <a-box
             id="ground"
             class="cantap"
