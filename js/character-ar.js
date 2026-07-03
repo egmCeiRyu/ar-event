@@ -1,12 +1,12 @@
 const characterModels = {
-    "1": "assets/models/character01.glb",
-    "2": "assets/models/character02.glb",
-    "3": "assets/models/character03.glb",
-    "4": "assets/models/character04.glb",
-    "5": "assets/models/character05.glb",
-    "6": "assets/models/character06.glb",
-    "7": "assets/models/character07.glb",
-    "8": "assets/models/character08.glb"
+    "4": "assets/models/character01.glb",
+    "5": "assets/models/character02.glb",
+    "6": "assets/models/character03.glb",
+    "7": "assets/models/character04.glb",
+    "8": "assets/models/character05.glb",
+    "9": "assets/models/character06.glb",
+    "10": "assets/models/character07.glb",
+    "11": "assets/models/character08.glb"
 };
 
 AFRAME.registerComponent("character-ar-controller", {
@@ -31,14 +31,16 @@ AFRAME.registerComponent("character-ar-controller", {
 
         /*
             Sensibilidade do arraste.
-            Menor = mais lento.
-            Se ainda estiver rápido, teste 0.00025.
+            Antes estava 0.00045 e ficou lento.
+            0.0009 = mais confortável.
+            Se ainda ficar lento, use 0.0012.
+            Se ficar rápido, use 0.0007.
         */
-        this.dragSpeed = 0.00045;
+        this.dragSpeed = 0.0009;
 
         /*
             Sensibilidade do pinch.
-            Menor = escala mais suave.
+            Mantido igual porque você disse que está ótimo.
         */
         this.pinchSensitivity = 0.35;
 
@@ -62,12 +64,13 @@ AFRAME.registerComponent("character-ar-controller", {
         /*
             Evita micro movimento acidental.
         */
-        this.dragDeadZone = 3;
+        this.dragDeadZone = 2;
 
         /*
             Limita movimento brusco do toque.
+            Aumentei um pouco para o personagem responder melhor.
         */
-        this.maxTouchDelta = 18;
+        this.maxTouchDelta = 24;
 
         this.loadCharacterFromUrl();
 
@@ -106,9 +109,9 @@ AFRAME.registerComponent("character-ar-controller", {
         if (!this.character) return;
 
         const params = new URLSearchParams(window.location.search);
-        const characterId = params.get("id") || "1";
+        const characterId = params.get("id") || "4";
 
-        const modelPath = characterModels[characterId] || characterModels["1"];
+        const modelPath = characterModels[characterId] || characterModels["4"];
 
         console.log("Character ID:", characterId);
         console.log("Model path:", modelPath);
@@ -131,11 +134,6 @@ AFRAME.registerComponent("character-ar-controller", {
         const cameraPosition = new THREE.Vector3();
         cameraObject.getWorldPosition(cameraPosition);
 
-        /*
-            Coloca o personagem na frente da câmera.
-            Antes estava usando Y = 0, então ele ia para o chão.
-            Agora a altura é baseada na câmera.
-        */
         this.fixedCharacterY = cameraPosition.y + this.characterCameraYOffset;
 
         const distance = 1.6;
@@ -318,10 +316,6 @@ AFRAME.registerComponent("character-ar-controller", {
 
         this.character.object3D.position.add(movement);
 
-        /*
-            Trava a altura.
-            Evita o personagem subir/descer quando segura ou arrasta.
-        */
         if (this.fixedCharacterY !== null) {
             this.character.object3D.position.y = this.fixedCharacterY;
         }
@@ -377,7 +371,7 @@ AFRAME.registerComponent("character-ar-controller", {
         const angle = Math.atan2(dx, dz);
 
         /*
-            Se algum GLB aparecer de costas, troque a linha abaixo por:
+            Se algum GLB aparecer de costas, troque por:
             this.character.object3D.rotation.y = angle + Math.PI;
         */
         this.character.object3D.rotation.y = angle;
