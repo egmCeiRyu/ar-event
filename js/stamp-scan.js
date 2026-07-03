@@ -270,27 +270,30 @@ function fixMindARVideoLayer() {
 async function unlockCharacterAudio() {
     if (!characterScanVoice) return;
 
-    const firstCharacterWithVoice = characters.find(character => character.voice);
-
-    if (!firstCharacterWithVoice) return;
-
     try {
-        characterScanVoice.muted = true;
-        characterScanVoice.volume = 0;
-        characterScanVoice.src = firstCharacterWithVoice.voice;
+        characterScanVoice.setAttribute("playsinline", "");
+        characterScanVoice.preload = "auto";
+
+        characterScanVoice.pause();
+        characterScanVoice.currentTime = 0;
+
+        // usa áudio silencioso, não voz de personagem
+        characterScanVoice.src = SILENT_AUDIO_SRC;
+        characterScanVoice.muted = false;
+        characterScanVoice.volume = 1;
         characterScanVoice.load();
 
         await characterScanVoice.play();
 
         characterScanVoice.pause();
         characterScanVoice.currentTime = 0;
-        characterScanVoice.muted = false;
-        characterScanVoice.volume = 1;
 
         console.log("Character audio unlocked");
     } catch (error) {
         console.log("Character audio unlock error:", error);
 
+        characterScanVoice.pause();
+        characterScanVoice.currentTime = 0;
         characterScanVoice.muted = false;
         characterScanVoice.volume = 1;
     }
