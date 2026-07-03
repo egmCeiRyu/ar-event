@@ -2,7 +2,7 @@ const cameraVideo = document.getElementById("cameraVideo");
 const selectedPhotoFrame = document.getElementById("selectedPhotoFrame");
 const captureCanvas = document.getElementById("captureCanvas");
 
-const homeBtn = document.getElementById("homeBtn");
+const homeButton = document.getElementById("homeButton");
 const captureBtn = document.getElementById("captureBtn");
 const openFramePanelBtn = document.getElementById("openFramePanelBtn");
 const switchCameraBtn = document.getElementById("switchCameraBtn");
@@ -73,21 +73,35 @@ function createFrameCarousel() {
 }
 
 function bindEvents() {
-    homeBtn.addEventListener("click", () => {
-        stopCamera();
-    });
+    if (homeButton) {
+        homeButton.addEventListener("click", () => {
+            stopCamera();
+        });
+    }
 
     if (switchCameraBtn) {
         switchCameraBtn.addEventListener("click", switchCamera);
     }
 
-    openFramePanelBtn.addEventListener("click", openFramePanel);
-    closeFramePanelBtn.addEventListener("click", closeFramePanel);
+    if (openFramePanelBtn) {
+        openFramePanelBtn.addEventListener("click", openFramePanel);
+    }
 
-    captureBtn.addEventListener("click", capturePhoto);
+    if (closeFramePanelBtn) {
+        closeFramePanelBtn.addEventListener("click", closeFramePanel);
+    }
 
-    retakeBtn.addEventListener("click", retakePhoto);
-    saveBtn.addEventListener("click", savePhoto);
+    if (captureBtn) {
+        captureBtn.addEventListener("click", capturePhoto);
+    }
+
+    if (retakeBtn) {
+        retakeBtn.addEventListener("click", retakePhoto);
+    }
+
+    if (saveBtn) {
+        saveBtn.addEventListener("click", savePhoto);
+    }
 
     window.addEventListener("beforeunload", stopCamera);
     window.addEventListener("pagehide", stopCamera);
