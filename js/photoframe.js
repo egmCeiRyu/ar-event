@@ -213,13 +213,12 @@ function drawCover(ctx, img, canvasW, canvasH) {
 
 function capturePhoto() {
     if (!selectedFrame) {
-        alert("フレームを選択してください");
         openFramePanel();
         return;
     }
 
     if (!selectedFrameReady || !selectedPhotoFrame.complete) {
-        alert("フレームを読み込み中です");
+        openFramePanel();
         return;
     }
 
