@@ -533,16 +533,22 @@ body {
     }
 }
 
+/* Home sobe para o topo esquerdo */
 #homeBtn {
     position: fixed;
-    top: calc(18px + env(safe-area-inset-top));
+
+    top: calc(12px + env(safe-area-inset-top));
     left: calc(18px + env(safe-area-inset-left));
+
     z-index: 25;
 }
 
+/* Frame fica na posição antiga do Home */
 #openFramePanelBtn {
     position: fixed;
+
     left: calc(34px + env(safe-area-inset-left));
-    bottom: calc(28px + env(safe-area-inset-bottom));
+    bottom: calc(82px + env(safe-area-inset-bottom));
+
     z-index: 25;
 }
