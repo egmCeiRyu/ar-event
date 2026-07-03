@@ -56,27 +56,28 @@ body {
    Bottom Menu
 ========================= */
 
+/* =========================
+   Bottom Menu - Professional UI
+========================= */
+
 .bottom-menu {
     position: absolute;
     left: 50%;
     bottom: calc(82px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
 
     width: min(100vw, calc(100dvh * 9 / 16));
     padding: 0 34px;
 
-    transform: translateX(-50%);
-
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
 
     z-index: 20;
     pointer-events: auto;
 }
 
-/* =========================
-   Common Buttons
-========================= */
+/* Common reset */
 
 .bottom-menu-btn,
 .capture-main-btn {
@@ -105,9 +106,7 @@ body {
         box-shadow .16s ease;
 }
 
-/* =========================
-   Frame Button
-========================= */
+/* Side buttons: ホーム / フレーム */
 
 .bottom-menu-btn {
     width: 66px;
@@ -136,6 +135,15 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, .24);
 }
 
+.bottom-menu-btn:hover {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(45, 45, 45, .78),
+            rgba(18, 18, 18, .70)
+        );
+}
+
 .bottom-menu-btn:active {
     transform: scale(.94);
 }
@@ -162,18 +170,8 @@ body {
         0 0 2px rgba(0, 0, 0, .65);
 }
 
-#openFramePanelBtn {
-    position: absolute;
-    left: 34px;
-    top: 50%;
-    transform: translateY(-50%);
-
-    z-index: 22;
-    pointer-events: auto;
-}
-
 /* =========================
-   Capture Button
+   Capture Button - Camera Icon
 ========================= */
 
 .capture-main-btn {
@@ -204,12 +202,9 @@ body {
     transition:
         transform .16s ease,
         box-shadow .16s ease;
-
-    margin: 0 auto;
-    z-index: 21;
-    pointer-events: auto;
 }
 
+/* círculo externo branco */
 .capture-main-btn::before {
     content: "";
 
@@ -225,6 +220,7 @@ body {
         0 8px 22px rgba(0, 0, 0, .35);
 }
 
+/* círculo interno branco */
 .capture-main-btn::after {
     content: "";
 
@@ -240,6 +236,7 @@ body {
         0 2px 8px rgba(0, 0, 0, .18);
 }
 
+/* ícone da câmera em SVG */
 .capture-camera-icon {
     position: relative;
     z-index: 3;
@@ -247,6 +244,7 @@ body {
     width: 44px;
     height: 44px;
 
+     /* sobe o ícone um pouco */
     transform: translateY(-3px);
 
     fill: none;
@@ -260,6 +258,7 @@ body {
     transform: scale(.94);
 }
 
+/* caso ainda existam classes antigas */
 .capture-core,
 .capture-label,
 .capture-circle {
@@ -406,6 +405,7 @@ body {
 
 /* =========================
    Switch Camera Button
+   bitmap icon
 ========================= */
 
 .switch-camera-btn {
