@@ -20,6 +20,7 @@ body {
     overscroll-behavior: none;
 }
 
+/* HOME BUTTON */
 .home-button {
     position: fixed;
     top: max(18px, env(safe-area-inset-top));
@@ -43,6 +44,7 @@ body {
     backdrop-filter: blur(8px);
 }
 
+/* TARGET / MIRA */
 #targetOverlay {
     position: fixed;
     inset: 0;
@@ -114,20 +116,30 @@ body {
     }
 }
 
-#captureBtn {
-    all: unset;
-
+/* BOTTOM CONTROLS */
+#bottomControls {
     position: fixed;
     left: 50%;
     bottom: max(32px, env(safe-area-inset-bottom));
     transform: translateX(-50%);
     z-index: 999999;
 
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+}
+
+/* LIST BUTTON + CAPTURE BUTTON */
+#captureBtn,
+.side-control-button {
+    all: unset;
+
     width: 58px;
     height: 58px;
     border-radius: 50%;
 
-    display: none;
+    display: flex;
     align-items: center;
     justify-content: center;
 
@@ -142,6 +154,16 @@ body {
     appearance: none;
 }
 
+/* LIST BUTTON */
+.side-control-button {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 800;
+    text-decoration: none;
+    line-height: 1;
+}
+
+/* CAPTURE BUTTON */
 #captureBtn::before {
     content: "";
 
@@ -158,6 +180,7 @@ body {
     display: none !important;
 }
 
+/* A-FRAME */
 a-scene,
 canvas {
     width: 100vw;
@@ -170,6 +193,7 @@ a {
     -webkit-tap-highlight-color: transparent;
 }
 
+/* SMALL SCREEN */
 @media (max-width: 380px) {
     .home-button {
         width: 48px;
@@ -188,7 +212,12 @@ a {
         padding: 8px 14px;
     }
 
-    #captureBtn {
+    #bottomControls {
+        gap: 15px;
+    }
+
+    #captureBtn,
+    .side-control-button {
         width: 54px;
         height: 54px;
     }
@@ -196,5 +225,9 @@ a {
     #captureBtn::before {
         width: 35px;
         height: 35px;
+    }
+
+    .side-control-button {
+        font-size: 14px;
     }
 }
