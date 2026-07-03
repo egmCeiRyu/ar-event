@@ -353,7 +353,7 @@ async function startAR() {
                         scanLocked = false;
                     }
 
-                }, 900);
+                }, 1500);
             };
 
             anchor.onTargetLost = () => {
