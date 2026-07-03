@@ -74,19 +74,22 @@ function setScanningUI(isScanning) {
     }
 }
 
-function playCharacterVoice(character) {
+async function playCharacterVoice(character) {
     if (!characterScanVoice || !character?.voice) return;
 
-    characterScanVoice.pause();
-    characterScanVoice.currentTime = 0;
+    try {
+        characterScanVoice.pause();
+        characterScanVoice.currentTime = 0;
 
-    characterScanVoice.src = character.voice;
-    characterScanVoice.muted = false;
-    characterScanVoice.volume = 1;
+        characterScanVoice.src = character.voice;
+        characterScanVoice.muted = false;
+        characterScanVoice.volume = 1;
+        characterScanVoice.load();
 
-    return characterScanVoice.play().catch(error => {
-        console.log("Voice play error:", error);
-    });
+        await characterScanVoice.play();
+    } catch (error) {
+        console.log("Voice play error:", character.voice, error);
+    }
 }
 
 function stopCharacterVoice() {
@@ -264,6 +267,35 @@ function fixMindARVideoLayer() {
     });
 }
 
+async function unlockCharacterAudio() {
+    if (!characterScanVoice) return;
+
+    const firstCharacterWithVoice = characters.find(character => character.voice);
+
+    if (!firstCharacterWithVoice) return;
+
+    try {
+        characterScanVoice.muted = true;
+        characterScanVoice.volume = 0;
+        characterScanVoice.src = firstCharacterWithVoice.voice;
+        characterScanVoice.load();
+
+        await characterScanVoice.play();
+
+        characterScanVoice.pause();
+        characterScanVoice.currentTime = 0;
+        characterScanVoice.muted = false;
+        characterScanVoice.volume = 1;
+
+        console.log("Character audio unlocked");
+    } catch (error) {
+        console.log("Character audio unlock error:", error);
+
+        characterScanVoice.muted = false;
+        characterScanVoice.volume = 1;
+    }
+}
+
 async function startAR() {
     if (arStarted) return;
 
@@ -373,6 +405,8 @@ async function startAR() {
 if (startARButton) {
     startARButton.addEventListener("click", async () => {
         document.body.classList.add("is-ar-started");
+
+        await unlockCharacterAudio();
 
         await startAR();
     });
