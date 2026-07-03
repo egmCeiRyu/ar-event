@@ -24,7 +24,7 @@ const scannedCharacters = new Set();
 // (o await characterScanVoice.play() logo abaixo) nunca rodava, e a voz
 // do personagem era bloqueada pelo Chrome/Safari por não ter gesto.
 const SILENT_AUDIO_SRC =
-    "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQxAADB8AhSmxhIIEVCSiJrDCQBTcu3UrAIwUdkRgQbFAZC7k1RIQyxCEIRAcoIWyMHIDmwzGDx/BeBBLtGOo7Dxz+wsQmMUAABIu2SEjEETcMAj6zMhACJLNPikagQCoyERjSbcyBUX8CQsi+wRC0z0AJyN6RG+8jBoQBIFETfhBBOKPk5ejEEBQCJKJVDvyKPMhaAAg7wA";
+    "data:audio/wav;base64,UklGRiQAAAAAV0FWRWZtdCAQAAAAAQABAEANDwEAQA8BAAgAZGF0YQAAAAA=";
 
 let arStarted = false;
 
@@ -413,11 +413,22 @@ async function startAR() {
     }
 }
 
+// Corre unlockCharacterAudio() contra um timeout: se o play() do áudio
+// travar em vez de resolver/rejeitar (ex: fonte inválida, navegador
+// estranho), o AR ainda assim abre depois de 1.5s no máximo — o unlock
+// de áudio nunca mais consegue bloquear a câmera.
+function withTimeout(promise, ms) {
+    return Promise.race([
+        promise,
+        new Promise(resolve => setTimeout(resolve, ms))
+    ]);
+}
+
 if (startARButton) {
     startARButton.addEventListener("click", async () => {
         document.body.classList.add("is-ar-started");
 
-        await unlockCharacterAudio();
+        await withTimeout(unlockCharacterAudio(), 1500);
 
         await startAR();
     });
