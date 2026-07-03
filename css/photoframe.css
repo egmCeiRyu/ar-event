@@ -538,3 +538,42 @@ body {
         height: min(95dvh, calc(420px * 16 / 9));
     }
 }
+
+/* =========================
+   Photo Frame Buttons Fix
+========================= */
+
+.bottom-menu {
+    position: absolute;
+    left: 50%;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+
+    width: min(100vw, calc(100dvh * 9 / 16));
+    padding: 0 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 40;
+    pointer-events: auto;
+}
+
+#openFramePanelBtn {
+    position: absolute;
+    left: 34px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    z-index: 42;
+    pointer-events: auto;
+}
+
+#captureBtn {
+    position: relative;
+    margin: 0 auto;
+
+    z-index: 41;
+    pointer-events: auto;
+}
