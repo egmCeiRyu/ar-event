@@ -579,7 +579,7 @@ body {
 /* Botão フレーム / voltar painel à esquerda */
 #openFramePanelBtn {
     position: absolute;
-    left: max(18px, env(safe-area-inset-left));
+    left: max(25px, env(safe-area-inset-left));
     bottom: 6px;
 
     z-index: 3;
