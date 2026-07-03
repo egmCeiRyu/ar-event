@@ -577,3 +577,32 @@ body {
     bottom: calc(22px + env(safe-area-inset-bottom));
     z-index: 30;
 }
+
+.bottom-menu {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: max(32px, env(safe-area-inset-bottom));
+    z-index: 9999;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    pointer-events: none;
+}
+
+#captureBtn {
+    position: relative;
+    z-index: 2;
+
+    pointer-events: auto;
+}
+
+#openFramePanelBtn {
+    position: absolute;
+    left: max(18px, env(safe-area-inset-left));
+    right: auto;
+
+    pointer-events: auto;
+}
