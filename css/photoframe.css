@@ -552,26 +552,30 @@ body {
     pointer-events: auto;
 }
 
-/* Frame fica à esquerda */
-#openFramePanelBtn {
-    position: absolute;
-    left: 34px;
-    top: 50%;
-    transform: translateY(-50%);
-    z-index: 22;
-}
-
-/* Tirar foto fica exatamente no centro */
+/* Botão de foto exatamente no centro horizontal da tela */
 #captureBtn {
-    position: absolute;
+    position: fixed;
+
     left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    bottom: calc(82px + env(safe-area-inset-bottom));
+
+    transform: translateX(-50%);
+
     margin: 0;
+
     z-index: 23;
 }
 
-/* Corrige o active para não perder o centro */
 #captureBtn:active {
-    transform: translate(-50%, -50%) scale(.94);
+    transform: translateX(-50%) scale(.94);
+}
+
+/* Botão Frame à esquerda */
+#openFramePanelBtn {
+    position: fixed;
+
+    left: 34px;
+    bottom: calc(88px + env(safe-area-inset-bottom));
+
+    z-index: 22;
 }
