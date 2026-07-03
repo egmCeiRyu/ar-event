@@ -1,13 +1,4 @@
-const characterModels = {
-    "4": "assets/models/character01.glb",
-    "5": "assets/models/character02.glb",
-    "6": "assets/models/character03.glb",
-    "7": "assets/models/character04.glb",
-    "8": "assets/models/character05.glb",
-    "9": "assets/models/character06.glb",
-    "10": "assets/models/character07.glb",
-    "11": "assets/models/character08.glb"
-};
+import { characters } from "./data/characters.js";
 
 AFRAME.registerComponent("character-ar-controller", {
     init: function () {
@@ -17,6 +8,8 @@ AFRAME.registerComponent("character-ar-controller", {
 
         this.character = document.getElementById("mainCharacter");
         this.camera = document.getElementById("camera");
+
+        this.characterData = null;
 
         this.isPlaced = false;
         this.isDragging = false;
@@ -30,47 +23,30 @@ AFRAME.registerComponent("character-ar-controller", {
         this.initialScale = 1;
 
         /*
-            Sensibilidade do arraste.
-            Antes estava 0.00045 e ficou lento.
-            0.0009 = mais confortável.
-            Se ainda ficar lento, use 0.0012.
-            Se ficar rápido, use 0.0007.
+            Movimento do personagem.
+            Pinch estava bom, então mantive.
+            Arraste ajustado para ficar mais confortável.
         */
-        this.dragSpeed = 0.0009;
-
-        /*
-            Sensibilidade do pinch.
-            Mantido igual porque você disse que está ótimo.
-        */
+        this.dragSpeed = 0.0015;
         this.pinchSensitivity = 0.35;
 
         this.minScale = 0.3;
         this.maxScale = 3;
 
-        /*
-            Altura fixa depois que o personagem for colocado.
-            Começa como null porque será calculada pela altura da câmera.
-        */
         this.fixedCharacterY = null;
 
         /*
-            Ajuste vertical em relação à câmera.
+            Altura em relação à câmera.
             -0.25 = mais alto
             -0.45 = médio
             -0.65 = mais baixo
         */
         this.characterCameraYOffset = -0.45;
 
-        /*
-            Evita micro movimento acidental.
-        */
         this.dragDeadZone = 2;
+        this.maxTouchDelta = 26;
 
-        /*
-            Limita movimento brusco do toque.
-            Aumentei um pouco para o personagem responder melhor.
-        */
-        this.maxTouchDelta = 24;
+        this.modelYawOffsetRad = 0;
 
         this.loadCharacterFromUrl();
 
@@ -90,6 +66,11 @@ AFRAME.registerComponent("character-ar-controller", {
             this.character.addEventListener("model-loaded", () => {
                 this.setupCharacterModel();
             });
+
+            this.character.addEventListener("model-error", (event) => {
+                console.error("Model load error:", event);
+                alert("モデルを読み込めませんでした。");
+            });
         }
 
         this.el.addEventListener("loaded", () => {
@@ -105,18 +86,52 @@ AFRAME.registerComponent("character-ar-controller", {
         });
     },
 
+    getCharacterId: function () {
+        const params = new URLSearchParams(window.location.search);
+        return Number(params.get("id"));
+    },
+
     loadCharacterFromUrl: function () {
         if (!this.character) return;
 
-        const params = new URLSearchParams(window.location.search);
-        const characterId = params.get("id") || "4";
+        const characterId = this.getCharacterId();
 
-        const modelPath = characterModels[characterId] || characterModels["4"];
+        const characterData = characters.find((item) => {
+            return item.id === characterId;
+        });
+
+        if (!characterData) {
+            alert("キャラクターが見つかりません。");
+            location.href = "character-list.html";
+            throw new Error("Character not found");
+        }
+
+        this.characterData = characterData;
 
         console.log("Character ID:", characterId);
-        console.log("Model path:", modelPath);
+        console.log("Character data:", characterData);
+        console.log("Model path:", characterData.model);
 
-        this.character.setAttribute("gltf-model", `url(${modelPath})`);
+        this.character.setAttribute("gltf-model", `url(${characterData.model})`);
+
+        const baseScale = Number(characterData.scale || 1);
+
+        this.initialScale = baseScale;
+        this.minScale = baseScale * 0.3;
+        this.maxScale = baseScale * 3;
+
+        this.character.object3D.scale.set(
+            baseScale,
+            baseScale,
+            baseScale
+        );
+
+        const rotationDeg = Number(characterData.rotation || 0);
+        this.modelYawOffsetRad = AFRAME.THREE.MathUtils.degToRad(rotationDeg);
+
+        if (characterData.name) {
+            document.title = characterData.name;
+        }
     },
 
     placeCharacterInFrontOfCamera: function () {
@@ -182,6 +197,16 @@ AFRAME.registerComponent("character-ar-controller", {
             });
         });
 
+        if (this.characterData) {
+            const baseScale = Number(this.characterData.scale || 1);
+
+            this.character.object3D.scale.set(
+                baseScale,
+                baseScale,
+                baseScale
+            );
+        }
+
         if (this.fixedCharacterY !== null) {
             this.character.object3D.position.y = this.fixedCharacterY;
         }
@@ -202,7 +227,6 @@ AFRAME.registerComponent("character-ar-controller", {
         }
 
         this.touchReady = true;
-
         canvas.style.touchAction = "none";
 
         canvas.addEventListener("touchstart", (event) => {
@@ -370,11 +394,8 @@ AFRAME.registerComponent("character-ar-controller", {
 
         const angle = Math.atan2(dx, dz);
 
-        /*
-            Se algum GLB aparecer de costas, troque por:
-            this.character.object3D.rotation.y = angle + Math.PI;
-        */
-        this.character.object3D.rotation.y = angle;
+        this.character.object3D.rotation.y =
+            angle + this.modelYawOffsetRad;
     },
 
     capturePhoto: function () {

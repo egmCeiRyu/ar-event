@@ -125,8 +125,8 @@ body {
     transform: translateX(-50%);
     z-index: 999999;
 
-    width: 28px;
-    height: 28px;
+    width: 18px;
+    height: 18px;
     border-radius: 50%;
     border: 2px solid rgba(255, 255, 255, 0.9);
     padding: 0;
