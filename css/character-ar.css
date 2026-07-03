@@ -121,35 +121,42 @@ body {
 #captureBtn {
     position: fixed;
     left: 50%;
-    bottom: max(34px, env(safe-area-inset-bottom));
+    bottom: max(32px, env(safe-area-inset-bottom));
     transform: translateX(-50%);
     z-index: 999999;
 
-    width: 52px;
-    height: 52px;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
-    border: none;
+    border: 2px solid rgba(255, 255, 255, 0.9);
     padding: 0;
 
     display: none;
     align-items: center;
     justify-content: center;
 
-    background: rgba(255, 255, 255, 0.94);
-    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.35);
-    backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.22);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(6px);
 
     cursor: pointer;
 }
 
 #captureIcon {
-    color: #ff2d2d;
-    font-size: 60px;
-    line-height: 1;
+    display: block;
 
-    position: relative;
-    top: -2px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+
+    background: #ff2d2d;
+
+    font-size: 0;
+    line-height: 0;
+
+    position: static;
 }
+
 
 a-scene,
 canvas {
