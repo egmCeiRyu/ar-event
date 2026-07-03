@@ -60,10 +60,11 @@ body {
     position: absolute;
     left: 50%;
     bottom: calc(82px + env(safe-area-inset-bottom));
-    transform: translateX(-50%);
 
-    width: min(100vw, 420px, calc(100dvh * 9 / 16));
+    width: min(100vw, calc(100dvh * 9 / 16));
     padding: 0 34px;
+
+    transform: translateX(-50%);
 
     display: flex;
     align-items: center;
@@ -135,15 +136,6 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, .24);
 }
 
-.bottom-menu-btn:hover {
-    background:
-        linear-gradient(
-            180deg,
-            rgba(45, 45, 45, .78),
-            rgba(18, 18, 18, .70)
-        );
-}
-
 .bottom-menu-btn:active {
     transform: scale(.94);
 }
@@ -170,13 +162,14 @@ body {
         0 0 2px rgba(0, 0, 0, .65);
 }
 
-/* Frame fica à esquerda do botão de撮影 */
 #openFramePanelBtn {
     position: absolute;
     left: 34px;
     top: 50%;
     transform: translateY(-50%);
+
     z-index: 22;
+    pointer-events: auto;
 }
 
 /* =========================
@@ -214,6 +207,7 @@ body {
 
     margin: 0 auto;
     z-index: 21;
+    pointer-events: auto;
 }
 
 .capture-main-btn::before {
