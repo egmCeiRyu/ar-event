@@ -86,7 +86,9 @@ AFRAME.registerComponent("character-ar-controller", {
             `url(${characterData.model})`
         );
 
-        this.baseScale = Number(characterData.scale || 1);
+        const globalScaleMultiplier = 1.35;
+
+        this.baseScale = Number(characterData.scale || 1) * globalScaleMultiplier;
 
         this.character.setAttribute("scale", {
             x: this.baseScale,
