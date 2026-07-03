@@ -532,3 +532,27 @@ body {
         height: min(95dvh, calc(420px * 16 / 9));
     }
 }
+
+/* ====================================
+   Photo Frame Layout Override
+==================================== */
+
+/* Home sobe mais */
+#homeButton{
+
+    top: calc(4px + env(safe-area-inset-top));
+
+}
+
+/* Frame ocupa a posição antiga do Home */
+#frameButton{
+
+    position: fixed;
+
+    top: calc(16px + env(safe-area-inset-top));
+
+    left: max(16px, calc(50vw - 215px + 16px));
+
+    z-index: 10000;
+
+}
