@@ -175,13 +175,8 @@ body {
 /* CHARACTER LIST BUTTON - MORE LEFT */
 #characterListBtn {
     position: absolute;
-
-    /*
-        Botão 一覧 mais para a esquerda.
-        Antes estava perto do botão vermelho.
-        Aumentei para 66px para afastar melhor.
-    */
-    right: calc(50% + 96px); 
+    left: max(18px, env(safe-area-inset-left));
+    right: auto;
 }
 
 /* LIST BUTTON TEXT */
