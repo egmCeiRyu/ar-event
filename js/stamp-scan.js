@@ -19,7 +19,6 @@ const characterVoiceButton = document.getElementById("characterVoiceButton");
 const scannedCharacters = new Set();
 
 let arStarted = false;
-let shouldGoToComplete = false;
 
 function log(message) {
     console.log(message);
@@ -145,12 +144,7 @@ function closeCharacterModal() {
 
     stopCharacterVoice();
 
-    if (shouldGoToComplete) {
-        shouldGoToComplete = false;
-        location.href = "complete.html";
-    } else {
-        location.href = "stamp-rally.html";
-    }
+    location.href = "stamp-rally.html";
 }
 
 async function getCurrentUser() {
@@ -174,10 +168,27 @@ async function getCurrentUser() {
     return data.user;
 }
 
+function saveLastScannedCharacter(character) {
+    sessionStorage.setItem(
+        "lastScannedCharacter",
+        JSON.stringify({
+            id: character.id,
+            name: character.name,
+            card: character.card,
+            voice: character.voice || ""
+        })
+    );
+}
+
 async function saveCharacterStamp(character) {
     const user = await getCurrentUser();
 
-    if (!user) return false;
+    if (!user) {
+        showStampMessage("ログインエラー");
+        return false;
+    }
+
+    saveLastScannedCharacter(character);
 
     const {
         data: existing,
@@ -190,8 +201,11 @@ async function saveCharacterStamp(character) {
         .maybeSingle();
 
     if (checkError) {
-        console.error(checkError);
+        console.error("Stamp check error:", checkError);
         showStampMessage("通信エラー");
+
+        openCharacterModal(character, false);
+
         return false;
     }
 
@@ -200,24 +214,20 @@ async function saveCharacterStamp(character) {
         return true;
     }
 
-    const { error } =
-        await supabaseClient
-            .from("user_stamps")
-            .insert({
-                user_id: user.id,
-                character_id: character.id
-            });
+    const { error: insertError } = await supabaseClient
+        .from("user_stamps")
+        .insert({
+            user_id: user.id,
+            character_id: character.id
+        });
 
-    if (error) {
-        console.error(error);
+    if (insertError) {
+        console.error("Stamp insert error:", insertError);
         showStampMessage("保存エラー");
+
+        openCharacterModal(character, false);
+
         return false;
-    }
-
-    const completed = await hasCompletedAllStamps(user.id);
-
-    if (completed) {
-        shouldGoToComplete = true;
     }
 
     openCharacterModal(character, false);
@@ -225,19 +235,6 @@ async function saveCharacterStamp(character) {
     return true;
 }
 
-async function hasCompletedAllStamps(userId) {
-    const { count, error } = await supabaseClient
-        .from("user_stamps")
-        .select("*", { count: "exact", head: true })
-        .eq("user_id", userId);
-
-    if (error) {
-        console.error(error);
-        return false;
-    }
-
-    return count >= characters.length;
-}
 
 function fixMindARVideoLayer() {
     const container = document.querySelector("#arContainer");
