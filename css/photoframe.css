@@ -533,50 +533,10 @@ body {
     }
 }
 
+
 /* =========================
-   Photo / Frame Button Layout
+   Photo / Frame Button Layout - Fixed
 ========================= */
-
-.bottom-menu {
-    position: absolute;
-    left: 50%;
-    bottom: calc(22px + env(safe-area-inset-bottom));
-    transform: translateX(-50%);
-
-    width: min(100vw, calc(100dvh * 9 / 16));
-    padding: 0 34px;
-
-    display: block;
-
-    z-index: 20;
-    pointer-events: auto;
-}
-
-/* Botão de foto exatamente no centro horizontal da tela */
-#captureBtn {
-    position: fixed;
-
-    left: 50%;
-    bottom: calc(22px + env(safe-area-inset-bottom));
-
-    transform: translateX(-50%);
-
-    margin: 0;
-
-    z-index: 23;
-}
-
-#captureBtn:active {
-    transform: translateX(-50%) scale(.94);
-}
-
-/* Botão Frame à esquerda */
-#openFramePanelBtn {
-    position: fixed;
-    left: max(16px, calc(50vw - 215px + 16px));
-    bottom: calc(22px + env(safe-area-inset-bottom));
-    z-index: 30;
-}
 
 .bottom-menu {
     position: fixed;
@@ -585,6 +545,8 @@ body {
     bottom: max(32px, env(safe-area-inset-bottom));
     z-index: 9999;
 
+    height: 78px;
+
     display: flex;
     align-items: center;
     justify-content: center;
@@ -592,17 +554,35 @@ body {
     pointer-events: none;
 }
 
+/* Botão de foto no centro exato */
 #captureBtn {
-    position: relative;
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+
     z-index: 2;
 
     pointer-events: auto;
 }
 
+#captureBtn:active {
+    transform: translateX(-50%) scale(.94);
+}
+
+/* Botão フレーム alinhado à esquerda, igual o botão 一覧 do character-ar */
 #openFramePanelBtn {
     position: absolute;
     left: max(18px, env(safe-area-inset-left));
-    right: auto;
+    bottom: 6px;
+
+    z-index: 3;
 
     pointer-events: auto;
+}
+
+/* Garante que o conteúdo interno do botão não bloqueie o clique */
+#openFramePanelBtn *,
+#captureBtn * {
+    pointer-events: none;
 }
