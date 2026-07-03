@@ -38,7 +38,7 @@ body {
     margin: 0 auto;
 
     padding:
-        58vh
+        46vh
         20px
         calc(32px + env(safe-area-inset-bottom));
 }
@@ -67,11 +67,11 @@ body {
 
 .home-menu-button {
     width: 100%;
-    min-height: 96px;
+    min-height: 56px;
 
     display: flex;
     align-items: center;
-    gap: 18px;
+    gap: 0px;
 
     padding: 16px 22px;
 
@@ -100,7 +100,7 @@ body {
 }
 
 .home-menu-button img {
-    flex: 0 0 72px;
+    flex: 0 0 52px;
 
     width: 72px;
     height: 72px;
@@ -121,7 +121,7 @@ body {
 
 @media (max-height: 720px) {
     .home-page {
-        padding-top: 48vh;
+        padding-top: 42vh;
     }
 
     .home-title {
