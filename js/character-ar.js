@@ -1,5 +1,3 @@
-import { characters } from "./data/characters.js";
-
 AFRAME.registerComponent("character-ar-controller", {
     init: function () {
         this.targetOverlay = document.getElementById("targetOverlay");
@@ -9,14 +7,16 @@ AFRAME.registerComponent("character-ar-controller", {
         this.camera = document.getElementById("camera");
         this.ground = document.getElementById("ground");
 
+        this.characters = [];
         this.characterData = null;
 
         this.characterPlaced = false;
+        this.charactersLoaded = false;
 
         this.baseScale = 1;
         this.modelYawOffsetRad = 0;
 
-        this.loadCharacterFromUrl();
+        this.loadCharactersData();
 
         if (this.ground) {
             this.ground.addEventListener("click", (event) => {
@@ -49,6 +49,27 @@ AFRAME.registerComponent("character-ar-controller", {
         });
     },
 
+    loadCharactersData: async function () {
+        try {
+            const modulePath = new URL(
+                "js/data/characters.js",
+                document.baseURI
+            ).href;
+
+            const module = await import(modulePath);
+
+            this.characters = module.characters || [];
+            this.charactersLoaded = true;
+
+            this.loadCharacterFromUrl();
+
+            console.log("Characters data loaded:", this.characters);
+        } catch (error) {
+            console.error("Characters data load error:", error);
+            alert("キャラクターデータを読み込めませんでした。");
+        }
+    },
+
     getCharacterId: function () {
         const params = new URLSearchParams(window.location.search);
         return Number(params.get("id"));
@@ -56,10 +77,11 @@ AFRAME.registerComponent("character-ar-controller", {
 
     loadCharacterFromUrl: function () {
         if (!this.character) return;
+        if (!this.charactersLoaded) return;
 
         const characterId = this.getCharacterId();
 
-        const characterData = characters.find((item) => {
+        const characterData = this.characters.find((item) => {
             return item.id === characterId;
         });
 
@@ -75,7 +97,10 @@ AFRAME.registerComponent("character-ar-controller", {
         console.log("Character data:", characterData);
         console.log("Model path:", characterData.model);
 
-        this.character.setAttribute("gltf-model", `url(${characterData.model})`);
+        this.character.setAttribute(
+            "gltf-model",
+            `url(${characterData.model})`
+        );
 
         this.baseScale = Number(characterData.scale || 1);
 
@@ -103,6 +128,8 @@ AFRAME.registerComponent("character-ar-controller", {
 
     placeCharacterByGroundTap: function (event) {
         if (!this.character) return;
+        if (!this.charactersLoaded) return;
+        if (this.characterPlaced) return;
 
         if (!event.detail || !event.detail.intersection) {
             console.warn("No tap intersection found");
