@@ -537,7 +537,7 @@ body {
     left: 0;
     right: 0;
     bottom: max(32px, env(safe-area-inset-bottom));
-    z-index: 9999;
+    z-index: 20;
 
     height: 78px;
     width: 100%;
@@ -549,6 +549,14 @@ body {
     justify-content: center;
 
     pointer-events: none;
+}
+
+.frame-panel {
+    z-index: 30;
+}
+
+.preview-area {
+    z-index: 40;
 }
 
 /* Botão de foto no centro */
