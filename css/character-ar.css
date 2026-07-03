@@ -119,42 +119,47 @@ body {
 }
 
 #captureBtn {
+    all: unset;
+
     position: fixed;
     left: 50%;
     bottom: max(32px, env(safe-area-inset-bottom));
     transform: translateX(-50%);
     z-index: 999999;
 
-    width: 18px;
-    height: 18px;
+    width: 58px;
+    height: 58px;
     border-radius: 50%;
-    border: 2px solid rgba(255, 255, 255, 0.9);
-    padding: 0;
 
     display: none;
     align-items: center;
     justify-content: center;
 
-    background: rgba(0, 0, 0, 0.22);
+    background: rgba(0, 0, 0, 0.25);
+    border: 2px solid rgba(255, 255, 255, 0.95);
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(6px);
 
     cursor: pointer;
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    appearance: none;
 }
 
-#captureIcon {
-    display: block;
+#captureBtn::before {
+    content: "";
 
     width: 38px;
     height: 38px;
     border-radius: 50%;
 
+    display: block;
+
     background: #ff2d2d;
+}
 
-    font-size: 0;
-    line-height: 0;
-
-    position: static;
+#captureIcon {
+    display: none !important;
 }
 
 

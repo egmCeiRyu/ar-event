@@ -33,15 +33,12 @@ AFRAME.registerComponent("character-ar-controller", {
         this.minScale = 0.3;
         this.maxScale = 3;
 
-        this.fixedCharacterY = null;
+        // Altura fixa no chão.
+        // Se o GLB afundar ou flutuar, ajuste aqui.
+        this.fixedCharacterY = 0;
 
-        /*
-            Altura em relação à câmera.
-            -0.25 = mais alto
-            -0.45 = médio
-            -0.65 = mais baixo
-        */
-        this.characterCameraYOffset = -0.45;
+        // Distância inicial na frente da câmera.
+        this.placeDistance = 1.8;
 
         this.dragDeadZone = 2;
         this.maxTouchDelta = 26;
@@ -144,15 +141,20 @@ AFRAME.registerComponent("character-ar-controller", {
 
         const direction = new THREE.Vector3(0, 0, -1);
         direction.applyQuaternion(cameraObject.quaternion);
+
+        // Importante:
+        // trava a direção no plano do chão.
+        // Assim o personagem não sobe quando a câmera está inclinada.
+        direction.y = 0;
         direction.normalize();
 
         const cameraPosition = new THREE.Vector3();
         cameraObject.getWorldPosition(cameraPosition);
 
-        this.fixedCharacterY = cameraPosition.y + this.characterCameraYOffset;
-
-        const distance = 1.6;
-        const placePosition = cameraPosition.clone().addScaledVector(direction, distance);
+        const placePosition = cameraPosition.clone().addScaledVector(
+            direction,
+            this.placeDistance
+        );
 
         this.character.object3D.position.set(
             placePosition.x,
@@ -175,7 +177,7 @@ AFRAME.registerComponent("character-ar-controller", {
             this.captureBtn.style.display = "flex";
         }
 
-        console.log("Character placed:", this.character.object3D.position);
+        console.log("Character placed on ground:", this.character.object3D.position);
     },
 
     setupCharacterModel: function () {
