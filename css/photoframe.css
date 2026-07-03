@@ -534,47 +534,20 @@ body {
 }
 
 /* =========================
-   Photo Frame Wireframe Layout
+   Simple button position swap
 ========================= */
 
-.bottom-menu {
-    position: fixed;
-    left: 50%;
-    bottom: calc(82px + env(safe-area-inset-bottom));
-    transform: translateX(-50%);
-
-    width: min(100vw, calc(100dvh * 9 / 16));
-    padding: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    z-index: 20;
+/* Troca a posição: Frame vai para a esquerda */
+#openFramePanelBtn {
+    order: 1;
 }
 
-/* Home sobe para o topo esquerdo do frame */
-.photo-home-btn {
-    position: fixed;
-
-    top: calc(18px + env(safe-area-inset-top));
-    left: max(18px, calc(50vw - min(50vw, calc(100dvh * 9 / 32)) + 18px));
-
-    z-index: 30;
-}
-
-/* Frame fica embaixo à esquerda, no lugar antigo do Home */
-.photo-frame-btn {
-    position: fixed;
-
-    left: max(18px, calc(50vw - min(50vw, calc(100dvh * 9 / 32)) + 18px));
-    bottom: calc(82px + env(safe-area-inset-bottom));
-
-    z-index: 30;
-}
-
-/* Shot fica exatamente no centro */
+/* Shot continua no meio */
 #captureBtn {
-    position: relative;
-    z-index: 31;
+    order: 2;
+}
+
+/* Home vai para a direita */
+#homeBtn {
+    order: 3;
 }
