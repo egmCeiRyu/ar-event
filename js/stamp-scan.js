@@ -20,6 +20,10 @@ const scannedCharacters = new Set();
 
 let arStarted = false;
 
+let scanLocked = false;
+let activeCandidateId = null;
+let globalScanTimer = null;
+
 function log(message) {
     console.log(message);
 
@@ -291,42 +295,47 @@ async function startAR() {
 
             anchor.onTargetFound = () => {
                 if (document.body.classList.contains("modal-open")) return;
-                if (foundConfirmed) return;
+                if (scanLocked) return;
 
                 hideScanOverlays();
 
-                clearTimeout(foundTimer);
+                clearTimeout(globalScanTimer);
 
-                foundTimer = setTimeout(async () => {
+                activeCandidateId = character.id;
+
+                globalScanTimer = setTimeout(async () => {
                     if (document.body.classList.contains("modal-open")) return;
-                    if (foundConfirmed) return;
+                    if (scanLocked) return;
+                    if (activeCandidateId !== character.id) return;
 
-                    foundConfirmed = true;
+                    scanLocked = true;
 
                     log(`${character.name} 検出`);
 
-                    if (scannedCharacters.has(character.id)) return;
-
                     const saved = await saveCharacterStamp(character);
 
-                    if (saved) {
-                        scannedCharacters.add(character.id);
+                    if (!saved) {
+                        scanLocked = false;
                     }
 
-                }, 400);
+                }, 900);
             };
 
             anchor.onTargetLost = () => {
-                clearTimeout(foundTimer);
-                foundConfirmed = false;
+                if (activeCandidateId === character.id) {
+                    clearTimeout(globalScanTimer);
+                    activeCandidateId = null;
+                }
 
                 if (document.body.classList.contains("modal-open")) {
                     hideScanOverlays();
                     return;
                 }
 
-                log("マーカーをスキャンしてください");
-                setScanningUI(true);
+                if (!scanLocked) {
+                    log("マーカーをスキャンしてください");
+                    setScanningUI(true);
+                }
             };
         });
 
