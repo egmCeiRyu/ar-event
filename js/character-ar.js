@@ -24,8 +24,7 @@ AFRAME.registerComponent("character-ar-controller", {
 
         /*
             Movimento do personagem.
-            Pinch estava bom, então mantive.
-            Arraste ajustado para ficar mais confortável.
+            Pinch mantido igual.
         */
         this.dragSpeed = 0.0015;
         this.pinchSensitivity = 0.35;
@@ -33,11 +32,12 @@ AFRAME.registerComponent("character-ar-controller", {
         this.minScale = 0.3;
         this.maxScale = 3;
 
-        // Altura fixa no chão.
-        // Se o GLB afundar ou flutuar, ajuste aqui.
+        /*
+            Transform anterior que estava funcionando:
+            o personagem é colocado na frente da câmera,
+            mas o Y fica fixo no chão.
+        */
         this.fixedCharacterY = 0;
-
-        // Distância inicial na frente da câmera.
         this.placeDistance = 1.8;
 
         this.dragDeadZone = 2;
@@ -142,12 +142,6 @@ AFRAME.registerComponent("character-ar-controller", {
         const direction = new THREE.Vector3(0, 0, -1);
         direction.applyQuaternion(cameraObject.quaternion);
 
-        // Importante:
-        // trava a direção no plano do chão.
-        // Assim o personagem não sobe quando a câmera está inclinada.
-        direction.y = 0;
-        direction.normalize();
-
         const cameraPosition = new THREE.Vector3();
         cameraObject.getWorldPosition(cameraPosition);
 
@@ -156,6 +150,11 @@ AFRAME.registerComponent("character-ar-controller", {
             this.placeDistance
         );
 
+        /*
+            Importante:
+            usa X/Z da câmera, mas força o Y no chão.
+            Não usar direction.y = 0 aqui.
+        */
         this.character.object3D.position.set(
             placePosition.x,
             this.fixedCharacterY,
@@ -177,7 +176,7 @@ AFRAME.registerComponent("character-ar-controller", {
             this.captureBtn.style.display = "flex";
         }
 
-        console.log("Character placed on ground:", this.character.object3D.position);
+        console.log("Character placed:", this.character.object3D.position);
     },
 
     setupCharacterModel: function () {
@@ -209,9 +208,7 @@ AFRAME.registerComponent("character-ar-controller", {
             );
         }
 
-        if (this.fixedCharacterY !== null) {
-            this.character.object3D.position.y = this.fixedCharacterY;
-        }
+        this.character.object3D.position.y = this.fixedCharacterY;
 
         console.log("Character model loaded");
     },
@@ -229,6 +226,7 @@ AFRAME.registerComponent("character-ar-controller", {
         }
 
         this.touchReady = true;
+
         canvas.style.touchAction = "none";
 
         canvas.addEventListener("touchstart", (event) => {
@@ -277,8 +275,17 @@ AFRAME.registerComponent("character-ar-controller", {
                     return;
                 }
 
-                deltaX = this.clamp(deltaX, -this.maxTouchDelta, this.maxTouchDelta);
-                deltaY = this.clamp(deltaY, -this.maxTouchDelta, this.maxTouchDelta);
+                deltaX = this.clamp(
+                    deltaX,
+                    -this.maxTouchDelta,
+                    this.maxTouchDelta
+                );
+
+                deltaY = this.clamp(
+                    deltaY,
+                    -this.maxTouchDelta,
+                    this.maxTouchDelta
+                );
 
                 this.moveCharacterSlowly(deltaX, deltaY);
             }
@@ -342,9 +349,10 @@ AFRAME.registerComponent("character-ar-controller", {
 
         this.character.object3D.position.add(movement);
 
-        if (this.fixedCharacterY !== null) {
-            this.character.object3D.position.y = this.fixedCharacterY;
-        }
+        /*
+            Sempre trava no chão.
+        */
+        this.character.object3D.position.y = this.fixedCharacterY;
     },
 
     getPinchDistance: function (event) {
@@ -373,9 +381,10 @@ AFRAME.registerComponent("character-ar-controller", {
 
         this.character.object3D.scale.set(newScale, newScale, newScale);
 
-        if (this.fixedCharacterY !== null) {
-            this.character.object3D.position.y = this.fixedCharacterY;
-        }
+        /*
+            Escala sem subir/descer.
+        */
+        this.character.object3D.position.y = this.fixedCharacterY;
     },
 
     faceCharacterToCamera: function () {
@@ -463,9 +472,7 @@ AFRAME.registerComponent("character-ar-controller", {
         if (!this.isPlaced) return;
         if (!this.character || !this.character.object3D) return;
 
-        if (this.fixedCharacterY !== null) {
-            this.character.object3D.position.y = this.fixedCharacterY;
-        }
+        this.character.object3D.position.y = this.fixedCharacterY;
 
         this.faceCharacterToCamera();
     },
