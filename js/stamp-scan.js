@@ -309,7 +309,7 @@ async function startAR() {
 
         const mindarThree = new MindARThree({
             container: document.querySelector("#arContainer"),
-            imageTargetSrc: "./assets/targets/targets.mind",
+            imageTargetSrc: "./assets/targets/targets-V2.mind",
             maxTrack: 1,
             filterMinCF: 0.001,
             filterBeta: 0.01
