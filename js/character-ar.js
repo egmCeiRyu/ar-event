@@ -28,20 +28,6 @@ AFRAME.registerComponent("character-ar-controller", {
 
                 this.placeCharacterInFrontOfCamera();
             });
-
-            this.targetBtn.addEventListener("touchend", (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                this.placeCharacterInFrontOfCamera();
-            }, { passive: false });
-
-            this.targetBtn.addEventListener("pointerdown", (event) => {
-                event.preventDefault();
-                event.stopPropagation();
-
-                this.placeCharacterInFrontOfCamera();
-            });
         }
 
         if (this.captureBtn) {
@@ -302,6 +288,10 @@ AFRAME.registerComponent("character-ar-controller", {
     tick: function () {
         if (!this.characterPlaced) return;
 
+        /*
+            Mantém o personagem de frente para a câmera.
+            Move e pinch ficam com o xrextras.
+        */
         this.faceCharacterToCamera();
     }
 });

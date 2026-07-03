@@ -31,7 +31,6 @@
         data-preload-chunks="slam">
     </script>
 
-    <!-- IMPORTANTE: precisa ser module porque character-ar.js usa import -->
     <script
         type="module"
         src="js/character-ar.js">
@@ -97,7 +96,9 @@
 
         <a-camera
             id="camera"
-            position="0 1.6 0">
+            position="0 1.6 0"
+            raycaster="objects: .cantap"
+            cursor="fuse:false; rayOrigin:mouse;">
         </a-camera>
 
         <a-light
@@ -114,8 +115,18 @@
             position="0 0 -2"
 
             xrextras-hold-drag
-            xrextras-pinch-scale>
+            xrextras-two-finger-rotate
+            xrextras-pinch-scale="min:0.05;max:8;">
         </a-entity>
+
+        <a-box
+            id="ground"
+            class="cantap"
+            scale="20 1 20"
+            position="0 -0.1 0"
+            visible="true"
+            material="color:#ffffff; transparent:true; opacity:0.0001; depthWrite:false">
+        </a-box>
 
     </a-scene>
 
