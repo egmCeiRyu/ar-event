@@ -31,18 +31,25 @@
         data-preload-chunks="slam">
     </script>
 
-    <script type="module" src="js/character-ar.js"></script>
+    <script
+        type="module"
+        src="js/character-ar.js">
+    </script>
 </head>
 
 <body>
 
-    <a id="homeButton" class="home-button" href="character-list.html" aria-label="キャラクター一覧へ戻る">
+    <a
+        id="homeButton"
+        class="home-button"
+        href="character-list.html"
+        aria-label="キャラクター一覧へ戻る">
         🏠
     </a>
 
     <div id="targetOverlay">
         <div id="targetHint">
-            キャラクターを準備しています...
+            画面をタップしてキャラクターを配置してください
         </div>
     </div>
 
@@ -53,10 +60,10 @@
     <a-scene
         character-ar-controller
 
+        xrextras-gesture-detector
         landing-page
         xrextras-loading
         xrextras-runtime-error
-        xrextras-gesture-detector
 
         renderer="colorManagement:true; antialias:false; alpha:true"
         xrweb="
@@ -79,7 +86,10 @@
             cursor="fuse:false; rayOrigin:mouse;">
         </a-camera>
 
-        <a-light type="ambient" intensity="0.85"></a-light>
+        <a-light
+            type="ambient"
+            intensity="0.85">
+        </a-light>
 
         <a-entity
             id="mainCharacter"
@@ -95,9 +105,11 @@
 
         <a-box
             id="ground"
+            class="cantap"
             scale="20 1 20"
             position="0 -0.05 0"
-            visible="false">
+            visible="true"
+            material="color:#ffffff; transparent:true; opacity:0.0001; depthWrite:false">
         </a-box>
 
     </a-scene>

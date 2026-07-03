@@ -3,25 +3,26 @@ import { characters } from "./data/characters.js";
 AFRAME.registerComponent("character-ar-controller", {
     init: function () {
         this.targetOverlay = document.getElementById("targetOverlay");
-        this.targetHint = document.getElementById("targetHint");
         this.captureBtn = document.getElementById("captureBtn");
 
         this.character = document.getElementById("mainCharacter");
         this.camera = document.getElementById("camera");
+        this.ground = document.getElementById("ground");
 
         this.characterData = null;
 
-        this.modelReady = false;
-        this.realityReady = false;
         this.characterPlaced = false;
-
-        this.fixedCharacterY = 0;
-        this.placeDistance = 1.8;
 
         this.baseScale = 1;
         this.modelYawOffsetRad = 0;
 
         this.loadCharacterFromUrl();
+
+        if (this.ground) {
+            this.ground.addEventListener("click", (event) => {
+                this.placeCharacterByGroundTap(event);
+            });
+        }
 
         if (this.captureBtn) {
             this.captureBtn.addEventListener("click", (event) => {
@@ -34,10 +35,7 @@ AFRAME.registerComponent("character-ar-controller", {
 
         if (this.character) {
             this.character.addEventListener("model-loaded", () => {
-                this.modelReady = true;
-
                 this.setupCharacterModel();
-                this.tryAutoPlaceCharacter();
             });
 
             this.character.addEventListener("model-error", (event) => {
@@ -48,22 +46,6 @@ AFRAME.registerComponent("character-ar-controller", {
 
         this.el.addEventListener("realityready", () => {
             console.log("8th Wall ready");
-
-            this.realityReady = true;
-
-            if (this.targetHint) {
-                this.targetHint.textContent = "キャラクターを配置しています...";
-            }
-
-            setTimeout(() => {
-                this.tryAutoPlaceCharacter();
-            }, 500);
-        });
-
-        this.el.addEventListener("renderstart", () => {
-            setTimeout(() => {
-                this.tryAutoPlaceCharacter();
-            }, 800);
         });
     },
 
@@ -110,58 +92,39 @@ AFRAME.registerComponent("character-ar-controller", {
         );
 
         const rotationDeg = Number(characterData.rotation || 0);
-        this.modelYawOffsetRad = AFRAME.THREE.MathUtils.degToRad(rotationDeg);
+
+        this.modelYawOffsetRad =
+            AFRAME.THREE.MathUtils.degToRad(rotationDeg);
 
         if (characterData.name) {
             document.title = characterData.name;
         }
     },
 
-    tryAutoPlaceCharacter: function () {
-        if (this.characterPlaced) return;
-        if (!this.modelReady) return;
-        if (!this.character || !this.camera) return;
-        if (!this.character.object3D || !this.camera.object3D) return;
-        if (!AFRAME || !AFRAME.THREE) return;
+    placeCharacterByGroundTap: function (event) {
+        if (!this.character) return;
 
-        this.placeCharacterInFrontOfCamera();
-    },
+        if (!event.detail || !event.detail.intersection) {
+            console.warn("No tap intersection found");
+            return;
+        }
 
-    placeCharacterInFrontOfCamera: function () {
-        if (this.characterPlaced) return;
-
-        const THREE = AFRAME.THREE;
-        const cameraObject = this.camera.object3D;
-
-        const direction = new THREE.Vector3(0, 0, -1);
-        direction.applyQuaternion(cameraObject.quaternion);
-
-        const cameraPosition = new THREE.Vector3();
-        cameraObject.getWorldPosition(cameraPosition);
-
-        const placePosition = cameraPosition.clone().addScaledVector(
-            direction,
-            this.placeDistance
-        );
-
-        /*
-            Mesmo estilo anterior:
-            X/Z vêm da câmera.
-            Y fica fixo no chão.
-        */
-        placePosition.y = this.fixedCharacterY;
-
-        this.character.object3D.position.set(
-            placePosition.x,
-            placePosition.y,
-            placePosition.z
-        );
+        const point = event.detail.intersection.point;
 
         this.character.setAttribute("position", {
-            x: placePosition.x,
-            y: placePosition.y,
-            z: placePosition.z
+            x: point.x,
+            y: 0,
+            z: point.z
         });
+
+        this.character.object3D.position.set(
+            point.x,
+            0,
+            point.z
+        );
+
+        this.character.setAttribute("visible", "true");
+        this.character.object3D.visible = true;
 
         this.character.object3D.scale.set(
             this.baseScale,
@@ -175,9 +138,6 @@ AFRAME.registerComponent("character-ar-controller", {
             z: this.baseScale
         });
 
-        this.character.object3D.visible = true;
-        this.character.setAttribute("visible", "true");
-
         this.characterPlaced = true;
 
         this.faceCharacterToCamera();
@@ -190,7 +150,7 @@ AFRAME.registerComponent("character-ar-controller", {
             this.captureBtn.style.display = "flex";
         }
 
-        console.log("Character auto placed:", placePosition);
+        console.log("Character placed by ground tap:", point);
     },
 
     setupCharacterModel: function () {
@@ -305,12 +265,7 @@ AFRAME.registerComponent("character-ar-controller", {
 
     tick: function () {
         if (!this.characterPlaced) return;
-        if (!this.character || !this.character.object3D) return;
 
-        /*
-            Só mantém o personagem olhando para a câmera.
-            Movimento e escala ficam com o 8th Wall.
-        */
         this.faceCharacterToCamera();
     }
 });
