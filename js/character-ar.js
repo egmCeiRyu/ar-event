@@ -20,12 +20,18 @@ AFRAME.registerComponent("character-ar-controller", {
 
         this.isPlaced = false;
         this.isDragging = false;
+        this.dragReady = false;
+
         this.lastTouchX = 0;
         this.lastTouchY = 0;
 
-        // Sensibilidade do movimento.
+        // Sensibilidade do arraste.
         // Menor = mais lento.
         this.dragSpeed = 0.0018;
+
+        // Altura fixa do personagem.
+        // Ajuste aqui se o personagem ficar alto ou baixo demais.
+        this.fixedCharacterY = 0;
 
         this.loadCharacterFromUrl();
 
@@ -80,7 +86,6 @@ AFRAME.registerComponent("character-ar-controller", {
         if (!AFRAME || !AFRAME.THREE) return;
 
         const THREE = AFRAME.THREE;
-
         const cameraObject = this.camera.object3D;
 
         const direction = new THREE.Vector3(0, 0, -1);
@@ -92,13 +97,14 @@ AFRAME.registerComponent("character-ar-controller", {
         const distance = 2.0;
         const placePosition = cameraPosition.clone().addScaledVector(direction, distance);
 
-        placePosition.y = 0;
+        // Trava a altura desde o primeiro posicionamento.
+        placePosition.y = this.fixedCharacterY;
 
-        this.character.setAttribute("position", {
-            x: placePosition.x,
-            y: placePosition.y,
-            z: placePosition.z
-        });
+        this.character.object3D.position.set(
+            placePosition.x,
+            this.fixedCharacterY,
+            placePosition.z
+        );
 
         this.character.setAttribute("visible", "true");
 
@@ -133,7 +139,7 @@ AFRAME.registerComponent("character-ar-controller", {
 
         const angle = Math.atan2(dx, dz);
 
-        // Se algum GLB aparecer de costas, use:
+        // Se algum GLB aparecer de costas, troque por:
         // this.character.object3D.rotation.y = angle + Math.PI;
         this.character.object3D.rotation.y = angle;
     },
@@ -156,6 +162,9 @@ AFRAME.registerComponent("character-ar-controller", {
                 material.needsUpdate = true;
             });
         });
+
+        // Garante que ao carregar o GLB ele não muda de altura.
+        this.character.object3D.position.y = this.fixedCharacterY;
 
         console.log("Character model loaded");
     },
@@ -216,7 +225,6 @@ AFRAME.registerComponent("character-ar-controller", {
         if (!AFRAME || !AFRAME.THREE) return;
 
         const THREE = AFRAME.THREE;
-
         const cameraQuaternion = this.camera.object3D.quaternion;
 
         const right = new THREE.Vector3(1, 0, 0);
@@ -235,6 +243,10 @@ AFRAME.registerComponent("character-ar-controller", {
         movement.addScaledVector(forward, -deltaY * this.dragSpeed);
 
         this.character.object3D.position.add(movement);
+
+        // Correção principal:
+        // Depois de qualquer movimento, força o Y fixo.
+        this.character.object3D.position.y = this.fixedCharacterY;
     },
 
     capturePhoto: function () {
@@ -298,6 +310,11 @@ AFRAME.registerComponent("character-ar-controller", {
 
     tick: function () {
         if (!this.isPlaced) return;
+        if (!this.character || !this.character.object3D) return;
+
+        // Correção principal:
+        // Mantém o personagem travado na altura fixa o tempo todo.
+        this.character.object3D.position.y = this.fixedCharacterY;
 
         this.faceCharacterToCamera();
     }
