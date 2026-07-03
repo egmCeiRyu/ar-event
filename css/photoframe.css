@@ -533,21 +533,48 @@ body {
     }
 }
 
-/* Home sobe para o topo esquerdo */
-#homeBtn {
+/* =========================
+   Photo Frame Wireframe Layout
+========================= */
+
+.bottom-menu {
     position: fixed;
+    left: 50%;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
 
-    top: calc(12px + env(safe-area-inset-top));
-    left: calc(18px + env(safe-area-inset-left));
+    width: min(100vw, calc(100dvh * 9 / 16));
+    padding: 0;
 
-    z-index: 25;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 20;
 }
 
-/* Frame fica na posição antiga do Home */
-#openFramePanelBtn {
+/* Home sobe para o topo esquerdo do frame */
+.photo-home-btn {
     position: fixed;
 
-    left: calc(34px + env(safe-area-inset-left));
+    top: calc(18px + env(safe-area-inset-top));
+    left: max(18px, calc(50vw - min(50vw, calc(100dvh * 9 / 32)) + 18px));
+
+    z-index: 30;
+}
+
+/* Frame fica embaixo à esquerda, no lugar antigo do Home */
+.photo-frame-btn {
+    position: fixed;
+
+    left: max(18px, calc(50vw - min(50vw, calc(100dvh * 9 / 32)) + 18px));
     bottom: calc(82px + env(safe-area-inset-bottom));
-    z-index: 25;
+
+    z-index: 30;
+}
+
+/* Shot fica exatamente no centro */
+#captureBtn {
+    position: relative;
+    z-index: 31;
 }
