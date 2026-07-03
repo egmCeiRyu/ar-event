@@ -18,6 +18,14 @@ const characterVoiceButton = document.getElementById("characterVoiceButton");
 
 const scannedCharacters = new Set();
 
+// Áudio silencioso (MP3 de ~0.1s, 1 sample) usado só pra "destravar" o
+// elemento <audio> dentro do gesto de clique do usuário. Sem isso,
+// SILENT_AUDIO_SRC ficava undefined -> ReferenceError -> o unlock real
+// (o await characterScanVoice.play() logo abaixo) nunca rodava, e a voz
+// do personagem era bloqueada pelo Chrome/Safari por não ter gesto.
+const SILENT_AUDIO_SRC =
+    "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjI5LjEwMAAAAAAAAAAAAAAA//tQxAADB8AhSmxhIIEVCSiJrDCQBTcu3UrAIwUdkRgQbFAZC7k1RIQyxCEIRAcoIWyMHIDmwzGDx/BeBBLtGOo7Dxz+wsQmMUAABIu2SEjEETcMAj6zMhACJLNPikagQCoyERjSbcyBUX8CQsi+wRC0z0AJyN6RG+8jBoQBIFETfhBBOKPk5ejEEBQCJKJVDvyKPMhaAAg7wA";
+
 let arStarted = false;
 
 let scanLocked = false;
