@@ -18,7 +18,6 @@ body {
     background: #000;
 }
 
-/* Home button */
 .home-button {
     position: fixed;
     top: max(18px, env(safe-area-inset-top));
@@ -42,7 +41,6 @@ body {
     backdrop-filter: blur(8px);
 }
 
-/* Target overlay */
 #targetOverlay {
     position: fixed;
     inset: 0;
@@ -118,7 +116,6 @@ body {
     }
 }
 
-/* Capture button */
 #captureBtn {
     position: fixed;
     left: 50%;
@@ -152,19 +149,16 @@ body {
     top: -2px;
 }
 
-/* 8th Wall / A-Frame canvas */
 a-scene {
     width: 100vw;
     height: 100vh;
 }
 
-/* Evita seleção visual em botões */
 button,
 a {
     -webkit-tap-highlight-color: transparent;
 }
 
-/* Responsivo para telas pequenas */
 @media (max-width: 380px) {
     .home-button {
         width: 48px;

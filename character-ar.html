@@ -9,7 +9,6 @@
 
     <link rel="stylesheet" href="css/character-ar.css">
 
-    <!-- A-Frame / 8th Wall -->
     <script
         crossorigin="anonymous"
         src="./external/scripts/8frame-1.5.0.min.js">
@@ -37,12 +36,10 @@
 
 <body>
 
-    <!-- Home volta para a lista de personagens -->
     <a class="home-button" href="character-list.html" aria-label="キャラクター一覧へ戻る">
         🏠
     </a>
 
-    <!-- Alvo para posicionar o personagem -->
     <div id="targetOverlay">
 
         <button id="targetBtn" type="button" aria-label="キャラクターを配置">
@@ -64,7 +61,6 @@
 
     </div>
 
-    <!-- Botão de captura -->
     <button id="captureBtn" type="button" aria-label="撮影">
         <span id="captureIcon">◉</span>
     </button>
@@ -89,8 +85,6 @@
     >
 
         <a-assets>
-            <!-- Trocar depois dinamicamente pelo personagem selecionado -->
-            <a-asset-item id="characterModel" src="assets/models/character01.glb"></a-asset-item>
         </a-assets>
 
         <a-camera
@@ -104,20 +98,14 @@
 
         <a-entity
             id="mainCharacter"
-            gltf-model="#characterModel"
             visible="false"
-
             class="cantap"
-
-            xrextras-hold-drag
             xrextras-pinch-scale="min:0.3;max:3"
-
             scale="1 1 1"
             rotation="0 0 0"
             position="0 0 -2">
         </a-entity>
 
-        <!-- Chão invisível para toque/posicionamento -->
         <a-box
             id="ground"
             class="cantap"

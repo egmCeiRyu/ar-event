@@ -1,3 +1,14 @@
+const characterModels = {
+    "1": "assets/models/character01.glb",
+    "2": "assets/models/character02.glb",
+    "3": "assets/models/character03.glb",
+    "4": "assets/models/character04.glb",
+    "5": "assets/models/character05.glb",
+    "6": "assets/models/character06.glb",
+    "7": "assets/models/character07.glb",
+    "8": "assets/models/character08.glb"
+};
+
 AFRAME.registerComponent("character-ar-controller", {
     init: function () {
         this.targetBtn = document.getElementById("targetBtn");
@@ -8,6 +19,15 @@ AFRAME.registerComponent("character-ar-controller", {
         this.camera = document.getElementById("camera");
 
         this.isPlaced = false;
+        this.isDragging = false;
+        this.lastTouchX = 0;
+        this.lastTouchY = 0;
+
+        // Sensibilidade do movimento.
+        // Menor = mais lento.
+        this.dragSpeed = 0.0018;
+
+        this.loadCharacterFromUrl();
 
         if (this.targetBtn) {
             this.targetBtn.addEventListener("click", () => {
@@ -27,9 +47,31 @@ AFRAME.registerComponent("character-ar-controller", {
             });
         }
 
+        this.el.addEventListener("loaded", () => {
+            this.setupSlowDrag();
+        });
+
+        this.el.addEventListener("renderstart", () => {
+            this.setupSlowDrag();
+        });
+
         this.el.addEventListener("realityready", () => {
             console.log("8th Wall ready");
         });
+    },
+
+    loadCharacterFromUrl: function () {
+        if (!this.character) return;
+
+        const params = new URLSearchParams(window.location.search);
+        const characterId = params.get("id") || "1";
+
+        const modelPath = characterModels[characterId] || characterModels["1"];
+
+        console.log("Character ID:", characterId);
+        console.log("Model path:", modelPath);
+
+        this.character.setAttribute("gltf-model", `url(${modelPath})`);
     },
 
     placeCharacterInFrontOfCamera: function () {
@@ -50,8 +92,6 @@ AFRAME.registerComponent("character-ar-controller", {
         const distance = 2.0;
         const placePosition = cameraPosition.clone().addScaledVector(direction, distance);
 
-        // Altura do personagem.
-        // Se o personagem ficar baixo/alto demais, ajuste este valor.
         placePosition.y = 0;
 
         this.character.setAttribute("position", {
@@ -93,7 +133,7 @@ AFRAME.registerComponent("character-ar-controller", {
 
         const angle = Math.atan2(dx, dz);
 
-        // Se o personagem aparecer de costas, troque por:
+        // Se algum GLB aparecer de costas, use:
         // this.character.object3D.rotation.y = angle + Math.PI;
         this.character.object3D.rotation.y = angle;
     },
@@ -118,6 +158,83 @@ AFRAME.registerComponent("character-ar-controller", {
         });
 
         console.log("Character model loaded");
+    },
+
+    setupSlowDrag: function () {
+        if (this.dragReady) return;
+
+        const canvas = document.querySelector("canvas");
+
+        if (!canvas || !this.character || !this.camera) {
+            setTimeout(() => {
+                this.setupSlowDrag();
+            }, 300);
+            return;
+        }
+
+        this.dragReady = true;
+
+        canvas.addEventListener("touchstart", (event) => {
+            if (!this.isPlaced) return;
+            if (event.touches.length !== 1) return;
+
+            this.isDragging = true;
+            this.lastTouchX = event.touches[0].clientX;
+            this.lastTouchY = event.touches[0].clientY;
+        }, { passive: false });
+
+        canvas.addEventListener("touchmove", (event) => {
+            if (!this.isDragging) return;
+            if (!this.isPlaced) return;
+            if (event.touches.length !== 1) return;
+
+            event.preventDefault();
+
+            const touch = event.touches[0];
+
+            const deltaX = touch.clientX - this.lastTouchX;
+            const deltaY = touch.clientY - this.lastTouchY;
+
+            this.lastTouchX = touch.clientX;
+            this.lastTouchY = touch.clientY;
+
+            this.moveCharacterSlowly(deltaX, deltaY);
+        }, { passive: false });
+
+        canvas.addEventListener("touchend", () => {
+            this.isDragging = false;
+        });
+
+        canvas.addEventListener("touchcancel", () => {
+            this.isDragging = false;
+        });
+    },
+
+    moveCharacterSlowly: function (deltaX, deltaY) {
+        if (!this.character || !this.camera) return;
+        if (!this.character.object3D || !this.camera.object3D) return;
+        if (!AFRAME || !AFRAME.THREE) return;
+
+        const THREE = AFRAME.THREE;
+
+        const cameraQuaternion = this.camera.object3D.quaternion;
+
+        const right = new THREE.Vector3(1, 0, 0);
+        right.applyQuaternion(cameraQuaternion);
+        right.y = 0;
+        right.normalize();
+
+        const forward = new THREE.Vector3(0, 0, -1);
+        forward.applyQuaternion(cameraQuaternion);
+        forward.y = 0;
+        forward.normalize();
+
+        const movement = new THREE.Vector3();
+
+        movement.addScaledVector(right, deltaX * this.dragSpeed);
+        movement.addScaledVector(forward, -deltaY * this.dragSpeed);
+
+        this.character.object3D.position.add(movement);
     },
 
     capturePhoto: function () {
