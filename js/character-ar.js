@@ -15,6 +15,7 @@ AFRAME.registerComponent("character-ar-controller", {
         this.isDragging = false;
         this.isPinching = false;
         this.touchReady = false;
+        this.placeEventReady = false;
 
         this.lastTouchX = 0;
         this.lastTouchY = 0;
@@ -33,12 +34,12 @@ AFRAME.registerComponent("character-ar-controller", {
         this.maxScale = 3;
 
         /*
-            Transform anterior que estava funcionando:
-            o personagem é colocado na frente da câmera,
-            mas o Y fica fixo no chão.
+            Mesmo comportamento antigo:
+            o personagem fica 2m na frente da câmera,
+            mas o Y fica travado no chão.
         */
         this.fixedCharacterY = 0;
-        this.placeDistance = 1.8;
+        this.placeDistance = 2;
 
         this.dragDeadZone = 2;
         this.maxTouchDelta = 26;
@@ -46,15 +47,12 @@ AFRAME.registerComponent("character-ar-controller", {
         this.modelYawOffsetRad = 0;
 
         this.loadCharacterFromUrl();
-
-        if (this.targetBtn) {
-            this.targetBtn.addEventListener("click", () => {
-                this.placeCharacterInFrontOfCamera();
-            });
-        }
+        this.setupPlaceEvents();
 
         if (this.captureBtn) {
-            this.captureBtn.addEventListener("click", () => {
+            this.captureBtn.addEventListener("click", (event) => {
+                event.preventDefault();
+                event.stopPropagation();
                 this.capturePhoto();
             });
         }
@@ -72,14 +70,18 @@ AFRAME.registerComponent("character-ar-controller", {
 
         this.el.addEventListener("loaded", () => {
             this.setupTouchControl();
+            this.setupPlaceEvents();
         });
 
         this.el.addEventListener("renderstart", () => {
             this.setupTouchControl();
+            this.setupPlaceEvents();
         });
 
         this.el.addEventListener("realityready", () => {
             console.log("8th Wall ready");
+            this.setupTouchControl();
+            this.setupPlaceEvents();
         });
     },
 
@@ -131,10 +133,125 @@ AFRAME.registerComponent("character-ar-controller", {
         }
     },
 
+    setupPlaceEvents: function () {
+        if (this.placeEventReady) return;
+
+        const placeHandler = (event) => {
+            if (this.isPlaced) return;
+
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+
+                if (event.stopImmediatePropagation) {
+                    event.stopImmediatePropagation();
+                }
+            }
+
+            this.placeCharacterInFrontOfCamera();
+        };
+
+        /*
+            Botão central.
+        */
+        if (this.targetBtn) {
+            this.targetBtn.addEventListener("click", placeHandler, {
+                passive: false
+            });
+
+            this.targetBtn.addEventListener("pointerdown", placeHandler, {
+                passive: false
+            });
+
+            this.targetBtn.addEventListener("touchend", placeHandler, {
+                passive: false
+            });
+        }
+
+        /*
+            Overlay inteiro.
+            Assim não precisa tocar exatamente no ícone.
+        */
+        if (this.targetOverlay) {
+            this.targetOverlay.addEventListener("click", placeHandler, {
+                passive: false
+            });
+
+            this.targetOverlay.addEventListener("pointerdown", placeHandler, {
+                passive: false
+            });
+
+            this.targetOverlay.addEventListener("touchend", placeHandler, {
+                passive: false
+            });
+        }
+
+        /*
+            Fallback para quando o canvas do 8th Wall engole o clique do botão.
+            Antes de colocar o personagem, qualquer toque na tela coloca o modelo.
+        */
+        document.addEventListener("pointerdown", (event) => {
+            if (this.isPlaced) return;
+
+            const target = event.target;
+
+            if (
+                target &&
+                (
+                    target.closest(".home-button") ||
+                    target.closest("#homeButton") ||
+                    target.closest("#captureBtn")
+                )
+            ) {
+                return;
+            }
+
+            placeHandler(event);
+        }, {
+            passive: false,
+            capture: true
+        });
+
+        document.addEventListener("touchend", (event) => {
+            if (this.isPlaced) return;
+
+            const target = event.target;
+
+            if (
+                target &&
+                (
+                    target.closest(".home-button") ||
+                    target.closest("#homeButton") ||
+                    target.closest("#captureBtn")
+                )
+            ) {
+                return;
+            }
+
+            placeHandler(event);
+        }, {
+            passive: false,
+            capture: true
+        });
+
+        this.placeEventReady = true;
+    },
+
     placeCharacterInFrontOfCamera: function () {
-        if (!this.character || !this.camera) return;
-        if (!this.character.object3D || !this.camera.object3D) return;
-        if (!AFRAME || !AFRAME.THREE) return;
+        if (!this.character || !this.camera) {
+            console.warn("Character or camera not found");
+            return;
+        }
+
+        if (!this.character.object3D || !this.camera.object3D) {
+            console.warn("Character object3D or camera object3D not ready");
+            return;
+        }
+
+        if (!AFRAME || !AFRAME.THREE) {
+            console.warn("AFRAME.THREE not ready");
+            return;
+        }
 
         const THREE = AFRAME.THREE;
         const cameraObject = this.camera.object3D;
@@ -151,13 +268,21 @@ AFRAME.registerComponent("character-ar-controller", {
         );
 
         /*
-            Importante:
-            usa X/Z da câmera, mas força o Y no chão.
-            Não usar direction.y = 0 aqui.
+            Igual ao antigo:
+            calcula X/Z na frente da câmera,
+            mas força Y no chão.
         */
+        placePosition.y = this.fixedCharacterY;
+
+        this.character.setAttribute("position", {
+            x: placePosition.x,
+            y: placePosition.y,
+            z: placePosition.z
+        });
+
         this.character.object3D.position.set(
             placePosition.x,
-            this.fixedCharacterY,
+            placePosition.y,
             placePosition.z
         );
 
@@ -176,7 +301,7 @@ AFRAME.registerComponent("character-ar-controller", {
             this.captureBtn.style.display = "flex";
         }
 
-        console.log("Character placed:", this.character.object3D.position);
+        console.log("Character placed:", placePosition);
     },
 
     setupCharacterModel: function () {
@@ -296,6 +421,8 @@ AFRAME.registerComponent("character-ar-controller", {
         }, { passive: false, capture: true });
 
         canvas.addEventListener("touchend", (event) => {
+            if (!this.isPlaced) return;
+
             event.preventDefault();
             event.stopPropagation();
             event.stopImmediatePropagation();
@@ -315,6 +442,8 @@ AFRAME.registerComponent("character-ar-controller", {
         }, { passive: false, capture: true });
 
         canvas.addEventListener("touchcancel", (event) => {
+            if (!this.isPlaced) return;
+
             event.preventDefault();
             event.stopPropagation();
             event.stopImmediatePropagation();
@@ -348,10 +477,6 @@ AFRAME.registerComponent("character-ar-controller", {
         movement.addScaledVector(forward, -deltaY * this.dragSpeed);
 
         this.character.object3D.position.add(movement);
-
-        /*
-            Sempre trava no chão.
-        */
         this.character.object3D.position.y = this.fixedCharacterY;
     },
 
@@ -380,10 +505,6 @@ AFRAME.registerComponent("character-ar-controller", {
         newScale = Math.max(this.minScale, Math.min(this.maxScale, newScale));
 
         this.character.object3D.scale.set(newScale, newScale, newScale);
-
-        /*
-            Escala sem subir/descer.
-        */
         this.character.object3D.position.y = this.fixedCharacterY;
     },
 
@@ -415,6 +536,7 @@ AFRAME.registerComponent("character-ar-controller", {
 
         const hiddenElements = [
             document.querySelector(".home-button"),
+            document.getElementById("homeButton"),
             document.getElementById("captureBtn"),
             document.getElementById("targetOverlay")
         ];
