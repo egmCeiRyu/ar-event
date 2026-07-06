@@ -266,6 +266,7 @@ h1 {
 
 .buttons {
     margin-top: 8px;
+    padding-bottom: 20px;
 }
 
 .scan-button {
@@ -290,6 +291,7 @@ h1 {
 
     box-shadow:
         0 10px 24px rgba(0,107,255,.30);
+
 }
 
 .scan-button:active {
