@@ -107,6 +107,14 @@ function bindEvents() {
     window.addEventListener("pagehide", stopCamera);
 }
 
+function updateCameraMirror() {
+    if (facingMode === "user") {
+        cameraVideo.style.transform = "scaleX(-1)";
+    } else {
+        cameraVideo.style.transform = "scaleX(1)";
+    }
+}
+
 async function startCamera() {
     stopCamera();
 
@@ -126,6 +134,8 @@ async function startCamera() {
 
         cameraVideo.srcObject = currentStream;
         await cameraVideo.play();
+
+        updateCameraMirror();
 
         const track = currentStream.getVideoTracks()[0];
 
@@ -241,7 +251,17 @@ function capturePhoto() {
 
     ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
+    if (facingMode === "user") {
+    ctx.save();
+    ctx.translate(FRAME_WIDTH, 0);
+    ctx.scale(-1, 1);
+
     drawCover(ctx, cameraVideo, FRAME_WIDTH, FRAME_HEIGHT);
+
+    ctx.restore();
+} else {
+    drawCover(ctx, cameraVideo, FRAME_WIDTH, FRAME_HEIGHT);
+}
 
     ctx.drawImage(
         selectedPhotoFrame,
