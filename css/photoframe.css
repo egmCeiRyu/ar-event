@@ -33,11 +33,11 @@ body {
     width: min(100vw, calc(100dvh * 9 / 16));
     height: min(100dvh, calc(100vw * 16 / 9));
 
-    transform: translate(-50%, -50%);
     object-fit: cover;
 }
 
 #cameraVideo {
+    transform: translate(-50%, -50%);
     z-index: 1;
     background: #000;
 }
@@ -46,6 +46,7 @@ body {
     z-index: 2;
     pointer-events: none;
     display: none;
+    transform: translate(-50%, -50%);
 }
 
 #captureCanvas {

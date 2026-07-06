@@ -109,9 +109,9 @@ function bindEvents() {
 
 function updateCameraMirror() {
     if (facingMode === "user") {
-        cameraVideo.style.transform = "scaleX(-1)";
+        cameraVideo.style.transform = "translate(-50%, -50%) scaleX(-1)";
     } else {
-        cameraVideo.style.transform = "scaleX(1)";
+        cameraVideo.style.transform = "translate(-50%, -50%) scaleX(1)";
     }
 }
 
@@ -212,7 +212,7 @@ function selectFrame(frame, button) {
     button.classList.add("selected");
 }
 
-function drawCover(ctx, img, canvasW, canvasH) {
+function drawCover(ctx, img, canvasW, canvasH, mirror = false) {
     const imgW = img.videoWidth || img.naturalWidth;
     const imgH = img.videoHeight || img.naturalHeight;
 
@@ -228,7 +228,15 @@ function drawCover(ctx, img, canvasW, canvasH) {
     const x = (canvasW - drawW) / 2;
     const y = (canvasH - drawH) / 2;
 
-    ctx.drawImage(img, x, y, drawW, drawH);
+    if (mirror) {
+        ctx.save();
+        ctx.translate(canvasW, 0);
+        ctx.scale(-1, 1);
+        ctx.drawImage(img, -x - drawW, y, drawW, drawH);
+        ctx.restore();
+    } else {
+        ctx.drawImage(img, x, y, drawW, drawH);
+    }
 }
 
 function capturePhoto() {
@@ -251,17 +259,13 @@ function capturePhoto() {
 
     ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
 
-    if (facingMode === "user") {
-    ctx.save();
-    ctx.translate(FRAME_WIDTH, 0);
-    ctx.scale(-1, 1);
-
-    drawCover(ctx, cameraVideo, FRAME_WIDTH, FRAME_HEIGHT);
-
-    ctx.restore();
-} else {
-    drawCover(ctx, cameraVideo, FRAME_WIDTH, FRAME_HEIGHT);
-}
+    drawCover(
+        ctx,
+        cameraVideo,
+        FRAME_WIDTH,
+        FRAME_HEIGHT,
+        facingMode === "user"
+    );
 
     ctx.drawImage(
         selectedPhotoFrame,
