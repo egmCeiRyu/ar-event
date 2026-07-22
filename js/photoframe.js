@@ -65,49 +65,6 @@ async function initialize() {
 }
 
 /* =========================
-   Orientation
-========================= */
-
-function isLandscape() {
-    return window.innerWidth > window.innerHeight;
-}
-
-function updateDeviceOrientation() {
-    const landscape = isLandscape();
-
-    document.body.classList.toggle(
-        "device-landscape",
-        landscape
-    );
-
-    document.body.classList.toggle(
-        "device-portrait",
-        !landscape
-    );
-
-    if (
-        landscape &&
-        !currentStream &&
-        !cameraStarting &&
-        !cameraSwitching
-    ) {
-        startCamera();
-    }
-}
-
-function handleOrientationChange() {
-    window.clearTimeout(orientationTimer);
-
-    orientationTimer = window.setTimeout(() => {
-        updateDeviceOrientation();
-
-        window.setTimeout(() => {
-            updateDeviceOrientation();
-        }, 350);
-    }, 250);
-}
-
-/* =========================
    Frame Carousel
 ========================= */
 
@@ -655,11 +612,6 @@ function drawCover(
 
 async function capturePhoto() {
     if (captureInProgress) {
-        return;
-    }
-
-    if (!isLandscape()) {
-        updateDeviceOrientation();
         return;
     }
 

@@ -95,9 +95,12 @@ body {
     left: 50%;
     top: 50%;
 
-    width: min(100vw, calc(100dvh * 16 / 9));
-    height: min(100dvh, calc(100vw * 9 / 16));
+    width: min(100vw, 100%);
+    height: auto;
 
+    aspect-ratio: 16 / 9;
+
+    transform: translate(-50%, -50%);
     object-fit: cover;
 }
 
@@ -703,23 +706,6 @@ body {
     z-index: 9999;
 }
 
-body.device-portrait #cameraPage {
-    visibility: hidden;
-    pointer-events: none;
-}
-
-body.device-portrait .rotate-device-message {
-    display: flex;
-}
-
-body.device-landscape #cameraPage {
-    visibility: visible;
-    pointer-events: auto;
-}
-
-body.device-landscape .rotate-device-message {
-    display: none;
-}
 
 /* Ajustes para smartphones landscape com pouca altura */
 
