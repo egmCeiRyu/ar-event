@@ -21,8 +21,8 @@ let facingMode = "user";
 let selectedFrame = null;
 let selectedFrameReady = false;
 
-const FRAME_WIDTH = 1080;
-const FRAME_HEIGHT = 1920;
+const FRAME_WIDTH = 1920;
+const FRAME_HEIGHT = 1080;
 
 const TOTAL_FRAMES = 40;
 const ASSET_VERSION = "20260629_03";
