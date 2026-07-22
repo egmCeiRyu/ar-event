@@ -560,7 +560,7 @@ function drawCover(
 
         ctx.drawImage(
             image,
-            -offsetX - drawWidth,
+            offsetX,
             offsetY,
             drawWidth,
             drawHeight
