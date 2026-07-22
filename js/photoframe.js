@@ -19,6 +19,7 @@ const saveBtn = document.getElementById("saveBtn");
 let currentStream = null;
 let cameraStarting = false;
 let cameraSwitching = false;
+let captureInProgress = false;
 
 let facingMode = "user";
 
@@ -26,6 +27,8 @@ let selectedFrame = null;
 let selectedFrameReady = false;
 
 let orientationTimer = null;
+let previewObjectUrl = null;
+let capturedPhotoBlob = null;
 
 const FRAME_WIDTH = 1920;
 const FRAME_HEIGHT = 1080;
@@ -58,11 +61,6 @@ async function initialize() {
 
     updateDeviceOrientation();
 
-    /*
-     * A câmera inicia mesmo com o celular em portrait.
-     * O CSS apenas esconde a câmera e mostra a mensagem
-     * até o usuário girar o aparelho.
-     */
     await startCamera();
 }
 
@@ -87,10 +85,6 @@ function updateDeviceOrientation() {
         !landscape
     );
 
-    /*
-     * Garante que a câmera volte caso o navegador
-     * tenha interrompido o stream durante a rotação.
-     */
     if (
         landscape &&
         !currentStream &&
@@ -104,17 +98,9 @@ function updateDeviceOrientation() {
 function handleOrientationChange() {
     window.clearTimeout(orientationTimer);
 
-    /*
-     * Safari e Chrome precisam de um pequeno tempo
-     * para atualizar innerWidth e innerHeight.
-     */
     orientationTimer = window.setTimeout(() => {
         updateDeviceOrientation();
 
-        /*
-         * Força um segundo cálculo após a rotação.
-         * Ajuda principalmente no Safari do iPhone.
-         */
         window.setTimeout(() => {
             updateDeviceOrientation();
         }, 350);
@@ -247,12 +233,12 @@ function bindEvents() {
 
     window.addEventListener(
         "beforeunload",
-        stopCamera
+        cleanup
     );
 
     window.addEventListener(
         "pagehide",
-        stopCamera
+        cleanup
     );
 }
 
@@ -350,7 +336,10 @@ async function startCamera() {
             );
 
         currentStream = stream;
+
         cameraVideo.srcObject = currentStream;
+        cameraVideo.muted = true;
+        cameraVideo.autoplay = true;
 
         cameraVideo.setAttribute(
             "playsinline",
@@ -362,10 +351,9 @@ async function startCamera() {
             ""
         );
 
-        cameraVideo.muted = true;
-        cameraVideo.autoplay = true;
-
         await cameraVideo.play();
+
+        await waitForVideoReady(cameraVideo);
 
         updateCameraMirror();
         updateDeviceOrientation();
@@ -439,7 +427,8 @@ function stopCamera() {
 async function switchCamera() {
     if (
         cameraStarting ||
-        cameraSwitching
+        cameraSwitching ||
+        captureInProgress
     ) {
         return;
     }
@@ -454,18 +443,85 @@ async function switchCamera() {
     try {
         stopCamera();
 
-        /*
-         * Pequena pausa para o celular liberar
-         * completamente a câmera anterior.
-         */
-        await new Promise((resolve) => {
-            window.setTimeout(resolve, 150);
-        });
+        await wait(200);
 
         await startCamera();
     } finally {
         cameraSwitching = false;
     }
+}
+
+function waitForVideoReady(video) {
+    return new Promise((resolve, reject) => {
+        if (
+            video.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA &&
+            video.videoWidth > 0 &&
+            video.videoHeight > 0
+        ) {
+            resolve();
+            return;
+        }
+
+        const timeout = window.setTimeout(() => {
+            cleanupListeners();
+
+            reject(
+                new Error("Camera video did not become ready")
+            );
+        }, 5000);
+
+        function handleReady() {
+            if (
+                video.videoWidth > 0 &&
+                video.videoHeight > 0
+            ) {
+                cleanupListeners();
+                resolve();
+            }
+        }
+
+        function handleError() {
+            cleanupListeners();
+
+            reject(
+                new Error("Camera video failed")
+            );
+        }
+
+        function cleanupListeners() {
+            window.clearTimeout(timeout);
+
+            video.removeEventListener(
+                "loadedmetadata",
+                handleReady
+            );
+
+            video.removeEventListener(
+                "canplay",
+                handleReady
+            );
+
+            video.removeEventListener(
+                "error",
+                handleError
+            );
+        }
+
+        video.addEventListener(
+            "loadedmetadata",
+            handleReady
+        );
+
+        video.addEventListener(
+            "canplay",
+            handleReady
+        );
+
+        video.addEventListener(
+            "error",
+            handleError
+        );
+    });
 }
 
 /* =========================
@@ -545,7 +601,9 @@ function drawCover(
         image.height;
 
     if (!imageWidth || !imageHeight) {
-        return;
+        throw new Error(
+            "Invalid image dimensions"
+        );
     }
 
     const scale = Math.max(
@@ -570,15 +628,23 @@ function drawCover(
     if (mirror) {
         ctx.translate(canvasWidth, 0);
         ctx.scale(-1, 1);
-    }
 
-    ctx.drawImage(
-        image,
-        offsetX,
-        offsetY,
-        drawWidth,
-        drawHeight
-    );
+        ctx.drawImage(
+            image,
+            -offsetX - drawWidth,
+            offsetY,
+            drawWidth,
+            drawHeight
+        );
+    } else {
+        ctx.drawImage(
+            image,
+            offsetX,
+            offsetY,
+            drawWidth,
+            drawHeight
+        );
+    }
 
     ctx.restore();
 }
@@ -587,21 +653,29 @@ function drawCover(
    Capture
 ========================= */
 
-function capturePhoto() {
+async function capturePhoto() {
+    if (captureInProgress) {
+        return;
+    }
+
     if (!isLandscape()) {
         updateDeviceOrientation();
         return;
     }
 
     if (!currentStream) {
-        startCamera();
+        await startCamera();
         return;
     }
 
     if (
         !cameraVideo ||
-        cameraVideo.readyState < 2
+        cameraVideo.readyState <
+            HTMLMediaElement.HAVE_CURRENT_DATA ||
+        !cameraVideo.videoWidth ||
+        !cameraVideo.videoHeight
     ) {
+        alert("カメラの準備ができていません");
         return;
     }
 
@@ -613,7 +687,8 @@ function capturePhoto() {
     if (
         !selectedFrameReady ||
         !selectedPhotoFrame ||
-        !selectedPhotoFrame.complete
+        !selectedPhotoFrame.complete ||
+        !selectedPhotoFrame.naturalWidth
     ) {
         openFramePanel();
         return;
@@ -627,59 +702,104 @@ function capturePhoto() {
         return;
     }
 
-    captureCanvas.width =
-        FRAME_WIDTH;
+    captureInProgress = true;
 
-    captureCanvas.height =
-        FRAME_HEIGHT;
-
-    const ctx =
-        captureCanvas.getContext(
-            "2d",
-            {
-                alpha: false
-            }
-        );
-
-    if (!ctx) {
-        alert("画像を作成できませんでした");
-        return;
+    if (captureBtn) {
+        captureBtn.disabled = true;
     }
 
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
+    try {
+        await waitForAnimationFrame();
+        await waitForAnimationFrame();
 
-    ctx.clearRect(
-        0,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT
-    );
+        captureCanvas.width =
+            FRAME_WIDTH;
 
-    drawCover(
-        ctx,
-        cameraVideo,
-        FRAME_WIDTH,
-        FRAME_HEIGHT,
-        facingMode === "user"
-    );
+        captureCanvas.height =
+            FRAME_HEIGHT;
 
-    ctx.drawImage(
-        selectedPhotoFrame,
-        0,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT
-    );
+        const ctx =
+            captureCanvas.getContext(
+                "2d",
+                {
+                    alpha: false
+                }
+            );
 
-    previewImage.src =
-        captureCanvas.toDataURL(
+        if (!ctx) {
+            throw new Error(
+                "Canvas context unavailable"
+            );
+        }
+
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
+
+        ctx.fillStyle = "#000";
+
+        ctx.fillRect(
+            0,
+            0,
+            FRAME_WIDTH,
+            FRAME_HEIGHT
+        );
+
+        drawCover(
+            ctx,
+            cameraVideo,
+            FRAME_WIDTH,
+            FRAME_HEIGHT,
+            facingMode === "user"
+        );
+
+        ctx.drawImage(
+            selectedPhotoFrame,
+            0,
+            0,
+            FRAME_WIDTH,
+            FRAME_HEIGHT
+        );
+
+        const blob = await canvasToBlob(
+            captureCanvas,
             "image/png"
         );
 
-    previewArea.classList.remove(
-        "hidden"
-    );
+        if (!blob) {
+            throw new Error(
+                "Could not create preview image"
+            );
+        }
+
+        capturedPhotoBlob = blob;
+
+        revokePreviewObjectUrl();
+
+        previewObjectUrl =
+            URL.createObjectURL(blob);
+
+        await loadPreviewImage(
+            previewImage,
+            previewObjectUrl
+        );
+
+        previewArea.classList.remove(
+            "hidden"
+        );
+    } catch (error) {
+        console.error(
+            "Capture error:",
+            error
+        );
+
+        alert("画像を作成できませんでした");
+    } finally {
+        captureInProgress = false;
+
+        if (captureBtn) {
+            captureBtn.disabled = false;
+        }
+    }
 }
 
 function retakePhoto() {
@@ -690,67 +810,72 @@ function retakePhoto() {
     previewArea.classList.add(
         "hidden"
     );
+
+    if (previewImage) {
+        previewImage.removeAttribute(
+            "src"
+        );
+    }
+
+    capturedPhotoBlob = null;
+
+    revokePreviewObjectUrl();
 }
 
 /* =========================
    Save
 ========================= */
 
-function savePhoto() {
-    if (!captureCanvas) {
+async function savePhoto() {
+    let blob = capturedPhotoBlob;
+
+    if (!blob && captureCanvas) {
+        blob = await canvasToBlob(
+            captureCanvas,
+            "image/png"
+        );
+    }
+
+    if (!blob) {
+        alert("画像を保存できませんでした");
         return;
     }
 
-    captureCanvas.toBlob(
-        async (blob) => {
-            if (!blob) {
-                alert(
-                    "画像を保存できませんでした"
-                );
-
-                return;
-            }
-
-            const file = new File(
-                [blob],
-                "photo-frame.png",
-                {
-                    type: "image/png"
-                }
-            );
-
-            try {
-                if (
-                    navigator.canShare &&
-                    navigator.canShare({
-                        files: [file]
-                    })
-                ) {
-                    await navigator.share({
-                        files: [file],
-                        title: "フォトフレーム",
-                        text: "フォトフレーム写真"
-                    });
-                } else {
-                    downloadImage(blob);
-                }
-            } catch (error) {
-                if (
-                    error.name === "AbortError"
-                ) {
-                    return;
-                }
-
-                console.error(
-                    "Share error:",
-                    error
-                );
-
-                downloadImage(blob);
-            }
-        },
-        "image/png"
+    const file = new File(
+        [blob],
+        "photo-frame.png",
+        {
+            type: "image/png"
+        }
     );
+
+    try {
+        if (
+            navigator.canShare &&
+            navigator.canShare({
+                files: [file]
+            })
+        ) {
+            await navigator.share({
+                files: [file],
+                title: "フォトフレーム",
+                text: "フォトフレーム写真"
+            });
+        } else {
+            downloadImage(blob);
+        }
+    } catch (error) {
+        if (error.name === "AbortError") {
+            return;
+        }
+
+        console.error(
+            "Share error:",
+            error
+        );
+
+        downloadImage(blob);
+    }
 }
 
 function downloadImage(blob) {
@@ -772,4 +897,87 @@ function downloadImage(blob) {
     window.setTimeout(() => {
         URL.revokeObjectURL(url);
     }, 1000);
+}
+
+/* =========================
+   Utilities
+========================= */
+
+function wait(milliseconds) {
+    return new Promise((resolve) => {
+        window.setTimeout(
+            resolve,
+            milliseconds
+        );
+    });
+}
+
+function waitForAnimationFrame() {
+    return new Promise((resolve) => {
+        window.requestAnimationFrame(() => {
+            resolve();
+        });
+    });
+}
+
+function canvasToBlob(
+    canvas,
+    type = "image/png",
+    quality
+) {
+    return new Promise((resolve) => {
+        canvas.toBlob(
+            (blob) => {
+                resolve(blob);
+            },
+            type,
+            quality
+        );
+    });
+}
+
+function loadPreviewImage(
+    imageElement,
+    source
+) {
+    return new Promise((resolve, reject) => {
+        imageElement.onload = () => {
+            imageElement.onload = null;
+            imageElement.onerror = null;
+
+            resolve();
+        };
+
+        imageElement.onerror = () => {
+            imageElement.onload = null;
+            imageElement.onerror = null;
+
+            reject(
+                new Error(
+                    "Preview image failed to load"
+                )
+            );
+        };
+
+        imageElement.src = source;
+    });
+}
+
+function revokePreviewObjectUrl() {
+    if (!previewObjectUrl) {
+        return;
+    }
+
+    URL.revokeObjectURL(
+        previewObjectUrl
+    );
+
+    previewObjectUrl = null;
+}
+
+function cleanup() {
+    stopCamera();
+    revokePreviewObjectUrl();
+
+    capturedPhotoBlob = null;
 }
