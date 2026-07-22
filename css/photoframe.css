@@ -773,3 +773,99 @@ body {
     pointer-events: auto;
     touch-action: manipulation;
 }
+
+/* =========================
+   Correção Home Button
+========================= */
+
+#homeButton {
+    position: fixed !important;
+
+    top: calc(16px + env(safe-area-inset-top)) !important;
+    left: calc(16px + env(safe-area-inset-left)) !important;
+
+    right: auto !important;
+    bottom: auto !important;
+
+    width: 58px !important;
+    height: 58px !important;
+
+    margin: 0 !important;
+    transform: none !important;
+
+    z-index: 50 !important;
+}
+
+
+/* =========================
+   Correção Frame Panel
+========================= */
+
+.frame-panel {
+    position: fixed;
+
+    left: 50%;
+    right: auto;
+    bottom: 0;
+
+    width: calc(
+        100vw -
+        env(safe-area-inset-left) -
+        env(safe-area-inset-right) -
+        32px
+    );
+
+    max-width: 1100px;
+
+    transform: translateX(-50%);
+
+    border-radius: 22px 22px 0 0;
+
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+
+/* Estado fechado */
+
+.frame-panel.hidden {
+    transform:
+        translateX(-50%)
+        translateY(100%);
+}
+
+
+/* Carrossel dentro do painel */
+
+.frame-carousel {
+    width: 100%;
+    max-width: 100%;
+
+    padding:
+        4px
+        54px
+        10px
+        4px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+
+/* Impede os frames de encolherem */
+
+.frame-btn {
+    flex-shrink: 0;
+}
+
+
+/* Botão fechar sempre dentro do painel */
+
+.frame-panel-close {
+    position: absolute;
+
+    top: 14px;
+    right: 14px;
+
+    z-index: 5;
+}
