@@ -2,8 +2,14 @@
     box-sizing: border-box;
 }
 
+html,
 body {
     margin: 0;
+    width: 100%;
+    height: 100%;
+}
+
+body {
     background: #000;
     font-family:
         -apple-system,
@@ -14,12 +20,71 @@ body {
 }
 
 /* =========================
+   Rotate Device Message
+========================= */
+
+.rotate-device-message {
+    position: fixed;
+    inset: 0;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 18px;
+
+    padding:
+        calc(30px + env(safe-area-inset-top))
+        calc(30px + env(safe-area-inset-right))
+        calc(30px + env(safe-area-inset-bottom))
+        calc(30px + env(safe-area-inset-left));
+
+    background: #000;
+    color: #fff;
+
+    text-align: center;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.5;
+
+    z-index: 9999;
+}
+
+.rotate-device-message::before {
+    content: "↻";
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 80px;
+    height: 80px;
+
+    border: 3px solid rgba(255, 255, 255, .9);
+    border-radius: 22px;
+
+    font-size: 46px;
+    font-weight: 700;
+    line-height: 1;
+
+    transform: rotate(-90deg);
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, .35),
+        inset 0 0 0 1px rgba(255, 255, 255, .15);
+}
+
+/* =========================
    Camera Base
 ========================= */
 
 #cameraPage {
     position: fixed;
     inset: 0;
+
+    width: 100%;
+    height: 100%;
+
     background: #000;
     overflow: hidden;
 }
@@ -29,8 +94,6 @@ body {
     position: absolute;
     left: 50%;
     top: 50%;
-
-    transform: translate(-50%, -50%);
 
     width: min(100vw, calc(100dvh * 16 / 9));
     height: min(100dvh, calc(100vw * 9 / 16));
@@ -204,6 +267,7 @@ body {
 }
 
 /* círculo externo branco */
+
 .capture-main-btn::before {
     content: "";
 
@@ -220,6 +284,7 @@ body {
 }
 
 /* círculo interno branco */
+
 .capture-main-btn::after {
     content: "";
 
@@ -236,6 +301,7 @@ body {
 }
 
 /* ícone da câmera em SVG */
+
 .capture-camera-icon {
     position: relative;
     z-index: 3;
@@ -257,6 +323,7 @@ body {
 }
 
 /* caso ainda existam classes antigas */
+
 .capture-core,
 .capture-label,
 .capture-circle {
@@ -275,12 +342,12 @@ body {
     transform: translateX(-50%);
 
     width: min(100vw, calc(100dvh * 16 / 9));
-    min-height: 250px;
+    min-height: 180px;
 
     padding:
         18px
         16px
-        calc(32px + env(safe-area-inset-bottom));
+        calc(22px + env(safe-area-inset-bottom));
 
     background: rgba(0, 0, 0, .84);
     backdrop-filter: blur(8px);
@@ -475,6 +542,8 @@ body {
 #previewImage {
     width: min(100vw, calc(100dvh * 16 / 9));
     height: min(100dvh, calc(100vw * 9 / 16));
+
+    object-fit: contain;
 }
 
 .preview-bottom {
@@ -518,13 +587,13 @@ body {
     #selectedPhotoFrame,
     #previewImage,
     .frame-panel {
-        width: min(90vw, calc(100dvh * 16 / 9))
+        width: min(95vw, calc(100dvh * 16 / 9));
     }
 
     #cameraVideo,
     #selectedPhotoFrame,
     #previewImage {
-        height: min(90dvh, calc(90vw * 9 / 16));
+        height: min(95dvh, calc(95vw * 9 / 16));
     }
 }
 
@@ -537,7 +606,7 @@ body {
     position: fixed;
     left: 0;
     right: 0;
-    bottom: max(32px, env(safe-area-inset-bottom));
+    bottom: max(18px, env(safe-area-inset-bottom));
     z-index: 20;
 
     height: 78px;
@@ -561,6 +630,7 @@ body {
 }
 
 /* Botão de foto no centro */
+
 #captureBtn {
     position: absolute;
     left: 50%;
@@ -578,6 +648,7 @@ body {
 }
 
 /* Botão フレーム / voltar painel à esquerda */
+
 #openFramePanelBtn {
     position: absolute;
     left: max(25px, env(safe-area-inset-left));
@@ -588,7 +659,99 @@ body {
 }
 
 /* Conteúdo interno não bloqueia o clique */
+
 #openFramePanelBtn *,
 #captureBtn * {
     pointer-events: none;
+}
+
+/* =========================
+   Smartphone Orientation
+========================= */
+
+/* Smartphone na vertical:
+   esconde a câmera e pede para girar */
+
+@media (orientation: portrait) and (max-width: 767px) {
+    #cameraPage {
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .rotate-device-message {
+        display: flex;
+    }
+}
+
+/* Smartphone na horizontal:
+   mostra normalmente a câmera */
+
+@media (orientation: landscape) {
+    #cameraPage {
+        visibility: visible;
+        pointer-events: auto;
+    }
+
+    .rotate-device-message {
+        display: none;
+    }
+}
+
+/* Ajustes para smartphones landscape com pouca altura */
+
+@media (orientation: landscape) and (max-height: 500px) {
+    .bottom-menu {
+        bottom: max(8px, env(safe-area-inset-bottom));
+        height: 66px;
+    }
+
+    .bottom-menu-btn {
+        width: 56px;
+        height: 56px;
+    }
+
+    .capture-main-btn {
+        width: 66px;
+        height: 66px;
+    }
+
+    .capture-main-btn::after {
+        inset: 10px;
+    }
+
+    .capture-camera-icon {
+        width: 38px;
+        height: 38px;
+    }
+
+    #openFramePanelBtn {
+        bottom: 5px;
+    }
+
+    .switch-camera-btn {
+        top: calc(10px + env(safe-area-inset-top));
+        right: calc(12px + env(safe-area-inset-right));
+    }
+
+    .frame-panel {
+        min-height: 150px;
+
+        padding:
+            14px
+            14px
+            calc(14px + env(safe-area-inset-bottom));
+    }
+
+    .frame-panel-title {
+        margin-bottom: 10px;
+    }
+
+    .preview-bottom {
+        bottom: calc(12px + env(safe-area-inset-bottom));
+    }
+
+    .preview-bottom button {
+        padding: 11px 20px;
+        font-size: 14px;
+    }
 }
