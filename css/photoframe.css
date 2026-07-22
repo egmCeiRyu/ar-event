@@ -65,7 +65,7 @@ body {
     bottom: calc(82px + env(safe-area-inset-bottom));
     transform: translateX(-50%);
 
-    width: min(100vw, calc(100dvh * 9 / 16));
+    width: min(100vw, calc(100dvh * 16 / 9));
     padding: 0 34px;
 
     display: flex;
@@ -274,7 +274,7 @@ body {
 
     transform: translateX(-50%);
 
-    width: min(100vw, calc(100dvh * 9 / 16));
+    width: min(100vw, calc(100dvh * 16 / 9));
     min-height: 250px;
 
     padding:
@@ -354,8 +354,8 @@ body {
 .frame-btn {
     flex: 0 0 auto;
 
-    width: 72px;
-    height: 126px;
+    width: 126px;
+    height: 72px;
 
     padding: 4px;
 
@@ -473,10 +473,8 @@ body {
 }
 
 #previewImage {
-    width: min(100vw, calc(100dvh * 9 / 16));
-    height: min(100dvh, calc(100vw * 16 / 9));
-
-    object-fit: contain;
+    width: min(100vw, calc(100dvh * 16 / 9));
+    height: min(100dvh, calc(100vw * 9 / 16));
 }
 
 .preview-bottom {
@@ -520,13 +518,13 @@ body {
     #selectedPhotoFrame,
     #previewImage,
     .frame-panel {
-        width: min(420px, calc(100dvh * 9 / 16));
+        width: min(90vw, calc(100dvh * 16 / 9))
     }
 
     #cameraVideo,
     #selectedPhotoFrame,
     #previewImage {
-        height: min(95dvh, calc(420px * 16 / 9));
+        height: min(90dvh, calc(90vw * 9 / 16));
     }
 }
 
