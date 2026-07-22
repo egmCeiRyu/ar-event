@@ -1,330 +1,757 @@
-const cameraVideo = document.getElementById("cameraVideo");
-const selectedPhotoFrame = document.getElementById("selectedPhotoFrame");
-const captureCanvas = document.getElementById("captureCanvas");
-
-const homeButton = document.getElementById("homeButton");
-const captureBtn = document.getElementById("captureBtn");
-const openFramePanelBtn = document.getElementById("openFramePanelBtn");
-const switchCameraBtn = document.getElementById("switchCameraBtn");
-
-const framePanel = document.getElementById("framePanel");
-const closeFramePanelBtn = document.getElementById("closeFramePanelBtn");
-const frameCarousel = document.getElementById("frameCarousel");
-
-const previewArea = document.getElementById("previewArea");
-const previewImage = document.getElementById("previewImage");
-const retakeBtn = document.getElementById("retakeBtn");
-const saveBtn = document.getElementById("saveBtn");
-
-let currentStream = null;
-let facingMode = "user";
-let selectedFrame = null;
-let selectedFrameReady = false;
-
-const FRAME_WIDTH = 1920;
-const FRAME_HEIGHT = 1080;
-
-const TOTAL_FRAMES = 40;
-const ASSET_VERSION = "20260629_03";
-
-const frames = Array.from({ length: TOTAL_FRAMES }, (_, index) => {
-    const num = String(index + 1).padStart(2, "0");
-
-    return {
-        id: index + 1,
-        full: `assets/photoframe/frame${num}.webp?v=${ASSET_VERSION}`,
-        thumb: `assets/photoframe/thumbs/frame${num}.webp?v=${ASSET_VERSION}`
-    };
-});
-
-initialize();
-
-async function initialize() {
-    createFrameCarousel();
-    bindEvents();
-    await startCamera();
+* {
+    box-sizing: border-box;
 }
 
-function createFrameCarousel() {
-    frameCarousel.innerHTML = "";
-
-    frames.forEach((frame) => {
-        const button = document.createElement("button");
-        button.className = "frame-btn";
-        button.type = "button";
-        button.dataset.frame = String(frame.id);
-
-        const img = document.createElement("img");
-        img.src = frame.thumb;
-        img.alt = `フレーム${frame.id}`;
-
-        img.onerror = () => {
-            button.remove();
-        };
-
-        button.appendChild(img);
-
-        button.addEventListener("click", () => {
-            selectFrame(frame, button);
-        });
-
-        frameCarousel.appendChild(button);
-    });
+html,
+body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
 }
 
-function bindEvents() {
-    if (homeButton) {
-        homeButton.addEventListener("click", () => {
-            stopCamera();
-        });
-    }
-
-    if (switchCameraBtn) {
-        switchCameraBtn.addEventListener("click", switchCamera);
-    }
-
-    if (openFramePanelBtn) {
-        openFramePanelBtn.addEventListener("click", openFramePanel);
-    }
-
-    if (closeFramePanelBtn) {
-        closeFramePanelBtn.addEventListener("click", closeFramePanel);
-    }
-
-    if (captureBtn) {
-        captureBtn.addEventListener("click", capturePhoto);
-    }
-
-    if (retakeBtn) {
-        retakeBtn.addEventListener("click", retakePhoto);
-    }
-
-    if (saveBtn) {
-        saveBtn.addEventListener("click", savePhoto);
-    }
-
-    window.addEventListener("beforeunload", stopCamera);
-    window.addEventListener("pagehide", stopCamera);
+body {
+    background: #000;
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    overflow: hidden;
 }
 
-function updateCameraMirror() {
-    if (facingMode === "user") {
-        cameraVideo.style.transform = "translate(-50%, -50%) scaleX(-1)";
-    } else {
-        cameraVideo.style.transform = "translate(-50%, -50%) scaleX(1)";
+/* =========================
+   Rotate Device Message
+========================= */
+
+.rotate-device-message {
+    position: fixed;
+    inset: 0;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 18px;
+
+    padding:
+        calc(30px + env(safe-area-inset-top))
+        calc(30px + env(safe-area-inset-right))
+        calc(30px + env(safe-area-inset-bottom))
+        calc(30px + env(safe-area-inset-left));
+
+    background: #000;
+    color: #fff;
+
+    text-align: center;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.5;
+
+    z-index: 9999;
+}
+
+.rotate-device-message::before {
+    content: "↻";
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 80px;
+    height: 80px;
+
+    border: 3px solid rgba(255, 255, 255, .9);
+    border-radius: 22px;
+
+    font-size: 46px;
+    font-weight: 700;
+    line-height: 1;
+
+    transform: rotate(-90deg);
+
+    box-shadow:
+        0 8px 24px rgba(0, 0, 0, .35),
+        inset 0 0 0 1px rgba(255, 255, 255, .15);
+}
+
+/* =========================
+   Camera Base
+========================= */
+
+#cameraPage {
+    position: fixed;
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    background: #000;
+    overflow: hidden;
+}
+
+#cameraVideo,
+#selectedPhotoFrame {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    width: min(100vw, calc(100dvh * 16 / 9));
+    height: min(100dvh, calc(100vw * 9 / 16));
+
+    object-fit: cover;
+}
+
+#cameraVideo {
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    background: #000;
+}
+
+#selectedPhotoFrame {
+    z-index: 2;
+    pointer-events: none;
+    display: none;
+    transform: translate(-50%, -50%);
+}
+
+#captureCanvas {
+    display: none;
+}
+
+/* =========================
+   Bottom Menu - Professional UI
+========================= */
+
+.bottom-menu {
+    position: absolute;
+    left: 50%;
+    bottom: calc(82px + env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+
+    width: min(100vw, calc(100dvh * 16 / 9));
+    padding: 0 34px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    z-index: 20;
+    pointer-events: auto;
+}
+
+/* Common reset */
+
+.bottom-menu-btn,
+.capture-main-btn {
+    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+    text-decoration: none;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    font-weight: 900;
+
+    transition:
+        transform .16s ease,
+        background .16s ease,
+        box-shadow .16s ease;
+}
+
+/* Side buttons: ホーム / フレーム */
+
+.bottom-menu-btn {
+    width: 66px;
+    height: 66px;
+
+    border-radius: 50%;
+
+    flex-direction: column;
+    gap: 4px;
+
+    color: #fff;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(30, 30, 30, .72),
+            rgba(10, 10, 10, .62)
+        );
+
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
+    box-shadow:
+        0 10px 26px rgba(0, 0, 0, .34),
+        inset 0 0 0 1px rgba(255, 255, 255, .18),
+        inset 0 1px 0 rgba(255, 255, 255, .24);
+}
+
+.bottom-menu-btn:hover {
+    background:
+        linear-gradient(
+            180deg,
+            rgba(45, 45, 45, .78),
+            rgba(18, 18, 18, .70)
+        );
+}
+
+.bottom-menu-btn:active {
+    transform: scale(.94);
+}
+
+.bottom-icon {
+    width: 24px;
+    height: 24px;
+
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.bottom-label {
+    font-size: 10px;
+    line-height: 1;
+    letter-spacing: .04em;
+    color: #fff;
+
+    text-shadow:
+        0 1px 4px rgba(0, 0, 0, .75),
+        0 0 2px rgba(0, 0, 0, .65);
+}
+
+/* =========================
+   Capture Button - Camera Icon
+========================= */
+
+.capture-main-btn {
+    position: relative;
+
+    width: 78px;
+    height: 78px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, .12);
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    box-shadow:
+        0 10px 26px rgba(0, 0, 0, .38),
+        inset 0 0 0 2px rgba(255, 255, 255, .22);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+        transform .16s ease,
+        box-shadow .16s ease;
+}
+
+/* círculo externo branco */
+
+.capture-main-btn::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    border-radius: 50%;
+
+    border: 4px solid rgba(255, 255, 255, .95);
+
+    box-shadow:
+        0 0 0 1px rgba(255, 255, 255, .25),
+        0 8px 22px rgba(0, 0, 0, .35);
+}
+
+/* círculo interno branco */
+
+.capture-main-btn::after {
+    content: "";
+
+    position: absolute;
+    inset: 12px;
+
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, .96);
+
+    box-shadow:
+        inset 0 -2px 6px rgba(0, 0, 0, .10),
+        0 2px 8px rgba(0, 0, 0, .18);
+}
+
+/* ícone da câmera em SVG */
+
+.capture-camera-icon {
+    position: relative;
+    z-index: 3;
+
+    width: 44px;
+    height: 44px;
+
+    transform: translateY(-3px);
+
+    fill: none;
+    stroke: #727272;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.capture-main-btn:active {
+    transform: scale(.94);
+}
+
+/* caso ainda existam classes antigas */
+
+.capture-core,
+.capture-label,
+.capture-circle {
+    display: none;
+}
+
+/* =========================
+   Frame Panel
+========================= */
+
+.frame-panel {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+
+    transform: translateX(-50%);
+
+    width: min(100vw, calc(100dvh * 16 / 9));
+    min-height: 180px;
+
+    padding:
+        18px
+        16px
+        calc(22px + env(safe-area-inset-bottom));
+
+    background: rgba(0, 0, 0, .84);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    z-index: 30;
+
+    transition:
+        opacity .22s ease,
+        transform .22s ease;
+}
+
+.frame-panel.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(100%);
+}
+
+.frame-panel-close {
+    position: absolute;
+    right: 14px;
+    top: 12px;
+
+    width: 38px;
+    height: 38px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: rgba(255, 255, 255, .96);
+    color: #222;
+
+    font-size: 21px;
+    font-weight: 900;
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
+}
+
+.frame-panel-close:active {
+    transform: scale(.94);
+}
+
+.frame-panel-title {
+    margin: 0 52px 16px 2px;
+
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    line-height: 1.2;
+
+    text-shadow: 0 2px 8px rgba(0, 0, 0, .4);
+}
+
+.frame-carousel {
+    display: flex;
+    gap: 14px;
+
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    padding: 4px 4px 8px;
+
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.frame-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.frame-btn {
+    flex: 0 0 auto;
+
+    width: 126px;
+    height: 72px;
+
+    padding: 4px;
+
+    border: 3px solid rgba(255, 255, 255, .65);
+    border-radius: 16px;
+
+    background: rgba(255, 255, 255, .94);
+
+    scroll-snap-align: center;
+
+    box-shadow: 0 6px 16px rgba(0, 0, 0, .28);
+
+    transition:
+        transform .18s ease,
+        border-color .18s ease,
+        box-shadow .18s ease;
+}
+
+.frame-btn.selected {
+    border-color: #ff6f91;
+    transform: scale(1.08);
+
+    box-shadow:
+        0 0 0 4px rgba(255, 111, 145, .30),
+        0 8px 20px rgba(0, 0, 0, .35);
+}
+
+.frame-btn img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: contain;
+    border-radius: 10px;
+}
+
+.frame-btn:active {
+    transform: scale(.94);
+}
+
+.frame-btn.selected:active {
+    transform: scale(1.02);
+}
+
+/* =========================
+   Switch Camera Button
+   bitmap icon
+========================= */
+
+.switch-camera-btn {
+    position: absolute;
+    top: calc(18px + env(safe-area-inset-top));
+    right: calc(18px + env(safe-area-inset-right));
+
+    width: 48px;
+    height: 48px;
+
+    border: none;
+    padding: 0;
+
+    background: transparent;
+    box-shadow: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    z-index: 12;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+
+    transition:
+        transform .16s ease,
+        opacity .16s ease;
+}
+
+.switch-camera-btn:active {
+    transform: scale(.92);
+    opacity: .8;
+}
+
+.switch-camera-img {
+    width: 38px;
+    height: 38px;
+
+    display: block;
+    object-fit: contain;
+
+    pointer-events: none;
+
+    filter:
+        drop-shadow(0 2px 5px rgba(0, 0, 0, .65))
+        drop-shadow(0 0 2px rgba(0, 0, 0, .55));
+}
+
+/* =========================
+   Preview
+========================= */
+
+.preview-area {
+    position: absolute;
+    inset: 0;
+
+    z-index: 30;
+    background: #000;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.preview-area.hidden {
+    display: none;
+}
+
+#previewImage {
+    width: min(100vw, calc(100dvh * 16 / 9));
+    height: min(100dvh, calc(100vw * 9 / 16));
+
+    object-fit: contain;
+}
+
+.preview-bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(26px + env(safe-area-inset-bottom));
+
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+
+    z-index: 35;
+}
+
+.preview-bottom button {
+    border: none;
+    border-radius: 999px;
+
+    padding: 14px 24px;
+
+    background: #fff;
+    color: #333;
+
+    font-size: 15px;
+    font-weight: 900;
+
+    box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
+}
+
+.preview-bottom button:active {
+    transform: scale(.96);
+}
+
+/* =========================
+   PC Preview
+========================= */
+
+@media (min-width: 768px) {
+    #cameraVideo,
+    #selectedPhotoFrame,
+    #previewImage,
+    .frame-panel {
+        width: min(95vw, calc(100dvh * 16 / 9));
+    }
+
+    #cameraVideo,
+    #selectedPhotoFrame,
+    #previewImage {
+        height: min(95dvh, calc(95vw * 9 / 16));
     }
 }
 
-async function startCamera() {
-    stopCamera();
+/* =========================
+   Photo / Frame Button Layout
+   Apenas esta parte controla a posição dos botões inferiores
+========================= */
 
-    try {
-        currentStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: facingMode,
+.bottom-menu {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: max(18px, env(safe-area-inset-bottom));
+    z-index: 20;
 
-                width: { ideal: 1920 },
-                height: { ideal: 1080 },
+    height: 78px;
+    width: 100%;
+    padding: 0;
+    transform: none;
 
-                frameRate: { ideal: 30 },
-                resizeMode: "none"
-            },
-            audio: false
-        });
+    display: flex;
+    align-items: center;
+    justify-content: center;
 
-        cameraVideo.srcObject = currentStream;
-        await cameraVideo.play();
+    pointer-events: none;
+}
 
-        updateCameraMirror();
+.frame-panel {
+    z-index: 30;
+}
 
-        const track = currentStream.getVideoTracks()[0];
+.preview-area {
+    z-index: 40;
+}
 
-        if (track) {
-            console.log("Camera settings:", track.getSettings());
-        }
+/* Botão de foto no centro */
 
-    } catch (error) {
-        console.error(error);
-        alert("カメラを起動できませんでした");
-        window.location.href = "index.html";
+#captureBtn {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+
+    transform: translateX(-50%);
+    margin: 0;
+
+    z-index: 2;
+    pointer-events: auto;
+}
+
+#captureBtn:active {
+    transform: translateX(-50%) scale(.94);
+}
+
+/* Botão フレーム / voltar painel à esquerda */
+
+#openFramePanelBtn {
+    position: absolute;
+    left: max(25px, env(safe-area-inset-left));
+    bottom: 6px;
+
+    z-index: 3;
+    pointer-events: auto;
+}
+
+/* Conteúdo interno não bloqueia o clique */
+
+#openFramePanelBtn *,
+#captureBtn * {
+    pointer-events: none;
+}
+
+/* =========================
+   Smartphone Orientation
+========================= */
+
+/* Smartphone na vertical:
+   esconde a câmera e pede para girar */
+
+@media (orientation: portrait) and (max-width: 767px) {
+    #cameraPage {
+        visibility: hidden;
+        pointer-events: none;
+    }
+
+    .rotate-device-message {
+        display: flex;
     }
 }
 
-function stopCamera() {
-    if (!currentStream) {
-        return;
+/* Smartphone na horizontal:
+   mostra normalmente a câmera */
+
+@media (orientation: landscape) {
+    #cameraPage {
+        visibility: visible;
+        pointer-events: auto;
     }
 
-    currentStream
-        .getTracks()
-        .forEach((track) => {
-            track.stop();
-        });
-
-    currentStream = null;
-}
-
-async function switchCamera() {
-    facingMode =
-        facingMode === "user"
-            ? "environment"
-            : "user";
-
-    await startCamera();
-}
-
-function openFramePanel() {
-    framePanel.classList.remove("hidden");
-}
-
-function closeFramePanel() {
-    framePanel.classList.add("hidden");
-}
-
-function selectFrame(frame, button) {
-    selectedFrame = frame.full;
-    selectedFrameReady = false;
-
-    selectedPhotoFrame.style.display = "block";
-
-    selectedPhotoFrame.onload = () => {
-        selectedFrameReady = true;
-    };
-
-    selectedPhotoFrame.onerror = () => {
-        selectedFrame = null;
-        selectedFrameReady = false;
-
-        selectedPhotoFrame.removeAttribute("src");
-        selectedPhotoFrame.style.display = "none";
-
-        alert("フレームを読み込めませんでした");
-    };
-
-    selectedPhotoFrame.src = frame.full;
-
-    document
-        .querySelectorAll(".frame-btn")
-        .forEach((btn) => {
-            btn.classList.remove("selected");
-        });
-
-    button.classList.add("selected");
-}
-
-function drawCover(ctx, img, canvasW, canvasH, mirror = false) {
-    const imgW = img.videoWidth || img.naturalWidth;
-    const imgH = img.videoHeight || img.naturalHeight;
-
-    if (!imgW || !imgH) {
-        return;
-    }
-
-    const scale = Math.max(canvasW / imgW, canvasH / imgH);
-
-    const drawW = imgW * scale;
-    const drawH = imgH * scale;
-
-    const x = (canvasW - drawW) / 2;
-    const y = (canvasH - drawH) / 2;
-
-    if (mirror) {
-        ctx.save();
-        ctx.translate(canvasW, 0);
-        ctx.scale(-1, 1);
-        ctx.drawImage(img, -x - drawW, y, drawW, drawH);
-        ctx.restore();
-    } else {
-        ctx.drawImage(img, x, y, drawW, drawH);
+    .rotate-device-message {
+        display: none;
     }
 }
 
-function capturePhoto() {
-    if (!selectedFrame) {
-        openFramePanel();
-        return;
+/* Ajustes para smartphones landscape com pouca altura */
+
+@media (orientation: landscape) and (max-height: 500px) {
+    .bottom-menu {
+        bottom: max(8px, env(safe-area-inset-bottom));
+        height: 66px;
     }
 
-    if (!selectedFrameReady || !selectedPhotoFrame.complete) {
-        openFramePanel();
-        return;
+    .bottom-menu-btn {
+        width: 56px;
+        height: 56px;
     }
 
-    captureCanvas.width = FRAME_WIDTH;
-    captureCanvas.height = FRAME_HEIGHT;
+    .capture-main-btn {
+        width: 66px;
+        height: 66px;
+    }
 
-    const ctx = captureCanvas.getContext("2d");
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
+    .capture-main-btn::after {
+        inset: 10px;
+    }
 
-    ctx.clearRect(0, 0, FRAME_WIDTH, FRAME_HEIGHT);
+    .capture-camera-icon {
+        width: 38px;
+        height: 38px;
+    }
 
-    drawCover(
-        ctx,
-        cameraVideo,
-        FRAME_WIDTH,
-        FRAME_HEIGHT,
-        facingMode === "user"
-    );
+    #openFramePanelBtn {
+        bottom: 5px;
+    }
 
-    ctx.drawImage(
-        selectedPhotoFrame,
-        0,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT
-    );
+    .switch-camera-btn {
+        top: calc(10px + env(safe-area-inset-top));
+        right: calc(12px + env(safe-area-inset-right));
+    }
 
-    previewImage.src = captureCanvas.toDataURL("image/png");
-    previewArea.classList.remove("hidden");
-}
+    .frame-panel {
+        min-height: 150px;
 
-function retakePhoto() {
-    previewArea.classList.add("hidden");
-}
+        padding:
+            14px
+            14px
+            calc(14px + env(safe-area-inset-bottom));
+    }
 
-async function savePhoto() {
-    captureCanvas.toBlob(async (blob) => {
-        if (!blob) {
-            alert("画像を保存できませんでした");
-            return;
-        }
+    .frame-panel-title {
+        margin-bottom: 10px;
+    }
 
-        const file = new File([blob], "photo-frame.png", {
-            type: "image/png"
-        });
+    .preview-bottom {
+        bottom: calc(12px + env(safe-area-inset-bottom));
+    }
 
-        try {
-            if (
-                navigator.canShare &&
-                navigator.canShare({ files: [file] })
-            ) {
-                await navigator.share({
-                    files: [file],
-                    title: "フォトフレーム",
-                    text: "フォトフレーム写真"
-                });
-            } else {
-                downloadImage(blob);
-            }
-        } catch (error) {
-            console.error(error);
-            downloadImage(blob);
-        }
-
-    }, "image/png");
-}
-
-function downloadImage(blob) {
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "photo-frame.png";
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    URL.revokeObjectURL(url);
+    .preview-bottom button {
+        padding: 11px 20px;
+        font-size: 14px;
+    }
 }
