@@ -33,7 +33,7 @@ let capturedPhotoBlob = null;
 const FRAME_WIDTH = 1920;
 const FRAME_HEIGHT = 1080;
 
-const TOTAL_FRAMES = 40;
+const TOTAL_FRAMES = 3;
 const ASSET_VERSION = "20260629_03";
 
 const frames = Array.from(
