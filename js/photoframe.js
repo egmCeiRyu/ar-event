@@ -759,50 +759,53 @@ function retakePhoto() {
         return;
     }
 
-    previewArea.classList.add(
-        "hidden"
-    );
+    previewArea.classList.add("hidden");
 
     if (previewImage) {
-        previewImage.removeAttribute(
-            "src"
-        );
+        if (
+            previewImage.src &&
+            previewImage.src.startsWith("blob:")
+        ) {
+            URL.revokeObjectURL(
+                previewImage.src
+            );
+        }
+
+        previewImage.removeAttribute("src");
     }
 
     capturedPhotoBlob = null;
-
-    revokePreviewObjectUrl();
 }
-
 /* =========================
    Save
 ========================= */
 
 async function savePhoto() {
-    let blob = capturedPhotoBlob;
-
-    if (!blob && captureCanvas) {
-        blob = await canvasToBlob(
-            captureCanvas,
-            "image/png"
-        );
-    }
-
-    if (!blob) {
-        alert("画像を保存できませんでした");
+    if (!capturedPhotoBlob) {
+        alert("保存する画像がありません");
         return;
     }
 
+    if (saveBtn) {
+        saveBtn.disabled = true;
+    }
+
     const file = new File(
-        [blob],
+        [capturedPhotoBlob],
         "photo-frame.png",
         {
-            type: "image/png"
+            type: "image/png",
+            lastModified: Date.now()
         }
     );
 
     try {
+        /*
+         * No iPhone, navigator.share precisa acontecer
+         * diretamente após o clique do usuário.
+         */
         if (
+            navigator.share &&
             navigator.canShare &&
             navigator.canShare({
                 files: [file]
@@ -810,23 +813,28 @@ async function savePhoto() {
         ) {
             await navigator.share({
                 files: [file],
-                title: "フォトフレーム",
-                text: "フォトフレーム写真"
+                title: "フォトフレーム"
             });
-        } else {
-            downloadImage(blob);
+
+            return;
         }
+
+        downloadImage(capturedPhotoBlob);
     } catch (error) {
         if (error.name === "AbortError") {
             return;
         }
 
         console.error(
-            "Share error:",
+            "Save/share error:",
             error
         );
 
-        downloadImage(blob);
+        downloadImage(capturedPhotoBlob);
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+        }
     }
 }
 

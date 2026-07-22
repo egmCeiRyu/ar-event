@@ -765,3 +765,11 @@ body {
         font-size: 14px;
     }
 }
+
+#saveBtn,
+#retakeBtn {
+    position: relative;
+    z-index: 50;
+    pointer-events: auto;
+    touch-action: manipulation;
+}
