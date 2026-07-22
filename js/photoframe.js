@@ -59,8 +59,6 @@ async function initialize() {
     createFrameCarousel();
     bindEvents();
 
-    updateDeviceOrientation();
-
     await startCamera();
 }
 
@@ -156,27 +154,6 @@ function bindEvents() {
         );
     }
 
-    window.addEventListener(
-        "resize",
-        handleOrientationChange,
-        { passive: true }
-    );
-
-    window.addEventListener(
-        "orientationchange",
-        handleOrientationChange,
-        { passive: true }
-    );
-
-    if (
-        screen.orientation &&
-        typeof screen.orientation.addEventListener === "function"
-    ) {
-        screen.orientation.addEventListener(
-            "change",
-            handleOrientationChange
-        );
-    }
 
     document.addEventListener(
         "visibilitychange",
@@ -204,16 +181,12 @@ async function handleVisibilityChange() {
         return;
     }
 
-    updateDeviceOrientation();
-
     if (!currentStream && !cameraStarting) {
         await startCamera();
     }
 }
 
 async function handlePageShow() {
-    updateDeviceOrientation();
-
     if (!currentStream && !cameraStarting) {
         await startCamera();
     }
@@ -313,7 +286,6 @@ async function startCamera() {
         await waitForVideoReady(cameraVideo);
 
         updateCameraMirror();
-        updateDeviceOrientation();
 
         const track =
             currentStream.getVideoTracks()[0];
