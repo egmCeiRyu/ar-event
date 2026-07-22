@@ -18,11 +18,14 @@ const saveBtn = document.getElementById("saveBtn");
 
 let currentStream = null;
 let cameraStarting = false;
+let cameraSwitching = false;
 
 let facingMode = "user";
 
 let selectedFrame = null;
 let selectedFrameReady = false;
+
+let orientationTimer = null;
 
 const FRAME_WIDTH = 1920;
 const FRAME_HEIGHT = 1080;
@@ -53,7 +56,14 @@ async function initialize() {
     createFrameCarousel();
     bindEvents();
 
-    await handleOrientationChange();
+    updateDeviceOrientation();
+
+    /*
+     * A câmera inicia mesmo com o celular em portrait.
+     * O CSS apenas esconde a câmera e mostra a mensagem
+     * até o usuário girar o aparelho.
+     */
+    await startCamera();
 }
 
 /* =========================
@@ -61,30 +71,54 @@ async function initialize() {
 ========================= */
 
 function isLandscape() {
-    return window.matchMedia("(orientation: landscape)").matches;
+    return window.innerWidth > window.innerHeight;
 }
 
-async function handleOrientationChange() {
-    if (!isLandscape()) {
-        stopCamera();
-        return;
-    }
+function updateDeviceOrientation() {
+    const landscape = isLandscape();
+
+    document.body.classList.toggle(
+        "device-landscape",
+        landscape
+    );
+
+    document.body.classList.toggle(
+        "device-portrait",
+        !landscape
+    );
 
     /*
-     * Aguarda o navegador finalizar a rotação e atualizar
-     * corretamente as dimensões da tela.
+     * Garante que a câmera volte caso o navegador
+     * tenha interrompido o stream durante a rotação.
      */
-    await wait(250);
-
-    if (!currentStream && !cameraStarting) {
-        await startCamera();
+    if (
+        landscape &&
+        !currentStream &&
+        !cameraStarting &&
+        !cameraSwitching
+    ) {
+        startCamera();
     }
 }
 
-function wait(milliseconds) {
-    return new Promise((resolve) => {
-        window.setTimeout(resolve, milliseconds);
-    });
+function handleOrientationChange() {
+    window.clearTimeout(orientationTimer);
+
+    /*
+     * Safari e Chrome precisam de um pequeno tempo
+     * para atualizar innerWidth e innerHeight.
+     */
+    orientationTimer = window.setTimeout(() => {
+        updateDeviceOrientation();
+
+        /*
+         * Força um segundo cálculo após a rotação.
+         * Ajuda principalmente no Safari do iPhone.
+         */
+        window.setTimeout(() => {
+            updateDeviceOrientation();
+        }, 350);
+    }, 250);
 }
 
 /* =========================
@@ -180,21 +214,36 @@ function bindEvents() {
     }
 
     window.addEventListener(
-        "orientationchange",
-        handleOrientationChange
+        "resize",
+        handleOrientationChange,
+        { passive: true }
     );
 
     window.addEventListener(
-        "resize",
-        handleOrientationChange
+        "orientationchange",
+        handleOrientationChange,
+        { passive: true }
     );
 
-    if (screen.orientation) {
+    if (
+        screen.orientation &&
+        typeof screen.orientation.addEventListener === "function"
+    ) {
         screen.orientation.addEventListener(
             "change",
             handleOrientationChange
         );
     }
+
+    document.addEventListener(
+        "visibilitychange",
+        handleVisibilityChange
+    );
+
+    window.addEventListener(
+        "pageshow",
+        handlePageShow
+    );
 
     window.addEventListener(
         "beforeunload",
@@ -205,6 +254,26 @@ function bindEvents() {
         "pagehide",
         stopCamera
     );
+}
+
+async function handleVisibilityChange() {
+    if (document.visibilityState !== "visible") {
+        return;
+    }
+
+    updateDeviceOrientation();
+
+    if (!currentStream && !cameraStarting) {
+        await startCamera();
+    }
+}
+
+async function handlePageShow() {
+    updateDeviceOrientation();
+
+    if (!currentStream && !cameraStarting) {
+        await startCamera();
+    }
 }
 
 /* =========================
@@ -230,10 +299,6 @@ async function startCamera() {
         return;
     }
 
-    if (!isLandscape()) {
-        return;
-    }
-
     if (cameraStarting) {
         return;
     }
@@ -243,6 +308,15 @@ async function startCamera() {
     stopCamera();
 
     try {
+        if (
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
+            throw new Error(
+                "getUserMedia is not supported"
+            );
+        }
+
         const constraints = {
             video: {
                 facingMode: {
@@ -270,25 +344,31 @@ async function startCamera() {
             audio: false
         };
 
-        currentStream =
+        const stream =
             await navigator.mediaDevices.getUserMedia(
                 constraints
             );
 
-        /*
-         * Pode acontecer de o usuário girar novamente para
-         * portrait enquanto a permissão da câmera está abrindo.
-         */
-        if (!isLandscape()) {
-            stopCamera();
-            return;
-        }
-
+        currentStream = stream;
         cameraVideo.srcObject = currentStream;
+
+        cameraVideo.setAttribute(
+            "playsinline",
+            ""
+        );
+
+        cameraVideo.setAttribute(
+            "webkit-playsinline",
+            ""
+        );
+
+        cameraVideo.muted = true;
+        cameraVideo.autoplay = true;
 
         await cameraVideo.play();
 
         updateCameraMirror();
+        updateDeviceOrientation();
 
         const track =
             currentStream.getVideoTracks()[0];
@@ -298,20 +378,42 @@ async function startCamera() {
                 "Camera settings:",
                 track.getSettings()
             );
+
+            track.addEventListener("ended", () => {
+                currentStream = null;
+
+                if (
+                    document.visibilityState === "visible" &&
+                    !cameraStarting &&
+                    !cameraSwitching
+                ) {
+                    startCamera();
+                }
+            });
         }
     } catch (error) {
-        console.error("Camera error:", error);
+        console.error(
+            "Camera error:",
+            error
+        );
 
-        /*
-         * Não mostra erro caso a câmera tenha sido cancelada
-         * somente porque o aparelho mudou de orientação.
-         */
-        if (!isLandscape()) {
-            return;
+        currentStream = null;
+
+        let message =
+            "カメラを起動できませんでした";
+
+        if (error.name === "NotAllowedError") {
+            message =
+                "カメラの使用を許可してください";
+        } else if (error.name === "NotFoundError") {
+            message =
+                "カメラが見つかりませんでした";
+        } else if (error.name === "NotReadableError") {
+            message =
+                "カメラを使用できませんでした";
         }
 
-        alert("カメラを起動できませんでした");
-        window.location.href = "index.html";
+        alert(message);
     } finally {
         cameraStarting = false;
     }
@@ -323,30 +425,47 @@ function stopCamera() {
         cameraVideo.srcObject = null;
     }
 
-    if (!currentStream) {
-        return;
+    if (currentStream) {
+        currentStream
+            .getTracks()
+            .forEach((track) => {
+                track.stop();
+            });
     }
-
-    currentStream
-        .getTracks()
-        .forEach((track) => {
-            track.stop();
-        });
 
     currentStream = null;
 }
 
 async function switchCamera() {
-    if (cameraStarting) {
+    if (
+        cameraStarting ||
+        cameraSwitching
+    ) {
         return;
     }
+
+    cameraSwitching = true;
 
     facingMode =
         facingMode === "user"
             ? "environment"
             : "user";
 
-    await startCamera();
+    try {
+        stopCamera();
+
+        /*
+         * Pequena pausa para o celular liberar
+         * completamente a câmera anterior.
+         */
+        await new Promise((resolve) => {
+            window.setTimeout(resolve, 150);
+        });
+
+        await startCamera();
+    } finally {
+        cameraSwitching = false;
+    }
 }
 
 /* =========================
@@ -434,8 +553,11 @@ function drawCover(
         canvasHeight / imageHeight
     );
 
-    const drawWidth = imageWidth * scale;
-    const drawHeight = imageHeight * scale;
+    const drawWidth =
+        imageWidth * scale;
+
+    const drawHeight =
+        imageHeight * scale;
 
     const offsetX =
         (canvasWidth - drawWidth) / 2;
@@ -448,23 +570,15 @@ function drawCover(
     if (mirror) {
         ctx.translate(canvasWidth, 0);
         ctx.scale(-1, 1);
-
-        ctx.drawImage(
-            image,
-            offsetX,
-            offsetY,
-            drawWidth,
-            drawHeight
-        );
-    } else {
-        ctx.drawImage(
-            image,
-            offsetX,
-            offsetY,
-            drawWidth,
-            drawHeight
-        );
     }
+
+    ctx.drawImage(
+        image,
+        offsetX,
+        offsetY,
+        drawWidth,
+        drawHeight
+    );
 
     ctx.restore();
 }
@@ -475,14 +589,19 @@ function drawCover(
 
 function capturePhoto() {
     if (!isLandscape()) {
+        updateDeviceOrientation();
         return;
     }
 
     if (!currentStream) {
+        startCamera();
         return;
     }
 
-    if (!cameraVideo || cameraVideo.readyState < 2) {
+    if (
+        !cameraVideo ||
+        cameraVideo.readyState < 2
+    ) {
         return;
     }
 
@@ -493,16 +612,34 @@ function capturePhoto() {
 
     if (
         !selectedFrameReady ||
+        !selectedPhotoFrame ||
         !selectedPhotoFrame.complete
     ) {
         openFramePanel();
         return;
     }
 
-    captureCanvas.width = FRAME_WIDTH;
-    captureCanvas.height = FRAME_HEIGHT;
+    if (
+        !captureCanvas ||
+        !previewImage ||
+        !previewArea
+    ) {
+        return;
+    }
 
-    const ctx = captureCanvas.getContext("2d");
+    captureCanvas.width =
+        FRAME_WIDTH;
+
+    captureCanvas.height =
+        FRAME_HEIGHT;
+
+    const ctx =
+        captureCanvas.getContext(
+            "2d",
+            {
+                alpha: false
+            }
+        );
 
     if (!ctx) {
         alert("画像を作成できませんでした");
@@ -536,9 +673,13 @@ function capturePhoto() {
     );
 
     previewImage.src =
-        captureCanvas.toDataURL("image/png");
+        captureCanvas.toDataURL(
+            "image/png"
+        );
 
-    previewArea.classList.remove("hidden");
+    previewArea.classList.remove(
+        "hidden"
+    );
 }
 
 function retakePhoto() {
@@ -546,18 +687,27 @@ function retakePhoto() {
         return;
     }
 
-    previewArea.classList.add("hidden");
+    previewArea.classList.add(
+        "hidden"
+    );
 }
 
 /* =========================
    Save
 ========================= */
 
-async function savePhoto() {
+function savePhoto() {
+    if (!captureCanvas) {
+        return;
+    }
+
     captureCanvas.toBlob(
         async (blob) => {
             if (!blob) {
-                alert("画像を保存できませんでした");
+                alert(
+                    "画像を保存できませんでした"
+                );
+
                 return;
             }
 
@@ -585,11 +735,9 @@ async function savePhoto() {
                     downloadImage(blob);
                 }
             } catch (error) {
-                /*
-                 * AbortError significa que o usuário apenas
-                 * fechou a tela de compartilhamento.
-                 */
-                if (error.name === "AbortError") {
+                if (
+                    error.name === "AbortError"
+                ) {
                     return;
                 }
 
@@ -606,12 +754,15 @@ async function savePhoto() {
 }
 
 function downloadImage(blob) {
-    const url = URL.createObjectURL(blob);
+    const url =
+        URL.createObjectURL(blob);
 
-    const link = document.createElement("a");
+    const link =
+        document.createElement("a");
 
     link.href = url;
-    link.download = "photo-frame.png";
+    link.download =
+        "photo-frame.png";
 
     document.body.appendChild(link);
 
