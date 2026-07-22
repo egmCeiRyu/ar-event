@@ -800,10 +800,6 @@ async function savePhoto() {
     );
 
     try {
-        /*
-         * No iPhone, navigator.share precisa acontecer
-         * diretamente após o clique do usuário.
-         */
         if (
             navigator.share &&
             navigator.canShare &&
@@ -837,6 +833,7 @@ async function savePhoto() {
         }
     }
 }
+
 
 function downloadImage(blob) {
     const url =
