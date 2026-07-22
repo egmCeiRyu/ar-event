@@ -672,29 +672,53 @@ body {
 /* Smartphone na vertical:
    esconde a câmera e pede para girar */
 
-@media (orientation: portrait) and (max-width: 767px) {
-    #cameraPage {
-        visibility: hidden;
-        pointer-events: none;
-    }
+/* =========================
+   Smartphone Orientation
+========================= */
 
-    .rotate-device-message {
-        display: flex;
-    }
+.rotate-device-message {
+    position: fixed;
+    inset: 0;
+
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 18px;
+
+    padding:
+        calc(30px + env(safe-area-inset-top))
+        calc(30px + env(safe-area-inset-right))
+        calc(30px + env(safe-area-inset-bottom))
+        calc(30px + env(safe-area-inset-left));
+
+    background: #000;
+    color: #fff;
+
+    text-align: center;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1.5;
+
+    z-index: 9999;
 }
 
-/* Smartphone na horizontal:
-   mostra normalmente a câmera */
+body.device-portrait #cameraPage {
+    visibility: hidden;
+    pointer-events: none;
+}
 
-@media (orientation: landscape) {
-    #cameraPage {
-        visibility: visible;
-        pointer-events: auto;
-    }
+body.device-portrait .rotate-device-message {
+    display: flex;
+}
 
-    .rotate-device-message {
-        display: none;
-    }
+body.device-landscape #cameraPage {
+    visibility: visible;
+    pointer-events: auto;
+}
+
+body.device-landscape .rotate-device-message {
+    display: none;
 }
 
 /* Ajustes para smartphones landscape com pouca altura */

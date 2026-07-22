@@ -1,757 +1,624 @@
-* {
-    box-sizing: border-box;
-}
+const cameraVideo = document.getElementById("cameraVideo");
+const selectedPhotoFrame = document.getElementById("selectedPhotoFrame");
+const captureCanvas = document.getElementById("captureCanvas");
 
-html,
-body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-}
+const homeButton = document.getElementById("homeButton");
+const captureBtn = document.getElementById("captureBtn");
+const openFramePanelBtn = document.getElementById("openFramePanelBtn");
+const switchCameraBtn = document.getElementById("switchCameraBtn");
 
-body {
-    background: #000;
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-    overflow: hidden;
+const framePanel = document.getElementById("framePanel");
+const closeFramePanelBtn = document.getElementById("closeFramePanelBtn");
+const frameCarousel = document.getElementById("frameCarousel");
+
+const previewArea = document.getElementById("previewArea");
+const previewImage = document.getElementById("previewImage");
+const retakeBtn = document.getElementById("retakeBtn");
+const saveBtn = document.getElementById("saveBtn");
+
+let currentStream = null;
+let cameraStarting = false;
+
+let facingMode = "user";
+
+let selectedFrame = null;
+let selectedFrameReady = false;
+
+const FRAME_WIDTH = 1920;
+const FRAME_HEIGHT = 1080;
+
+const TOTAL_FRAMES = 40;
+const ASSET_VERSION = "20260629_03";
+
+const frames = Array.from(
+    { length: TOTAL_FRAMES },
+    (_, index) => {
+        const num = String(index + 1).padStart(2, "0");
+
+        return {
+            id: index + 1,
+            full: `assets/photoframe/frame${num}.webp?v=${ASSET_VERSION}`,
+            thumb: `assets/photoframe/thumbs/frame${num}.webp?v=${ASSET_VERSION}`
+        };
+    }
+);
+
+initialize();
+
+/* =========================
+   Initialize
+========================= */
+
+async function initialize() {
+    createFrameCarousel();
+    bindEvents();
+
+    await handleOrientationChange();
 }
 
 /* =========================
-   Rotate Device Message
+   Orientation
 ========================= */
 
-.rotate-device-message {
-    position: fixed;
-    inset: 0;
-
-    display: none;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 18px;
-
-    padding:
-        calc(30px + env(safe-area-inset-top))
-        calc(30px + env(safe-area-inset-right))
-        calc(30px + env(safe-area-inset-bottom))
-        calc(30px + env(safe-area-inset-left));
-
-    background: #000;
-    color: #fff;
-
-    text-align: center;
-    font-size: 18px;
-    font-weight: 900;
-    line-height: 1.5;
-
-    z-index: 9999;
+function isLandscape() {
+    return window.matchMedia("(orientation: landscape)").matches;
 }
 
-.rotate-device-message::before {
-    content: "↻";
+async function handleOrientationChange() {
+    if (!isLandscape()) {
+        stopCamera();
+        return;
+    }
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    /*
+     * Aguarda o navegador finalizar a rotação e atualizar
+     * corretamente as dimensões da tela.
+     */
+    await wait(250);
 
-    width: 80px;
-    height: 80px;
+    if (!currentStream && !cameraStarting) {
+        await startCamera();
+    }
+}
 
-    border: 3px solid rgba(255, 255, 255, .9);
-    border-radius: 22px;
-
-    font-size: 46px;
-    font-weight: 700;
-    line-height: 1;
-
-    transform: rotate(-90deg);
-
-    box-shadow:
-        0 8px 24px rgba(0, 0, 0, .35),
-        inset 0 0 0 1px rgba(255, 255, 255, .15);
+function wait(milliseconds) {
+    return new Promise((resolve) => {
+        window.setTimeout(resolve, milliseconds);
+    });
 }
 
 /* =========================
-   Camera Base
+   Frame Carousel
 ========================= */
 
-#cameraPage {
-    position: fixed;
-    inset: 0;
+function createFrameCarousel() {
+    if (!frameCarousel) {
+        return;
+    }
 
-    width: 100%;
-    height: 100%;
+    frameCarousel.innerHTML = "";
 
-    background: #000;
-    overflow: hidden;
-}
+    frames.forEach((frame) => {
+        const button = document.createElement("button");
 
-#cameraVideo,
-#selectedPhotoFrame {
-    position: absolute;
-    left: 50%;
-    top: 50%;
+        button.className = "frame-btn";
+        button.type = "button";
+        button.dataset.frame = String(frame.id);
 
-    width: min(100vw, calc(100dvh * 16 / 9));
-    height: min(100dvh, calc(100vw * 9 / 16));
+        const img = document.createElement("img");
 
-    object-fit: cover;
-}
+        img.src = frame.thumb;
+        img.alt = `フレーム${frame.id}`;
+        img.loading = "lazy";
+        img.decoding = "async";
 
-#cameraVideo {
-    transform: translate(-50%, -50%);
-    z-index: 1;
-    background: #000;
-}
+        img.onerror = () => {
+            button.remove();
+        };
 
-#selectedPhotoFrame {
-    z-index: 2;
-    pointer-events: none;
-    display: none;
-    transform: translate(-50%, -50%);
-}
+        button.appendChild(img);
 
-#captureCanvas {
-    display: none;
+        button.addEventListener("click", () => {
+            selectFrame(frame, button);
+        });
+
+        frameCarousel.appendChild(button);
+    });
 }
 
 /* =========================
-   Bottom Menu - Professional UI
+   Events
 ========================= */
 
-.bottom-menu {
-    position: absolute;
-    left: 50%;
-    bottom: calc(82px + env(safe-area-inset-bottom));
-    transform: translateX(-50%);
+function bindEvents() {
+    if (homeButton) {
+        homeButton.addEventListener("click", () => {
+            stopCamera();
+        });
+    }
 
-    width: min(100vw, calc(100dvh * 16 / 9));
-    padding: 0 34px;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    z-index: 20;
-    pointer-events: auto;
-}
-
-/* Common reset */
-
-.bottom-menu-btn,
-.capture-main-btn {
-    border: none;
-    appearance: none;
-    -webkit-appearance: none;
-    text-decoration: none;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        sans-serif;
-
-    font-weight: 900;
-
-    transition:
-        transform .16s ease,
-        background .16s ease,
-        box-shadow .16s ease;
-}
-
-/* Side buttons: ホーム / フレーム */
-
-.bottom-menu-btn {
-    width: 66px;
-    height: 66px;
-
-    border-radius: 50%;
-
-    flex-direction: column;
-    gap: 4px;
-
-    color: #fff;
-
-    background:
-        linear-gradient(
-            180deg,
-            rgba(30, 30, 30, .72),
-            rgba(10, 10, 10, .62)
+    if (switchCameraBtn) {
+        switchCameraBtn.addEventListener(
+            "click",
+            switchCamera
         );
+    }
 
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-
-    box-shadow:
-        0 10px 26px rgba(0, 0, 0, .34),
-        inset 0 0 0 1px rgba(255, 255, 255, .18),
-        inset 0 1px 0 rgba(255, 255, 255, .24);
-}
-
-.bottom-menu-btn:hover {
-    background:
-        linear-gradient(
-            180deg,
-            rgba(45, 45, 45, .78),
-            rgba(18, 18, 18, .70)
+    if (openFramePanelBtn) {
+        openFramePanelBtn.addEventListener(
+            "click",
+            openFramePanel
         );
-}
+    }
 
-.bottom-menu-btn:active {
-    transform: scale(.94);
-}
+    if (closeFramePanelBtn) {
+        closeFramePanelBtn.addEventListener(
+            "click",
+            closeFramePanel
+        );
+    }
 
-.bottom-icon {
-    width: 24px;
-    height: 24px;
+    if (captureBtn) {
+        captureBtn.addEventListener(
+            "click",
+            capturePhoto
+        );
+    }
 
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
+    if (retakeBtn) {
+        retakeBtn.addEventListener(
+            "click",
+            retakePhoto
+        );
+    }
 
-.bottom-label {
-    font-size: 10px;
-    line-height: 1;
-    letter-spacing: .04em;
-    color: #fff;
+    if (saveBtn) {
+        saveBtn.addEventListener(
+            "click",
+            savePhoto
+        );
+    }
 
-    text-shadow:
-        0 1px 4px rgba(0, 0, 0, .75),
-        0 0 2px rgba(0, 0, 0, .65);
+    window.addEventListener(
+        "orientationchange",
+        handleOrientationChange
+    );
+
+    window.addEventListener(
+        "resize",
+        handleOrientationChange
+    );
+
+    if (screen.orientation) {
+        screen.orientation.addEventListener(
+            "change",
+            handleOrientationChange
+        );
+    }
+
+    window.addEventListener(
+        "beforeunload",
+        stopCamera
+    );
+
+    window.addEventListener(
+        "pagehide",
+        stopCamera
+    );
 }
 
 /* =========================
-   Capture Button - Camera Icon
+   Camera
 ========================= */
 
-.capture-main-btn {
-    position: relative;
+function updateCameraMirror() {
+    if (!cameraVideo) {
+        return;
+    }
 
-    width: 78px;
-    height: 78px;
-
-    border: none;
-    border-radius: 50%;
-
-    background: rgba(255, 255, 255, .12);
-
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-
-    box-shadow:
-        0 10px 26px rgba(0, 0, 0, .38),
-        inset 0 0 0 2px rgba(255, 255, 255, .22);
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-
-    transition:
-        transform .16s ease,
-        box-shadow .16s ease;
+    if (facingMode === "user") {
+        cameraVideo.style.transform =
+            "translate(-50%, -50%) scaleX(-1)";
+    } else {
+        cameraVideo.style.transform =
+            "translate(-50%, -50%) scaleX(1)";
+    }
 }
 
-/* círculo externo branco */
+async function startCamera() {
+    if (!cameraVideo) {
+        return;
+    }
 
-.capture-main-btn::before {
-    content: "";
+    if (!isLandscape()) {
+        return;
+    }
 
-    position: absolute;
-    inset: 0;
+    if (cameraStarting) {
+        return;
+    }
 
-    border-radius: 50%;
+    cameraStarting = true;
 
-    border: 4px solid rgba(255, 255, 255, .95);
+    stopCamera();
 
-    box-shadow:
-        0 0 0 1px rgba(255, 255, 255, .25),
-        0 8px 22px rgba(0, 0, 0, .35);
+    try {
+        const constraints = {
+            video: {
+                facingMode: {
+                    ideal: facingMode
+                },
+
+                width: {
+                    ideal: FRAME_WIDTH
+                },
+
+                height: {
+                    ideal: FRAME_HEIGHT
+                },
+
+                aspectRatio: {
+                    ideal: 16 / 9
+                },
+
+                frameRate: {
+                    ideal: 30,
+                    max: 30
+                }
+            },
+
+            audio: false
+        };
+
+        currentStream =
+            await navigator.mediaDevices.getUserMedia(
+                constraints
+            );
+
+        /*
+         * Pode acontecer de o usuário girar novamente para
+         * portrait enquanto a permissão da câmera está abrindo.
+         */
+        if (!isLandscape()) {
+            stopCamera();
+            return;
+        }
+
+        cameraVideo.srcObject = currentStream;
+
+        await cameraVideo.play();
+
+        updateCameraMirror();
+
+        const track =
+            currentStream.getVideoTracks()[0];
+
+        if (track) {
+            console.log(
+                "Camera settings:",
+                track.getSettings()
+            );
+        }
+    } catch (error) {
+        console.error("Camera error:", error);
+
+        /*
+         * Não mostra erro caso a câmera tenha sido cancelada
+         * somente porque o aparelho mudou de orientação.
+         */
+        if (!isLandscape()) {
+            return;
+        }
+
+        alert("カメラを起動できませんでした");
+        window.location.href = "index.html";
+    } finally {
+        cameraStarting = false;
+    }
 }
 
-/* círculo interno branco */
+function stopCamera() {
+    if (cameraVideo) {
+        cameraVideo.pause();
+        cameraVideo.srcObject = null;
+    }
 
-.capture-main-btn::after {
-    content: "";
+    if (!currentStream) {
+        return;
+    }
 
-    position: absolute;
-    inset: 12px;
+    currentStream
+        .getTracks()
+        .forEach((track) => {
+            track.stop();
+        });
 
-    border-radius: 50%;
-
-    background: rgba(255, 255, 255, .96);
-
-    box-shadow:
-        inset 0 -2px 6px rgba(0, 0, 0, .10),
-        0 2px 8px rgba(0, 0, 0, .18);
+    currentStream = null;
 }
 
-/* ícone da câmera em SVG */
+async function switchCamera() {
+    if (cameraStarting) {
+        return;
+    }
 
-.capture-camera-icon {
-    position: relative;
-    z-index: 3;
+    facingMode =
+        facingMode === "user"
+            ? "environment"
+            : "user";
 
-    width: 44px;
-    height: 44px;
-
-    transform: translateY(-3px);
-
-    fill: none;
-    stroke: #727272;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.capture-main-btn:active {
-    transform: scale(.94);
-}
-
-/* caso ainda existam classes antigas */
-
-.capture-core,
-.capture-label,
-.capture-circle {
-    display: none;
+    await startCamera();
 }
 
 /* =========================
    Frame Panel
 ========================= */
 
-.frame-panel {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
+function openFramePanel() {
+    if (!framePanel) {
+        return;
+    }
 
-    transform: translateX(-50%);
-
-    width: min(100vw, calc(100dvh * 16 / 9));
-    min-height: 180px;
-
-    padding:
-        18px
-        16px
-        calc(22px + env(safe-area-inset-bottom));
-
-    background: rgba(0, 0, 0, .84);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-
-    z-index: 30;
-
-    transition:
-        opacity .22s ease,
-        transform .22s ease;
+    framePanel.classList.remove("hidden");
 }
 
-.frame-panel.hidden {
-    opacity: 0;
-    pointer-events: none;
-    transform: translateX(-50%) translateY(100%);
+function closeFramePanel() {
+    if (!framePanel) {
+        return;
+    }
+
+    framePanel.classList.add("hidden");
 }
 
-.frame-panel-close {
-    position: absolute;
-    right: 14px;
-    top: 12px;
+function selectFrame(frame, button) {
+    if (!selectedPhotoFrame) {
+        return;
+    }
 
-    width: 38px;
-    height: 38px;
+    selectedFrame = frame.full;
+    selectedFrameReady = false;
 
-    border: none;
-    border-radius: 50%;
+    selectedPhotoFrame.style.display = "block";
 
-    background: rgba(255, 255, 255, .96);
-    color: #222;
+    selectedPhotoFrame.onload = () => {
+        selectedFrameReady = true;
+    };
 
-    font-size: 21px;
-    font-weight: 900;
+    selectedPhotoFrame.onerror = () => {
+        selectedFrame = null;
+        selectedFrameReady = false;
 
-    box-shadow: 0 6px 18px rgba(0, 0, 0, .28);
-}
+        selectedPhotoFrame.removeAttribute("src");
+        selectedPhotoFrame.style.display = "none";
 
-.frame-panel-close:active {
-    transform: scale(.94);
-}
+        alert("フレームを読み込めませんでした");
+    };
 
-.frame-panel-title {
-    margin: 0 52px 16px 2px;
+    selectedPhotoFrame.src = frame.full;
 
-    color: #fff;
-    font-size: 14px;
-    font-weight: 900;
-    line-height: 1.2;
+    document
+        .querySelectorAll(".frame-btn")
+        .forEach((btn) => {
+            btn.classList.remove("selected");
+        });
 
-    text-shadow: 0 2px 8px rgba(0, 0, 0, .4);
-}
-
-.frame-carousel {
-    display: flex;
-    gap: 14px;
-
-    overflow-x: auto;
-    overflow-y: hidden;
-
-    padding: 4px 4px 8px;
-
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-}
-
-.frame-carousel::-webkit-scrollbar {
-    display: none;
-}
-
-.frame-btn {
-    flex: 0 0 auto;
-
-    width: 126px;
-    height: 72px;
-
-    padding: 4px;
-
-    border: 3px solid rgba(255, 255, 255, .65);
-    border-radius: 16px;
-
-    background: rgba(255, 255, 255, .94);
-
-    scroll-snap-align: center;
-
-    box-shadow: 0 6px 16px rgba(0, 0, 0, .28);
-
-    transition:
-        transform .18s ease,
-        border-color .18s ease,
-        box-shadow .18s ease;
-}
-
-.frame-btn.selected {
-    border-color: #ff6f91;
-    transform: scale(1.08);
-
-    box-shadow:
-        0 0 0 4px rgba(255, 111, 145, .30),
-        0 8px 20px rgba(0, 0, 0, .35);
-}
-
-.frame-btn img {
-    width: 100%;
-    height: 100%;
-
-    display: block;
-
-    object-fit: contain;
-    border-radius: 10px;
-}
-
-.frame-btn:active {
-    transform: scale(.94);
-}
-
-.frame-btn.selected:active {
-    transform: scale(1.02);
+    button.classList.add("selected");
 }
 
 /* =========================
-   Switch Camera Button
-   bitmap icon
+   Canvas Drawing
 ========================= */
 
-.switch-camera-btn {
-    position: absolute;
-    top: calc(18px + env(safe-area-inset-top));
-    right: calc(18px + env(safe-area-inset-right));
+function drawCover(
+    ctx,
+    image,
+    canvasWidth,
+    canvasHeight,
+    mirror = false
+) {
+    const imageWidth =
+        image.videoWidth ||
+        image.naturalWidth ||
+        image.width;
 
-    width: 48px;
-    height: 48px;
+    const imageHeight =
+        image.videoHeight ||
+        image.naturalHeight ||
+        image.height;
 
-    border: none;
-    padding: 0;
+    if (!imageWidth || !imageHeight) {
+        return;
+    }
 
-    background: transparent;
-    box-shadow: none;
+    const scale = Math.max(
+        canvasWidth / imageWidth,
+        canvasHeight / imageHeight
+    );
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    const drawWidth = imageWidth * scale;
+    const drawHeight = imageHeight * scale;
 
-    z-index: 12;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
+    const offsetX =
+        (canvasWidth - drawWidth) / 2;
 
-    transition:
-        transform .16s ease,
-        opacity .16s ease;
-}
+    const offsetY =
+        (canvasHeight - drawHeight) / 2;
 
-.switch-camera-btn:active {
-    transform: scale(.92);
-    opacity: .8;
-}
+    ctx.save();
 
-.switch-camera-img {
-    width: 38px;
-    height: 38px;
+    if (mirror) {
+        ctx.translate(canvasWidth, 0);
+        ctx.scale(-1, 1);
 
-    display: block;
-    object-fit: contain;
+        ctx.drawImage(
+            image,
+            offsetX,
+            offsetY,
+            drawWidth,
+            drawHeight
+        );
+    } else {
+        ctx.drawImage(
+            image,
+            offsetX,
+            offsetY,
+            drawWidth,
+            drawHeight
+        );
+    }
 
-    pointer-events: none;
-
-    filter:
-        drop-shadow(0 2px 5px rgba(0, 0, 0, .65))
-        drop-shadow(0 0 2px rgba(0, 0, 0, .55));
+    ctx.restore();
 }
 
 /* =========================
-   Preview
+   Capture
 ========================= */
 
-.preview-area {
-    position: absolute;
-    inset: 0;
+function capturePhoto() {
+    if (!isLandscape()) {
+        return;
+    }
 
-    z-index: 30;
-    background: #000;
+    if (!currentStream) {
+        return;
+    }
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    if (!cameraVideo || cameraVideo.readyState < 2) {
+        return;
+    }
+
+    if (!selectedFrame) {
+        openFramePanel();
+        return;
+    }
+
+    if (
+        !selectedFrameReady ||
+        !selectedPhotoFrame.complete
+    ) {
+        openFramePanel();
+        return;
+    }
+
+    captureCanvas.width = FRAME_WIDTH;
+    captureCanvas.height = FRAME_HEIGHT;
+
+    const ctx = captureCanvas.getContext("2d");
+
+    if (!ctx) {
+        alert("画像を作成できませんでした");
+        return;
+    }
+
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+
+    ctx.clearRect(
+        0,
+        0,
+        FRAME_WIDTH,
+        FRAME_HEIGHT
+    );
+
+    drawCover(
+        ctx,
+        cameraVideo,
+        FRAME_WIDTH,
+        FRAME_HEIGHT,
+        facingMode === "user"
+    );
+
+    ctx.drawImage(
+        selectedPhotoFrame,
+        0,
+        0,
+        FRAME_WIDTH,
+        FRAME_HEIGHT
+    );
+
+    previewImage.src =
+        captureCanvas.toDataURL("image/png");
+
+    previewArea.classList.remove("hidden");
 }
 
-.preview-area.hidden {
-    display: none;
-}
+function retakePhoto() {
+    if (!previewArea) {
+        return;
+    }
 
-#previewImage {
-    width: min(100vw, calc(100dvh * 16 / 9));
-    height: min(100dvh, calc(100vw * 9 / 16));
-
-    object-fit: contain;
-}
-
-.preview-bottom {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: calc(26px + env(safe-area-inset-bottom));
-
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-
-    z-index: 35;
-}
-
-.preview-bottom button {
-    border: none;
-    border-radius: 999px;
-
-    padding: 14px 24px;
-
-    background: #fff;
-    color: #333;
-
-    font-size: 15px;
-    font-weight: 900;
-
-    box-shadow: 0 6px 18px rgba(0, 0, 0, .25);
-}
-
-.preview-bottom button:active {
-    transform: scale(.96);
+    previewArea.classList.add("hidden");
 }
 
 /* =========================
-   PC Preview
+   Save
 ========================= */
 
-@media (min-width: 768px) {
-    #cameraVideo,
-    #selectedPhotoFrame,
-    #previewImage,
-    .frame-panel {
-        width: min(95vw, calc(100dvh * 16 / 9));
-    }
+async function savePhoto() {
+    captureCanvas.toBlob(
+        async (blob) => {
+            if (!blob) {
+                alert("画像を保存できませんでした");
+                return;
+            }
 
-    #cameraVideo,
-    #selectedPhotoFrame,
-    #previewImage {
-        height: min(95dvh, calc(95vw * 9 / 16));
-    }
+            const file = new File(
+                [blob],
+                "photo-frame.png",
+                {
+                    type: "image/png"
+                }
+            );
+
+            try {
+                if (
+                    navigator.canShare &&
+                    navigator.canShare({
+                        files: [file]
+                    })
+                ) {
+                    await navigator.share({
+                        files: [file],
+                        title: "フォトフレーム",
+                        text: "フォトフレーム写真"
+                    });
+                } else {
+                    downloadImage(blob);
+                }
+            } catch (error) {
+                /*
+                 * AbortError significa que o usuário apenas
+                 * fechou a tela de compartilhamento.
+                 */
+                if (error.name === "AbortError") {
+                    return;
+                }
+
+                console.error(
+                    "Share error:",
+                    error
+                );
+
+                downloadImage(blob);
+            }
+        },
+        "image/png"
+    );
 }
 
-/* =========================
-   Photo / Frame Button Layout
-   Apenas esta parte controla a posição dos botões inferiores
-========================= */
+function downloadImage(blob) {
+    const url = URL.createObjectURL(blob);
 
-.bottom-menu {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: max(18px, env(safe-area-inset-bottom));
-    z-index: 20;
+    const link = document.createElement("a");
 
-    height: 78px;
-    width: 100%;
-    padding: 0;
-    transform: none;
+    link.href = url;
+    link.download = "photo-frame.png";
 
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    document.body.appendChild(link);
 
-    pointer-events: none;
-}
+    link.click();
+    link.remove();
 
-.frame-panel {
-    z-index: 30;
-}
-
-.preview-area {
-    z-index: 40;
-}
-
-/* Botão de foto no centro */
-
-#captureBtn {
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-
-    transform: translateX(-50%);
-    margin: 0;
-
-    z-index: 2;
-    pointer-events: auto;
-}
-
-#captureBtn:active {
-    transform: translateX(-50%) scale(.94);
-}
-
-/* Botão フレーム / voltar painel à esquerda */
-
-#openFramePanelBtn {
-    position: absolute;
-    left: max(25px, env(safe-area-inset-left));
-    bottom: 6px;
-
-    z-index: 3;
-    pointer-events: auto;
-}
-
-/* Conteúdo interno não bloqueia o clique */
-
-#openFramePanelBtn *,
-#captureBtn * {
-    pointer-events: none;
-}
-
-/* =========================
-   Smartphone Orientation
-========================= */
-
-/* Smartphone na vertical:
-   esconde a câmera e pede para girar */
-
-@media (orientation: portrait) and (max-width: 767px) {
-    #cameraPage {
-        visibility: hidden;
-        pointer-events: none;
-    }
-
-    .rotate-device-message {
-        display: flex;
-    }
-}
-
-/* Smartphone na horizontal:
-   mostra normalmente a câmera */
-
-@media (orientation: landscape) {
-    #cameraPage {
-        visibility: visible;
-        pointer-events: auto;
-    }
-
-    .rotate-device-message {
-        display: none;
-    }
-}
-
-/* Ajustes para smartphones landscape com pouca altura */
-
-@media (orientation: landscape) and (max-height: 500px) {
-    .bottom-menu {
-        bottom: max(8px, env(safe-area-inset-bottom));
-        height: 66px;
-    }
-
-    .bottom-menu-btn {
-        width: 56px;
-        height: 56px;
-    }
-
-    .capture-main-btn {
-        width: 66px;
-        height: 66px;
-    }
-
-    .capture-main-btn::after {
-        inset: 10px;
-    }
-
-    .capture-camera-icon {
-        width: 38px;
-        height: 38px;
-    }
-
-    #openFramePanelBtn {
-        bottom: 5px;
-    }
-
-    .switch-camera-btn {
-        top: calc(10px + env(safe-area-inset-top));
-        right: calc(12px + env(safe-area-inset-right));
-    }
-
-    .frame-panel {
-        min-height: 150px;
-
-        padding:
-            14px
-            14px
-            calc(14px + env(safe-area-inset-bottom));
-    }
-
-    .frame-panel-title {
-        margin-bottom: 10px;
-    }
-
-    .preview-bottom {
-        bottom: calc(12px + env(safe-area-inset-bottom));
-    }
-
-    .preview-bottom button {
-        padding: 11px 20px;
-        font-size: 14px;
-    }
+    window.setTimeout(() => {
+        URL.revokeObjectURL(url);
+    }, 1000);
 }
