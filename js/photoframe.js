@@ -2,6 +2,19 @@ const cameraVideo = document.getElementById("cameraVideo");
 const selectedPhotoFrame = document.getElementById("selectedPhotoFrame");
 const captureCanvas = document.getElementById("captureCanvas");
 
+const livePreviewCanvas =
+    document.getElementById("livePreviewCanvas");
+
+const livePreviewContext =
+    livePreviewCanvas
+        ? livePreviewCanvas.getContext("2d", {
+            alpha: true
+        })
+        : null;
+
+let livePreviewRunning = false;
+let livePreviewProcessing = false;
+
 const homeButton = document.getElementById("homeButton");
 const captureBtn = document.getElementById("captureBtn");
 const openFramePanelBtn = document.getElementById("openFramePanelBtn");
@@ -307,6 +320,8 @@ async function startCamera() {
         await waitForVideoReady(cameraVideo);
 
         updateCameraMirror();
+
+        startLivePreview();
 
         const track =
             currentStream.getVideoTracks()[0];
@@ -1173,13 +1188,21 @@ const livePreviewContext =
 let livePreviewRunning = false;
 let livePreviewProcessing = false;
 
-async function startLivePreview() {
-    if (
-        livePreviewRunning ||
-        !livePreviewCanvas ||
-        !livePreviewContext
-    ) {
-        return;
+    function startLivePreview() {
+        if (
+            livePreviewRunning ||
+            !livePreviewCanvas ||
+            !livePreviewContext
+        ) {
+            return;
+        }
+
+        livePreviewCanvas.width = FRAME_WIDTH;
+        livePreviewCanvas.height = FRAME_HEIGHT;
+
+        livePreviewRunning = true;
+
+        renderLivePreview();
     }
 
     livePreviewRunning = true;

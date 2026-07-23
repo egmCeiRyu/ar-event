@@ -105,8 +105,9 @@ body {
 }
 
 #cameraVideo {
-    opacity: 0;
+    opacity: 1;
     pointer-events: none;
+    z-index: 1;
 }
 
 #livePreviewCanvas {
@@ -119,8 +120,9 @@ body {
 
     transform: translate(-50%, -50%);
 
-    z-index: 1;
-    background: #000;
+    z-index: 3;
+    background: transparent;
+    pointer-events: none;
 }
 
 #selectedPhotoFrame {
