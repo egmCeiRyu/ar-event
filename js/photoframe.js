@@ -48,8 +48,6 @@ let selectedFrame = null;
 let selectedFrameReady = false;
 
 let orientationTimer = null;
-let previewObjectUrl = null;
-let capturedPhotoBlob = null;
 
 const FRAME_WIDTH = 1920;
 const FRAME_HEIGHT = 1080;
@@ -679,7 +677,7 @@ function createPersonCutout(results) {
     personContext.save();
 
     /*
-     * Máscara da pessoa.
+     * Desenha a máscara da pessoa.
      */
     drawCover(
         personContext,
@@ -703,8 +701,15 @@ function createPersonCutout(results) {
         facingMode === "user"
     );
 
+    /*
+     * Volta ao modo normal.
+     */
+    personContext.globalCompositeOperation =
+        "source-over";
+
     personContext.restore();
 }
+
 
 function loadImage(source) {
     return new Promise((resolve, reject) => {
@@ -874,6 +879,13 @@ async function capturePhoto() {
 
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
+
+        ctx.clearRect(
+            0,
+            0,
+            FRAME_WIDTH,
+            FRAME_HEIGHT
+        );
 
         const segmentationResults =
         await segmentCurrentCameraFrame();
@@ -1126,7 +1138,26 @@ function revokePreviewObjectUrl() {
 
 function cleanup() {
     stopCamera();
+
     revokePreviewObjectUrl();
+
+    if (segmentationTimeout) {
+        clearTimeout(segmentationTimeout);
+        segmentationTimeout = null;
+    }
+
+    segmentationResolve = null;
+    segmentationReject = null;
+
+    if (
+        selfieSegmentation &&
+        typeof selfieSegmentation.close === "function"
+    ) {
+        selfieSegmentation.close();
+    }
+
+    selfieSegmentation = null;
+    segmentationReady = false;
 
     capturedPhotoBlob = null;
 }
