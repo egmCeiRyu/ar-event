@@ -599,7 +599,10 @@ function initializeSelfieSegmentation() {
         });
 
     selfieSegmentation.setOptions({
-        modelSelection: 1,
+        // The general model has a denser square input and preserves
+        // face/hair edges better than the landscape model, especially
+        // against bright or low-contrast backgrounds.
+        modelSelection: 0,
         selfieMode: false
     });
 
