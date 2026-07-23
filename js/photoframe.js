@@ -2,23 +2,6 @@ const cameraVideo = document.getElementById("cameraVideo");
 const selectedPhotoFrame = document.getElementById("selectedPhotoFrame");
 const captureCanvas = document.getElementById("captureCanvas");
 
-const livePreviewCanvas =
-    document.getElementById("livePreviewCanvas");
-
-const livePreviewContext =
-    livePreviewCanvas
-        ? livePreviewCanvas.getContext("2d", {
-            alpha: true
-        })
-        : null;
-
-let livePreviewRunning = false;
-let livePreviewProcessing = false;
-let livePreviewTimer = null;
-let livePreviewFramePromise = Promise.resolve();
-let latestPreviewReady = false;
-let livePreviewGeneration = 0;
-
 const homeButton = document.getElementById("homeButton");
 const captureBtn = document.getElementById("captureBtn");
 const openFramePanelBtn = document.getElementById("openFramePanelBtn");
@@ -33,35 +16,6 @@ const previewImage = document.getElementById("previewImage");
 const retakeBtn = document.getElementById("retakeBtn");
 const saveBtn = document.getElementById("saveBtn");
 
-let previewObjectUrl = null;
-let capturedPhotoBlob = null;
-
-let selfieSegmentation = null;
-let segmentationReady = false;
-
-let segmentationResolve = null;
-let segmentationReject = null;
-let segmentationTimeout = null;
-
-let selectedBackgroundImage = null;
-
-const personCanvas = document.createElement("canvas");
-
-const personContext = personCanvas.getContext(
-    "2d",
-    {
-        alpha: true
-    }
-);
-
-const personMaskCanvas = document.createElement("canvas");
-const personMaskContext = personMaskCanvas.getContext(
-    "2d",
-    {
-        alpha: true
-    }
-);
-
 let currentStream = null;
 let cameraStarting = false;
 let cameraSwitching = false;
@@ -73,13 +27,11 @@ let selectedFrame = null;
 let selectedFrameReady = false;
 
 let orientationTimer = null;
+let previewObjectUrl = null;
+let capturedPhotoBlob = null;
 
 const FRAME_WIDTH = 1920;
 const FRAME_HEIGHT = 1080;
-const LIVE_PREVIEW_FPS = 12;
-const LIVE_PREVIEW_INTERVAL = 1000 / LIVE_PREVIEW_FPS;
-const PERSON_MASK_EXPANSION = 5;
-const PERSON_MASK_FEATHER = 2;
 
 const TOTAL_FRAMES = 3;
 const ASSET_VERSION = "20260629_03";
@@ -106,8 +58,6 @@ initialize();
 async function initialize() {
     createFrameCarousel();
     bindEvents();
-
-    initializeSelfieSegmentation();
 
     await startCamera();
 }
@@ -337,8 +287,6 @@ async function startCamera() {
 
         updateCameraMirror();
 
-        startLivePreview();
-
         const track =
             currentStream.getVideoTracks()[0];
 
@@ -389,8 +337,6 @@ async function startCamera() {
 }
 
 function stopCamera() {
-    stopLivePreview();
-
     if (cameraVideo) {
         cameraVideo.pause();
         cameraVideo.srcObject = null;
@@ -527,11 +473,31 @@ function closeFramePanel() {
     framePanel.classList.add("hidden");
 }
 
-async function selectFrame(frame, button) {
+function selectFrame(frame, button) {
+    if (!selectedPhotoFrame) {
+        return;
+    }
+
     selectedFrame = frame.full;
     selectedFrameReady = false;
-    selectedBackgroundImage = null;
-    latestPreviewReady = false;
+
+    selectedPhotoFrame.style.display = "block";
+
+    selectedPhotoFrame.onload = () => {
+        selectedFrameReady = true;
+    };
+
+    selectedPhotoFrame.onerror = () => {
+        selectedFrame = null;
+        selectedFrameReady = false;
+
+        selectedPhotoFrame.removeAttribute("src");
+        selectedPhotoFrame.style.display = "none";
+
+        alert("フレームを読み込めませんでした");
+    };
+
+    selectedPhotoFrame.src = frame.full;
 
     document
         .querySelectorAll(".frame-btn")
@@ -540,275 +506,6 @@ async function selectFrame(frame, button) {
         });
 
     button.classList.add("selected");
-    button.disabled = true;
-
-    try {
-        selectedBackgroundImage =
-            await loadImage(frame.full);
-
-        selectedFrameReady = true;
-
-        /*
-         * Não existe foreground.
-         * Por isso, escondemos a imagem sobre a câmera.
-         */
-        if (selectedPhotoFrame) {
-            selectedPhotoFrame.src = frame.full;
-            selectedPhotoFrame.style.display = "none";
-        }
-    } catch (error) {
-        console.error(
-            "Background load error:",
-            error
-        );
-
-        selectedFrame = null;
-        selectedFrameReady = false;
-        selectedBackgroundImage = null;
-
-        button.classList.remove("selected");
-
-        alert("フレームを読み込めませんでした");
-    } finally {
-        button.disabled = false;
-    }
-}
-
-/* =========================
-   MediaPipe
-========================= */
-
-function initializeSelfieSegmentation() {
-    if (typeof SelfieSegmentation === "undefined") {
-        console.error(
-            "MediaPipe SelfieSegmentation not loaded"
-        );
-
-        return;
-    }
-
-    selfieSegmentation =
-        new SelfieSegmentation({
-            locateFile: (file) => {
-                return (
-                    "https://cdn.jsdelivr.net/npm/" +
-                    "@mediapipe/selfie_segmentation/" +
-                    file
-                );
-            }
-        });
-
-    selfieSegmentation.setOptions({
-        // The general model has a denser square input and preserves
-        // face/hair edges better than the landscape model, especially
-        // against bright or low-contrast backgrounds.
-        modelSelection: 0,
-        selfieMode: false
-    });
-
-    selfieSegmentation.onResults(
-        handleSegmentationResults
-    );
-
-    segmentationReady = true;
-}
-
-function handleSegmentationResults(results) {
-    if (segmentationTimeout) {
-        window.clearTimeout(
-            segmentationTimeout
-        );
-
-        segmentationTimeout = null;
-    }
-
-    if (!segmentationResolve) {
-        return;
-    }
-
-    const resolve =
-        segmentationResolve;
-
-    segmentationResolve = null;
-    segmentationReject = null;
-
-    resolve(results);
-}
-
-function segmentCurrentCameraFrame() {
-    return new Promise((resolve, reject) => {
-        if (
-            !selfieSegmentation ||
-            !segmentationReady
-        ) {
-            reject(
-                new Error(
-                    "Segmentation unavailable"
-                )
-            );
-
-            return;
-        }
-
-        segmentationResolve = resolve;
-        segmentationReject = reject;
-
-        segmentationTimeout =
-            window.setTimeout(() => {
-                segmentationResolve = null;
-                segmentationReject = null;
-                segmentationTimeout = null;
-
-                reject(
-                    new Error(
-                        "Segmentation timeout"
-                    )
-                );
-            }, 12000);
-
-        selfieSegmentation
-            .send({
-                image: cameraVideo
-            })
-            .catch((error) => {
-                if (segmentationTimeout) {
-                    window.clearTimeout(
-                        segmentationTimeout
-                    );
-
-                    segmentationTimeout = null;
-                }
-
-                segmentationResolve = null;
-                segmentationReject = null;
-
-                reject(error);
-            });
-    });
-}
-
-function createPersonCutout(results) {
-    if (
-        !personContext ||
-        !personMaskContext ||
-        !results ||
-        !results.segmentationMask
-    ) {
-        throw new Error(
-            "Invalid segmentation result"
-        );
-    }
-
-    personCanvas.width =
-        FRAME_WIDTH;
-
-    personCanvas.height =
-        FRAME_HEIGHT;
-
-    personMaskCanvas.width =
-        FRAME_WIDTH;
-
-    personMaskCanvas.height =
-        FRAME_HEIGHT;
-
-    personMaskContext.clearRect(
-        0,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT
-    );
-
-    personMaskContext.save();
-    personMaskContext.filter =
-        `blur(${PERSON_MASK_FEATHER}px)`;
-
-    const maskOffsets = [
-        [0, 0],
-        [-PERSON_MASK_EXPANSION, 0],
-        [PERSON_MASK_EXPANSION, 0],
-        [0, -PERSON_MASK_EXPANSION],
-        [0, PERSON_MASK_EXPANSION]
-    ];
-
-    maskOffsets.forEach(([offsetX, offsetY]) => {
-        personMaskContext.save();
-        personMaskContext.translate(offsetX, offsetY);
-
-        drawCover(
-            personMaskContext,
-            results.segmentationMask,
-            FRAME_WIDTH,
-            FRAME_HEIGHT,
-            facingMode === "user"
-        );
-
-        personMaskContext.restore();
-    });
-
-    personMaskContext.restore();
-
-    personContext.clearRect(
-        0,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT
-    );
-
-    personContext.save();
-
-    /*
-     * Desenha a máscara da pessoa.
-     */
-    personContext.drawImage(
-        personMaskCanvas,
-        0,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT
-    );
-
-    /*
-     * Mantém a câmera somente dentro da máscara.
-     */
-    personContext.globalCompositeOperation =
-        "source-in";
-
-    drawCover(
-        personContext,
-        results.image || cameraVideo,
-        FRAME_WIDTH,
-        FRAME_HEIGHT,
-        facingMode === "user"
-    );
-
-    /*
-     * Volta ao modo normal.
-     */
-    personContext.globalCompositeOperation =
-        "source-over";
-
-    personContext.restore();
-}
-
-
-function loadImage(source) {
-    return new Promise((resolve, reject) => {
-        const image = new Image();
-
-        image.onload = () => {
-            resolve(image);
-        };
-
-        image.onerror = () => {
-            reject(
-                new Error(
-                    `Could not load: ${source}`
-                )
-            );
-        };
-
-        image.src = source;
-    });
 }
 
 /* =========================
@@ -912,8 +609,10 @@ async function capturePhoto() {
     }
 
     if (
-    !selectedFrameReady ||
-    !selectedBackgroundImage
+        !selectedFrameReady ||
+        !selectedPhotoFrame ||
+        !selectedPhotoFrame.complete ||
+        !selectedPhotoFrame.naturalWidth
     ) {
         openFramePanel();
         return;
@@ -960,22 +659,25 @@ async function capturePhoto() {
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
 
-        ctx.clearRect(
+        ctx.fillStyle = "#000";
+
+        ctx.fillRect(
             0,
             0,
             FRAME_WIDTH,
             FRAME_HEIGHT
         );
 
-        await waitForLivePreviewFrame();
+        drawCover(
+            ctx,
+            cameraVideo,
+            FRAME_WIDTH,
+            FRAME_HEIGHT,
+            facingMode === "user"
+        );
 
-        if (!latestPreviewReady) {
-            throw new Error("Live preview is not ready");
-        }
-
-        // Freeze the exact composited frame currently shown to the user.
         ctx.drawImage(
-            livePreviewCanvas,
+            selectedPhotoFrame,
             0,
             0,
             FRAME_WIDTH,
@@ -1204,198 +906,7 @@ function revokePreviewObjectUrl() {
 
 function cleanup() {
     stopCamera();
-
     revokePreviewObjectUrl();
 
-    if (segmentationTimeout) {
-        clearTimeout(segmentationTimeout);
-        segmentationTimeout = null;
-    }
-
-    segmentationResolve = null;
-    segmentationReject = null;
-
-    if (
-        selfieSegmentation &&
-        typeof selfieSegmentation.close === "function"
-    ) {
-        selfieSegmentation.close();
-    }
-
-    selfieSegmentation = null;
-    segmentationReady = false;
-
     capturedPhotoBlob = null;
-}
-
-async function waitForLivePreviewFrame() {
-    const deadline = performance.now() + 3000;
-
-    while (!latestPreviewReady) {
-        try {
-            await livePreviewFramePromise;
-        } catch (error) {
-            // The render loop will retry transient segmentation failures.
-        }
-
-        if (latestPreviewReady) {
-            return;
-        }
-
-        if (performance.now() >= deadline) {
-            throw new Error("Live preview frame timeout");
-        }
-
-        await wait(16);
-    }
-}
-
-/* =========================
-   Synchronized Live Preview
-========================= */
-
-function startLivePreview() {
-    if (
-        livePreviewRunning ||
-        !livePreviewCanvas ||
-        !livePreviewContext
-    ) {
-        return;
-    }
-
-    livePreviewCanvas.width = FRAME_WIDTH;
-    livePreviewCanvas.height = FRAME_HEIGHT;
-    livePreviewRunning = true;
-    latestPreviewReady = false;
-
-    scheduleLivePreview(0);
-}
-
-function stopLivePreview() {
-    livePreviewRunning = false;
-    latestPreviewReady = false;
-    livePreviewGeneration += 1;
-
-    if (livePreviewTimer !== null) {
-        window.clearTimeout(livePreviewTimer);
-        livePreviewTimer = null;
-    }
-}
-
-function scheduleLivePreview(delay) {
-    if (!livePreviewRunning) {
-        return;
-    }
-
-    livePreviewTimer = window.setTimeout(
-        renderLivePreview,
-        delay
-    );
-}
-
-async function renderLivePreview() {
-    if (!livePreviewRunning) {
-        return;
-    }
-
-    if (livePreviewProcessing) {
-        scheduleLivePreview(LIVE_PREVIEW_INTERVAL);
-        return;
-    }
-
-    const startedAt = performance.now();
-    const generation = livePreviewGeneration;
-
-    if (
-        cameraVideo.readyState <
-            HTMLMediaElement.HAVE_CURRENT_DATA ||
-        !cameraVideo.videoWidth ||
-        !cameraVideo.videoHeight
-    ) {
-        scheduleLivePreview(LIVE_PREVIEW_INTERVAL);
-        return;
-    }
-
-    livePreviewProcessing = true;
-    livePreviewFramePromise =
-        composeLivePreviewFrame(generation);
-
-    try {
-        await livePreviewFramePromise;
-        latestPreviewReady = true;
-    } catch (error) {
-        console.warn("Live preview error:", error);
-    } finally {
-        livePreviewProcessing = false;
-
-        const elapsed = performance.now() - startedAt;
-        const delay = Math.max(
-            0,
-            LIVE_PREVIEW_INTERVAL - elapsed
-        );
-
-        if (generation === livePreviewGeneration) {
-            scheduleLivePreview(delay);
-        }
-    }
-}
-
-async function composeLivePreviewFrame(generation) {
-    let cameraSource = cameraVideo;
-    let segmentationResults = null;
-
-    if (
-        selectedFrameReady &&
-        selectedBackgroundImage
-    ) {
-        segmentationResults =
-            await segmentCurrentCameraFrame();
-
-        if (generation !== livePreviewGeneration) {
-            throw new Error("Stale live preview frame");
-        }
-
-        cameraSource =
-            segmentationResults.image || cameraVideo;
-    }
-
-    livePreviewContext.clearRect(
-        0,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT
-    );
-
-    // 1. Real camera background.
-    drawCover(
-        livePreviewContext,
-        cameraSource,
-        FRAME_WIDTH,
-        FRAME_HEIGHT,
-        facingMode === "user"
-    );
-
-    if (!segmentationResults) {
-        return;
-    }
-
-    // 2. Transparent character frame.
-    drawCover(
-        livePreviewContext,
-        selectedBackgroundImage,
-        FRAME_WIDTH,
-        FRAME_HEIGHT,
-        false
-    );
-
-    // 3. Person cut from the same MediaPipe input frame.
-    createPersonCutout(segmentationResults);
-
-    livePreviewContext.drawImage(
-        personCanvas,
-        0,
-        0,
-        FRAME_WIDTH,
-        FRAME_HEIGHT
-    );
 }
