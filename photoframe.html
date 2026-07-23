@@ -23,6 +23,8 @@
         muted>
     </video>
 
+    <canvas id="livePreviewCanvas"></canvas>
+
     <img
         id="selectedPhotoFrame"
         alt="フォトフレーム">
@@ -140,6 +142,11 @@
 
 </div>
 <a id="homeButton" href="home.html">🏠</a>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js">
+</script>
+
 <script src="js/photoframe.js"></script>
 
 </body>
