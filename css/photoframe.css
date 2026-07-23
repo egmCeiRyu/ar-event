@@ -92,10 +92,14 @@ body {
 #cameraVideo,
 #selectedPhotoFrame {
     position: absolute;
-    inset: 0;
 
-    width: 100%;
-    height: 100%;
+    top: 50%;
+    left: 50%;
+
+    width: min(100vw, calc(100dvh * 16 / 9));
+    height: min(100dvh, calc(100vw * 9 / 16));
+
+    transform: translate(-50%, -50%);
 
     object-fit: cover;
 }
