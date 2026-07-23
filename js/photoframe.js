@@ -519,8 +519,8 @@ async function selectFrame(frame, button) {
          * Por isso, escondemos a imagem sobre a câmera.
          */
         if (selectedPhotoFrame) {
-            selectedPhotoFrame.removeAttribute("src");
-            selectedPhotoFrame.style.display = "none";
+            selectedPhotoFrame.src = frame.full;
+            selectedPhotoFrame.style.display = "block";
         }
     } catch (error) {
         console.error(
@@ -894,8 +894,19 @@ async function capturePhoto() {
             segmentationResults
         );
 
+                /*
+        * 1. Imagem completa da câmera.
+        */
+        drawCover(
+            ctx,
+            cameraVideo,
+            FRAME_WIDTH,
+            FRAME_HEIGHT,
+            facingMode === "user"
+        );
+
         /*
-        * 1. Background.
+        * 2. Frame transparente por cima.
         */
         drawCover(
             ctx,
@@ -903,17 +914,6 @@ async function capturePhoto() {
             FRAME_WIDTH,
             FRAME_HEIGHT,
             false
-        );
-
-        /*
-        * 2. Pessoa recortada.
-        */
-        ctx.drawImage(
-            personCanvas,
-            0,
-            0,
-            FRAME_WIDTH,
-            FRAME_HEIGHT
         );
 
         const blob = await canvasToBlob(
