@@ -92,20 +92,15 @@ body {
 #cameraVideo,
 #selectedPhotoFrame {
     position: absolute;
-    left: 50%;
-    top: 50%;
+    inset: 0;
 
-    width: min(100vw, 100%);
-    height: auto;
+    width: 100%;
+    height: 100%;
 
-    aspect-ratio: 16 / 9;
-
-    transform: translate(-50%, -50%);
     object-fit: cover;
 }
 
 #cameraVideo {
-    transform: translate(-50%, -50%);
     z-index: 1;
     background: #000;
 }
@@ -114,7 +109,6 @@ body {
     z-index: 2;
     pointer-events: none;
     display: none;
-    transform: translate(-50%, -50%);
 }
 
 #captureCanvas {
@@ -581,24 +575,7 @@ body {
     transform: scale(.96);
 }
 
-/* =========================
-   PC Preview
-========================= */
 
-@media (min-width: 768px) {
-    #cameraVideo,
-    #selectedPhotoFrame,
-    #previewImage,
-    .frame-panel {
-        width: min(95vw, calc(100dvh * 16 / 9));
-    }
-
-    #cameraVideo,
-    #selectedPhotoFrame,
-    #previewImage {
-        height: min(95dvh, calc(95vw * 9 / 16));
-    }
-}
 
 /* =========================
    Photo / Frame Button Layout
