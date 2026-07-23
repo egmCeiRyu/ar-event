@@ -16,6 +16,27 @@ const previewImage = document.getElementById("previewImage");
 const retakeBtn = document.getElementById("retakeBtn");
 const saveBtn = document.getElementById("saveBtn");
 
+let previewObjectUrl = null;
+let capturedPhotoBlob = null;
+
+let selfieSegmentation = null;
+let segmentationReady = false;
+
+let segmentationResolve = null;
+let segmentationReject = null;
+let segmentationTimeout = null;
+
+let selectedBackgroundImage = null;
+
+const personCanvas = document.createElement("canvas");
+
+const personContext = personCanvas.getContext(
+    "2d",
+    {
+        alpha: true
+    }
+);
+
 let currentStream = null;
 let cameraStarting = false;
 let cameraSwitching = false;
@@ -58,6 +79,8 @@ initialize();
 async function initialize() {
     createFrameCarousel();
     bindEvents();
+
+    initializeSelfieSegmentation();
 
     await startCamera();
 }
@@ -473,31 +496,10 @@ function closeFramePanel() {
     framePanel.classList.add("hidden");
 }
 
-function selectFrame(frame, button) {
-    if (!selectedPhotoFrame) {
-        return;
-    }
-
+async function selectFrame(frame, button) {
     selectedFrame = frame.full;
     selectedFrameReady = false;
-
-    selectedPhotoFrame.style.display = "block";
-
-    selectedPhotoFrame.onload = () => {
-        selectedFrameReady = true;
-    };
-
-    selectedPhotoFrame.onerror = () => {
-        selectedFrame = null;
-        selectedFrameReady = false;
-
-        selectedPhotoFrame.removeAttribute("src");
-        selectedPhotoFrame.style.display = "none";
-
-        alert("フレームを読み込めませんでした");
-    };
-
-    selectedPhotoFrame.src = frame.full;
+    selectedBackgroundImage = null;
 
     document
         .querySelectorAll(".frame-btn")
@@ -506,6 +508,222 @@ function selectFrame(frame, button) {
         });
 
     button.classList.add("selected");
+    button.disabled = true;
+
+    try {
+        selectedBackgroundImage =
+            await loadImage(frame.full);
+
+        selectedFrameReady = true;
+
+        /*
+         * Não existe foreground.
+         * Por isso, escondemos a imagem sobre a câmera.
+         */
+        if (selectedPhotoFrame) {
+            selectedPhotoFrame.removeAttribute("src");
+            selectedPhotoFrame.style.display = "none";
+        }
+    } catch (error) {
+        console.error(
+            "Background load error:",
+            error
+        );
+
+        selectedFrame = null;
+        selectedFrameReady = false;
+        selectedBackgroundImage = null;
+
+        button.classList.remove("selected");
+
+        alert("フレームを読み込めませんでした");
+    } finally {
+        button.disabled = false;
+    }
+}
+
+/* =========================
+   MediaPipe
+========================= */
+
+function initializeSelfieSegmentation() {
+    if (typeof SelfieSegmentation === "undefined") {
+        console.error(
+            "MediaPipe SelfieSegmentation not loaded"
+        );
+
+        return;
+    }
+
+    selfieSegmentation =
+        new SelfieSegmentation({
+            locateFile: (file) => {
+                return (
+                    "https://cdn.jsdelivr.net/npm/" +
+                    "@mediapipe/selfie_segmentation/" +
+                    file
+                );
+            }
+        });
+
+    selfieSegmentation.setOptions({
+        modelSelection: 1,
+        selfieMode: false
+    });
+
+    selfieSegmentation.onResults(
+        handleSegmentationResults
+    );
+
+    segmentationReady = true;
+}
+
+function handleSegmentationResults(results) {
+    if (segmentationTimeout) {
+        window.clearTimeout(
+            segmentationTimeout
+        );
+
+        segmentationTimeout = null;
+    }
+
+    if (!segmentationResolve) {
+        return;
+    }
+
+    const resolve =
+        segmentationResolve;
+
+    segmentationResolve = null;
+    segmentationReject = null;
+
+    resolve(results);
+}
+
+function segmentCurrentCameraFrame() {
+    return new Promise((resolve, reject) => {
+        if (
+            !selfieSegmentation ||
+            !segmentationReady
+        ) {
+            reject(
+                new Error(
+                    "Segmentation unavailable"
+                )
+            );
+
+            return;
+        }
+
+        segmentationResolve = resolve;
+        segmentationReject = reject;
+
+        segmentationTimeout =
+            window.setTimeout(() => {
+                segmentationResolve = null;
+                segmentationReject = null;
+                segmentationTimeout = null;
+
+                reject(
+                    new Error(
+                        "Segmentation timeout"
+                    )
+                );
+            }, 12000);
+
+        selfieSegmentation
+            .send({
+                image: cameraVideo
+            })
+            .catch((error) => {
+                if (segmentationTimeout) {
+                    window.clearTimeout(
+                        segmentationTimeout
+                    );
+
+                    segmentationTimeout = null;
+                }
+
+                segmentationResolve = null;
+                segmentationReject = null;
+
+                reject(error);
+            });
+    });
+}
+
+function createPersonCutout(results) {
+    if (
+        !personContext ||
+        !results ||
+        !results.segmentationMask
+    ) {
+        throw new Error(
+            "Invalid segmentation result"
+        );
+    }
+
+    personCanvas.width =
+        FRAME_WIDTH;
+
+    personCanvas.height =
+        FRAME_HEIGHT;
+
+    personContext.clearRect(
+        0,
+        0,
+        FRAME_WIDTH,
+        FRAME_HEIGHT
+    );
+
+    personContext.save();
+
+    /*
+     * Máscara da pessoa.
+     */
+    drawCover(
+        personContext,
+        results.segmentationMask,
+        FRAME_WIDTH,
+        FRAME_HEIGHT,
+        facingMode === "user"
+    );
+
+    /*
+     * Mantém a câmera somente dentro da máscara.
+     */
+    personContext.globalCompositeOperation =
+        "source-in";
+
+    drawCover(
+        personContext,
+        results.image || cameraVideo,
+        FRAME_WIDTH,
+        FRAME_HEIGHT,
+        facingMode === "user"
+    );
+
+    personContext.restore();
+}
+
+function loadImage(source) {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+
+        image.onload = () => {
+            resolve(image);
+        };
+
+        image.onerror = () => {
+            reject(
+                new Error(
+                    `Could not load: ${source}`
+                )
+            );
+        };
+
+        image.src = source;
+    });
 }
 
 /* =========================
@@ -609,10 +827,8 @@ async function capturePhoto() {
     }
 
     if (
-        !selectedFrameReady ||
-        !selectedPhotoFrame ||
-        !selectedPhotoFrame.complete ||
-        !selectedPhotoFrame.naturalWidth
+    !selectedFrameReady ||
+    !selectedBackgroundImage
     ) {
         openFramePanel();
         return;
@@ -659,25 +875,29 @@ async function capturePhoto() {
         ctx.imageSmoothingEnabled = true;
         ctx.imageSmoothingQuality = "high";
 
-        ctx.fillStyle = "#000";
+        const segmentationResults =
+        await segmentCurrentCameraFrame();
 
-        ctx.fillRect(
-            0,
-            0,
-            FRAME_WIDTH,
-            FRAME_HEIGHT
+        createPersonCutout(
+            segmentationResults
         );
 
+        /*
+        * 1. Background.
+        */
         drawCover(
             ctx,
-            cameraVideo,
+            selectedBackgroundImage,
             FRAME_WIDTH,
             FRAME_HEIGHT,
-            facingMode === "user"
+            false
         );
 
+        /*
+        * 2. Pessoa recortada.
+        */
         ctx.drawImage(
-            selectedPhotoFrame,
+            personCanvas,
             0,
             0,
             FRAME_WIDTH,
