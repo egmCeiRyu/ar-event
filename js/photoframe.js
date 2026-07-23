@@ -17,6 +17,7 @@ let livePreviewProcessing = false;
 let livePreviewTimer = null;
 let livePreviewFramePromise = Promise.resolve();
 let latestPreviewReady = false;
+let livePreviewGeneration = 0;
 
 const homeButton = document.getElementById("homeButton");
 const captureBtn = document.getElementById("captureBtn");
@@ -1217,6 +1218,7 @@ function startLivePreview() {
 function stopLivePreview() {
     livePreviewRunning = false;
     latestPreviewReady = false;
+    livePreviewGeneration += 1;
 
     if (livePreviewTimer !== null) {
         window.clearTimeout(livePreviewTimer);
@@ -1246,6 +1248,7 @@ async function renderLivePreview() {
     }
 
     const startedAt = performance.now();
+    const generation = livePreviewGeneration;
 
     if (
         cameraVideo.readyState <
@@ -1258,7 +1261,8 @@ async function renderLivePreview() {
     }
 
     livePreviewProcessing = true;
-    livePreviewFramePromise = composeLivePreviewFrame();
+    livePreviewFramePromise =
+        composeLivePreviewFrame(generation);
 
     try {
         await livePreviewFramePromise;
@@ -1274,11 +1278,13 @@ async function renderLivePreview() {
             LIVE_PREVIEW_INTERVAL - elapsed
         );
 
-        scheduleLivePreview(delay);
+        if (generation === livePreviewGeneration) {
+            scheduleLivePreview(delay);
+        }
     }
 }
 
-async function composeLivePreviewFrame() {
+async function composeLivePreviewFrame(generation) {
     let cameraSource = cameraVideo;
     let segmentationResults = null;
 
@@ -1288,6 +1294,10 @@ async function composeLivePreviewFrame() {
     ) {
         segmentationResults =
             await segmentCurrentCameraFrame();
+
+        if (generation !== livePreviewGeneration) {
+            throw new Error("Stale live preview frame");
+        }
 
         cameraSource =
             segmentationResults.image || cameraVideo;
