@@ -54,6 +54,14 @@ const personContext = personCanvas.getContext(
     }
 );
 
+const personMaskCanvas = document.createElement("canvas");
+const personMaskContext = personMaskCanvas.getContext(
+    "2d",
+    {
+        alpha: true
+    }
+);
+
 let currentStream = null;
 let cameraStarting = false;
 let cameraSwitching = false;
@@ -70,6 +78,8 @@ const FRAME_WIDTH = 1920;
 const FRAME_HEIGHT = 1080;
 const LIVE_PREVIEW_FPS = 12;
 const LIVE_PREVIEW_INTERVAL = 1000 / LIVE_PREVIEW_FPS;
+const PERSON_MASK_EXPANSION = 5;
+const PERSON_MASK_FEATHER = 2;
 
 const TOTAL_FRAMES = 3;
 const ASSET_VERSION = "20260629_03";
@@ -677,6 +687,7 @@ function segmentCurrentCameraFrame() {
 function createPersonCutout(results) {
     if (
         !personContext ||
+        !personMaskContext ||
         !results ||
         !results.segmentationMask
     ) {
@@ -691,6 +702,48 @@ function createPersonCutout(results) {
     personCanvas.height =
         FRAME_HEIGHT;
 
+    personMaskCanvas.width =
+        FRAME_WIDTH;
+
+    personMaskCanvas.height =
+        FRAME_HEIGHT;
+
+    personMaskContext.clearRect(
+        0,
+        0,
+        FRAME_WIDTH,
+        FRAME_HEIGHT
+    );
+
+    personMaskContext.save();
+    personMaskContext.filter =
+        `blur(${PERSON_MASK_FEATHER}px)`;
+
+    const maskOffsets = [
+        [0, 0],
+        [-PERSON_MASK_EXPANSION, 0],
+        [PERSON_MASK_EXPANSION, 0],
+        [0, -PERSON_MASK_EXPANSION],
+        [0, PERSON_MASK_EXPANSION]
+    ];
+
+    maskOffsets.forEach(([offsetX, offsetY]) => {
+        personMaskContext.save();
+        personMaskContext.translate(offsetX, offsetY);
+
+        drawCover(
+            personMaskContext,
+            results.segmentationMask,
+            FRAME_WIDTH,
+            FRAME_HEIGHT,
+            facingMode === "user"
+        );
+
+        personMaskContext.restore();
+    });
+
+    personMaskContext.restore();
+
     personContext.clearRect(
         0,
         0,
@@ -703,12 +756,12 @@ function createPersonCutout(results) {
     /*
      * Desenha a máscara da pessoa.
      */
-    drawCover(
-        personContext,
-        results.segmentationMask,
+    personContext.drawImage(
+        personMaskCanvas,
+        0,
+        0,
         FRAME_WIDTH,
-        FRAME_HEIGHT,
-        facingMode === "user"
+        FRAME_HEIGHT
     );
 
     /*
