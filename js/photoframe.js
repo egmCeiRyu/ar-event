@@ -1161,3 +1161,108 @@ function cleanup() {
 
     capturedPhotoBlob = null;
 }
+
+const livePreviewCanvas =
+    document.getElementById("livePreviewCanvas");
+
+const livePreviewContext =
+    livePreviewCanvas.getContext("2d", {
+        alpha: false
+    });
+
+let livePreviewRunning = false;
+let livePreviewProcessing = false;
+
+async function startLivePreview() {
+    if (
+        livePreviewRunning ||
+        !livePreviewCanvas ||
+        !livePreviewContext
+    ) {
+        return;
+    }
+
+    livePreviewRunning = true;
+
+    async function render() {
+        if (!livePreviewRunning) {
+            return;
+        }
+
+        if (
+            cameraVideo.readyState >=
+                HTMLMediaElement.HAVE_CURRENT_DATA &&
+            cameraVideo.videoWidth > 0 &&
+            cameraVideo.videoHeight > 0 &&
+            !livePreviewProcessing
+        ) {
+            livePreviewProcessing = true;
+
+            try {
+                livePreviewCanvas.width = FRAME_WIDTH;
+                livePreviewCanvas.height = FRAME_HEIGHT;
+
+                livePreviewContext.clearRect(
+                    0,
+                    0,
+                    FRAME_WIDTH,
+                    FRAME_HEIGHT
+                );
+
+                /*
+                 * 1. Mundo real.
+                 */
+                drawCover(
+                    livePreviewContext,
+                    cameraVideo,
+                    FRAME_WIDTH,
+                    FRAME_HEIGHT,
+                    facingMode === "user"
+                );
+
+                /*
+                 * 2. Personagens.
+                 */
+                if (
+                    selectedFrameReady &&
+                    selectedBackgroundImage
+                ) {
+                    drawCover(
+                        livePreviewContext,
+                        selectedBackgroundImage,
+                        FRAME_WIDTH,
+                        FRAME_HEIGHT,
+                        false
+                    );
+
+                    /*
+                     * 3. Pessoa recortada na frente.
+                     */
+                    const results =
+                        await segmentCurrentCameraFrame();
+
+                    createPersonCutout(results);
+
+                    livePreviewContext.drawImage(
+                        personCanvas,
+                        0,
+                        0,
+                        FRAME_WIDTH,
+                        FRAME_HEIGHT
+                    );
+                }
+            } catch (error) {
+                console.warn(
+                    "Live preview error:",
+                    error
+                );
+            } finally {
+                livePreviewProcessing = false;
+            }
+        }
+
+        window.requestAnimationFrame(render);
+    }
+
+    window.requestAnimationFrame(render);
+}
