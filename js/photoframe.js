@@ -81,8 +81,8 @@ const LIVE_PREVIEW_INTERVAL = 1000 / LIVE_PREVIEW_FPS;
 const PERSON_MASK_EXPANSION = 5;
 const PERSON_MASK_FEATHER = 2;
 
-const TOTAL_FRAMES = 3;
-const ASSET_VERSION = "20260629_03";
+const TOTAL_FRAMES = 5;
+const ASSET_VERSION = "20260801_01";
 
 const frames = Array.from(
     { length: TOTAL_FRAMES },
